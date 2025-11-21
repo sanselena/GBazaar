@@ -1,0 +1,398 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\paymentstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\paymentstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\postatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\postatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\prstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\prstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\budget.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\budget.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\subcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\subcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\supplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\supplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\paymentterm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\paymentterm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:07:51.123Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-21T12:40:19.957Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PaymentStatus.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PaymentStatus.cs",
+              "RelativeDocumentMoniker": "Models\\PaymentStatus.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PaymentStatus.cs",
+              "RelativeToolTip": "Models\\PaymentStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:36:07.439Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProcurementContext.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
+              "RelativeDocumentMoniker": "Data\\ProcurementContext.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
+              "RelativeToolTip": "Data\\ProcurementContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:08:22.523Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "POStatus.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POStatus.cs",
+              "RelativeDocumentMoniker": "Models\\POStatus.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POStatus.cs",
+              "RelativeToolTip": "Models\\POStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:35:19.459Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PRStatus.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRStatus.cs",
+              "RelativeDocumentMoniker": "Models\\PRStatus.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRStatus.cs",
+              "RelativeToolTip": "Models\\PRStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:34:51.438Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Attachment.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Attachment.cs",
+              "RelativeDocumentMoniker": "Models\\Attachment.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Attachment.cs",
+              "RelativeToolTip": "Models\\Attachment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:34:19.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SupplierRating.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SupplierRating.cs",
+              "RelativeDocumentMoniker": "Models\\SupplierRating.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SupplierRating.cs",
+              "RelativeToolTip": "Models\\SupplierRating.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:33:41.05Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Invoice.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Invoice.cs",
+              "RelativeDocumentMoniker": "Models\\Invoice.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Invoice.cs",
+              "RelativeToolTip": "Models\\Invoice.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:33:11.588Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ApprovalHistory.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalHistory.cs",
+              "RelativeDocumentMoniker": "Models\\ApprovalHistory.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalHistory.cs",
+              "RelativeToolTip": "Models\\ApprovalHistory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:29:20.851Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ApprovalRule.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalRule.cs",
+              "RelativeDocumentMoniker": "Models\\ApprovalRule.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalRule.cs",
+              "RelativeToolTip": "Models\\ApprovalRule.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:28:46.801Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Budget.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Budget.cs",
+              "RelativeDocumentMoniker": "Models\\Budget.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Budget.cs",
+              "RelativeToolTip": "Models\\Budget.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:27:57.594Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PurchaseOrder.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
+              "RelativeDocumentMoniker": "Models\\PurchaseOrder.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
+              "RelativeToolTip": "Models\\PurchaseOrder.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAACEAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:27:16.349Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "PRItem.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
+              "RelativeDocumentMoniker": "Models\\PRItem.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
+              "RelativeToolTip": "Models\\PRItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:26:38.516Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "PurchaseRequest.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
+              "RelativeDocumentMoniker": "Models\\PurchaseRequest.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
+              "RelativeToolTip": "Models\\PurchaseRequest.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAACIAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:26:03.988Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "SubCategory.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SubCategory.cs",
+              "RelativeDocumentMoniker": "Models\\SubCategory.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SubCategory.cs",
+              "RelativeToolTip": "Models\\SubCategory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:25:26.026Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Category.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Category.cs",
+              "RelativeDocumentMoniker": "Models\\Category.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Category.cs",
+              "RelativeToolTip": "Models\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:24:34.636Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Supplier.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Supplier.cs",
+              "RelativeDocumentMoniker": "Models\\Supplier.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Supplier.cs",
+              "RelativeToolTip": "Models\\Supplier.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:23:49.476Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "PaymentTerm.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PaymentTerm.cs",
+              "RelativeDocumentMoniker": "Models\\PaymentTerm.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PaymentTerm.cs",
+              "RelativeToolTip": "Models\\PaymentTerm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:21:46.904Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Department.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Department.cs",
+              "RelativeDocumentMoniker": "Models\\Department.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Department.cs",
+              "RelativeToolTip": "Models\\Department.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:17:32.002Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Role.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Role.cs",
+              "RelativeDocumentMoniker": "Models\\Role.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Role.cs",
+              "RelativeToolTip": "Models\\Role.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:16:42.206Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\User.cs",
+              "RelativeDocumentMoniker": "Models\\User.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\User.cs",
+              "RelativeToolTip": "Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T12:15:21.486Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

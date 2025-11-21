@@ -1,0 +1,8 @@
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.csproj.AssemblyReference.cache
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.AssemblyInfoInputs.cache
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.AssemblyInfo.cs
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.csproj.CoreCompileInputs.cache
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.RazorAssemblyInfo.cache
+C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.RazorAssemblyInfo.cs
