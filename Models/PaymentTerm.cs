@@ -13,5 +13,7 @@ namespace GBazaar.Models
 
         [Required]
         public int DaysDue { get; set; }
+
+        public virtual ICollection<Supplier> Suppliers { get; set; } = new List<Supplier>();
     }
 }

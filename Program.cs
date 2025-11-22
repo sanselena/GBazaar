@@ -1,9 +1,15 @@
+ // Ensures ProcurementContext is found
+using GBazaar.Models;
+using Gbazaar.Data;// Ensure Models are accessible if needed globally (Good practice)
 using Microsoft.EntityFrameworkCore;
-using GBazaar.Data; // This line ensures ProcurementContext is found
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ==========================================================
+// 1. SERVICES CONFIGURATION (builder.Services.Add...)
+// ==========================================================
+
+// Add MVC services
 builder.Services.AddControllersWithViews();
 
 // --- DATABASE SETUP START ---
@@ -12,21 +18,27 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Register your DbContext
 builder.Services.AddDbContext<ProcurementContext>(options =>
-    options.UseSqlServer(connectionString));
-// --- DATABASE SETUP END ---
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
+// ==========================================================
+// 2. APPLICATION PIPELINE (app.Use...)
+// ==========================================================
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
-// ... rest of the code is fine
 {
+    // Production/Staging only handlers:
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+// Note: The rest of the pipeline must be OUTSIDE the 'if' block.
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Essential for serving CSS, JS, etc.
+
 app.UseRouting();
 
 app.UseAuthorization();
@@ -38,5 +50,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
-app.Run();
+app.Run(); // Starts the application

@@ -7,10 +7,7 @@ namespace GBazaar.Models
     {
         [Key]
         public int BudgetID { get; set; }
-
-        // FK (Note: SQL has a UNIQUE constraint on DepartmentID, this will be defined in DbContext)
         public int DepartmentID { get; set; }
-
         [Required]
         public int FiscalYear { get; set; }
 
@@ -19,10 +16,8 @@ namespace GBazaar.Models
         public decimal TotalBudget { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal? AmountCommited { get; set; } // Matches your SQL allowing NULL
+        public decimal? AmountCommited { get; set; } 
 
-        // Navigation Property
-        [ForeignKey("DepartmentID")]
-        public virtual Department? Department { get; set; }
+        public virtual Department Department { get; set; }
     }
 }

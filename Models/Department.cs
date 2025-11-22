@@ -9,10 +9,13 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(100)]
-        public string DepartmentName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string BudgetCode { get; set; } = string.Empty;
+        public string BudgetCode { get; set; }
+        public Budget? Budget { get; set; }
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
+
     }
 }

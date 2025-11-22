@@ -7,9 +7,9 @@ namespace GBazaar.Models
     {
         [Key]
         public int HistoryID { get; set; }
-
-        // FKs
+        [Required]
         public int PRID { get; set; }
+        [Required]
         public int ApproverID { get; set; }
 
         [Required]
@@ -22,14 +22,9 @@ namespace GBazaar.Models
         [Required]
         public int ApprovalLevel { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
         public string? Notes { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("PRID")]
-        public virtual PurchaseRequest? PurchaseRequest { get; set; }
-
-        [ForeignKey("ApproverID")]
-        public virtual User? Approver { get; set; }
+        public virtual PurchaseRequest PurchaseRequest { get; set; }
+        public virtual User Approver { get; set; }
     }
 }

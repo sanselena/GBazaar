@@ -9,6 +9,8 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(50)]
-        public string StatusType { get; set; } = string.Empty;
+        public string StatusType { get; set; } 
+
+        public virtual ICollection<PurchaseOrder> PurchaseOrders { get; set;  } = new List<PurchaseOrder>();
     }
 }

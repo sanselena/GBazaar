@@ -10,5 +10,7 @@ namespace GBazaar.Models
         [Required]
         [StringLength(50)]
         public string StatusType { get; set; } = string.Empty;
+
+        public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
 }

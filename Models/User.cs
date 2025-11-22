@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
+
 namespace GBazaar.Models
 {
     public class User
@@ -10,27 +10,30 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(50)]
-        public string UserName { get; set; } = string.Empty;
+        public string UserName { get; set; }
 
         [Required]
         [StringLength(250)]
-        public string PAsswordHash { get; set; } = string.Empty; // Note: Matched your SQL spelling
+        public string PasswordHash { get; set; } 
 
         [Required]
         [StringLength(200)]
-        public string FullName { get; set; } = string.Empty;
-
-        // Foreign Keys (FKs)
-        public int RoleID { get; set; }
-        public int? DepartmentID { get; set; } // Matches your SQL allowing NULL
-
+        public string FullName { get; set; }
         public bool IsActive { get; set; } = true;
 
-        // Navigation Properties
-        [ForeignKey("RoleID")]
+        public int RoleID { get; set; }
+        public int? DepartmentID { get; set; }
+
         public virtual Role? Role { get; set; }
 
-        [ForeignKey("DepartmentID")]
         public virtual Department? Department { get; set; }
+        public virtual ICollection<PurchaseRequest> PurchaseRequests { get; set; } = new List<PurchaseRequest>();
+        public virtual ICollection<ApprovalHistory> ApprovalHistories { get; set; } = new List<ApprovalHistory>();
+        public virtual ICollection<GoodsReceipt> GoodsReceipts { get; set; } = new List<GoodsReceipt>();
+        public virtual ICollection<SupplierRating> SupplierRatings { get; set; } = new List<SupplierRating>();
+        public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+
+
     }
 }

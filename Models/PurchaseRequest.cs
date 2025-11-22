@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.NetworkInformation;
 
 namespace GBazaar.Models
 {
@@ -8,8 +7,7 @@ namespace GBazaar.Models
     {
         [Key]
         public int PRID { get; set; }
-
-        // FK
+        [Required] 
         public int RequesterID { get; set; }
 
         [Required]
@@ -18,20 +16,20 @@ namespace GBazaar.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal EstimatedTotal { get; set; }
-
-        // FK
+        [Required] 
         public int PRStatusID { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
         public string? Justification { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("RequesterID")]
-        public virtual User? Requester { get; set; }
+        [Required] 
+        public virtual User Requester { get; set; }
 
-        [ForeignKey("PRStatusID")]
-        public virtual PRStatus? PRStatus { get; set; }
+        [Required]
+        public virtual PRStatus PRStatus { get; set; }
 
-        public ICollection<PRItem>? PRItems { get; set; }
+        public virtual PurchaseOrder PurchaseOrder { get; set; }
+        public virtual ICollection<PRItem> PRItems { get; set; } = new List<PRItem>();
+        public virtual ICollection<ApprovalHistory> ApprovalHistories { get; set; } = new List<ApprovalHistory>();
     }
 }

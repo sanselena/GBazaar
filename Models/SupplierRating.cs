@@ -7,21 +7,19 @@ namespace GBazaar.Models
     {
         [Key]
         public int RatingID { get; set; }
-
-        // FKs
+        [Required]
         public int POID { get; set; }
+        [Required]
         public int RatedByUserID { get; set; }
 
         [Required]
-        public int RatingScore { get; set; } // Assuming 1-5 score
+        public int RatingScore { get; set; } 
 
         [Column(TypeName = "nvarchar(max)")]
         public string? FeedBack { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("POID")]
-        public virtual PurchaseOrder? PurchaseOrder { get; set; }
+        public virtual PurchaseOrder PurchaseOrder { get; set; }
+        public virtual User Rater { get; set; }
 
-        [ForeignKey("RatedByUserID")]
     }
 }

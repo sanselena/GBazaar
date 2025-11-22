@@ -7,23 +7,18 @@ namespace GBazaar.Models
     {
         [Key]
         public int AttachmentID { get; set; }
-
-        // Polymorphic Association fields (No FK in SQL, handled by logic)
+        [Required]
         public int EntityID { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string EntityType { get; set; } = string.Empty;
+        public string EntityType { get; set; }
 
         [Required]
         [StringLength(250)]
         public string FileName { get; set; } = string.Empty;
-
-        // FK
         public int UploadedByUserID { get; set; }
-
-        // Navigation Property
-        [ForeignKey("UploadedByUserID")]
-        public virtual User? Uploader { get; set; }
+        [Required]
+        public virtual User Uploader { get; set; }
     }
 }
