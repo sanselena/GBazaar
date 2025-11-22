@@ -7,11 +7,11 @@ namespace GBazaar.Models
     {
         [Key]
         public int InvoiceID { get; set; }
-
-        // FKs
+        [Required]
         public int POID { get; set; }
+        [Required]
         public int SupplierID { get; set; }
-        public int? PaymentStatusID { get; set; } // Allows NULL from SQL (no NOT NULL constraint)
+        public int? PaymentStatusID { get; set; } 
 
         [Required]
         [StringLength(50)]
@@ -22,15 +22,8 @@ namespace GBazaar.Models
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? AmountDue { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("POID")]
-        public virtual PurchaseOrder? PurchaseOrder { get; set; }
-
-        [ForeignKey("SupplierID")]
-        public virtual Supplier? Supplier { get; set; }
-
-        [ForeignKey("PaymentStatusID")]
+        public virtual PurchaseOrder PurchaseOrder { get; set; }
+        public virtual Supplier Supplier { get; set; }
         public virtual PaymentStatus? PaymentStatus { get; set; }
     }
 }

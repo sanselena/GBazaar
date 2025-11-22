@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.NetworkInformation;
 
 namespace GBazaar.Models
 {
@@ -8,29 +7,27 @@ namespace GBazaar.Models
     {
         [Key]
         public int POID { get; set; }
-
-        // FK (and UNIQUE constraint from SQL)
+        [Required]
         public int PRID { get; set; }
 
-        // FK
+        [Required]
         public int SupplierID { get; set; }
 
         [Required]
         public DateTime DateIssued { get; set; }
 
-        public DateOnly? RequiredDeliveryDate { get; set; } // Using DateOnly for 'date' type
+        public DateOnly? RequiredDeliveryDate { get; set; } 
 
-        // FK
+        [Required]
         public int POStatusID { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("PRID")]
-        public virtual PurchaseRequest? PurchaseRequest { get; set; }
-
-        [ForeignKey("SupplierID")]
-        public virtual Supplier? Supplier { get; set; }
-
-        [ForeignKey("POStatusID")]
-        public virtual POStatus? POStatus { get; set; }
+        [Required] 
+        public virtual PurchaseRequest PurchaseRequest { get; set; }
+        [Required] 
+        public virtual Supplier Supplier { get; set; }
+        [Required] 
+        public virtual POStatus POStatus { get; set; }
+        public virtual ICollection<GoodsReceipt> GoodsReceipts { get; set; } = new List<GoodsReceipt>();
+        public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public virtual ICollection<SupplierRating> SupplierRatings { get; set; } = new List<SupplierRating>();
     }
 }

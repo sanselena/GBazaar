@@ -13,16 +13,12 @@ namespace GBazaar.Models
         public decimal MinAmount { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal? MaxAmount { get; set; } // Allows NULL
-
-        // FK
+        public decimal? MaxAmount { get; set; } 
         public int RequiredRoleID { get; set; }
 
         [Required]
         public int ApprovalLevel { get; set; }
-
-        // Navigation Property
-        [ForeignKey("RequiredRoleID")]
-        public virtual Role? RequiredRole { get; set; }
+        [Required]
+        public virtual Role RequiredRole { get; set; }
     }
 }

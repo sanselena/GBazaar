@@ -10,7 +10,7 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(200)]
-        public string SupplierName { get; set; } = string.Empty;
+        public string SupplierName { get; set; }
 
         [StringLength(100)]
         public string? ContactName { get; set; }
@@ -18,11 +18,11 @@ namespace GBazaar.Models
         [StringLength(20)]
         public string? TaxID { get; set; }
 
-        // FK
         public int PaymentTermsID { get; set; }
 
-        // Navigation Property
-        [ForeignKey("PaymentTermsID")]
-        public virtual PaymentTerm? PaymentTerms { get; set; }
+        public virtual PaymentTerm PaymentTerm { get; set; }
+
+        public virtual ICollection<PurchaseOrder> PurchaseOrders { get; set; } = new List<PurchaseOrder>();
+        public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
 }

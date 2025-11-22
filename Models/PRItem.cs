@@ -7,13 +7,12 @@ namespace GBazaar.Models
     {
         [Key]
         public int PRItemID { get; set; }
-
-        // FK
+        [Required]
         public int PRID { get; set; }
 
         [Required]
         [StringLength(250)]
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
@@ -21,15 +20,10 @@ namespace GBazaar.Models
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? UnitPrice { get; set; }
-
-        // FK
         public int SubCategoryID { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("PRID")]
-        public virtual PurchaseRequest? PurchaseRequest { get; set; }
-
-        [ForeignKey("SubCategoryID")]
-        public virtual SubCategory? SubCategory { get; set; }
+        [Required]
+        public virtual PurchaseRequest PurchaseRequest { get; set; }
+        [Required]
+        public virtual SubCategory SubCategory { get; set; }
     }
 }

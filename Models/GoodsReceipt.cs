@@ -7,9 +7,9 @@ namespace GBazaar.Models
     {
         [Key]
         public int ReceiptID { get; set; }
-
-        // FKs
+        [Required]
         public int POID { get; set; }
+        [Required]
         public int ReceivedByUserID { get; set; }
 
         [Required]
@@ -18,12 +18,11 @@ namespace GBazaar.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal QuantityReceived { get; set; }
+        
+        [Required]
+        public virtual PurchaseOrder PurchaseOrder { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("POID")]
-        public virtual PurchaseOrder? PurchaseOrder { get; set; }
-
-        [ForeignKey("ReceivedByUserID")]
-        public virtual User? Receiver { get; set; }
+        [Required] 
+        public virtual User Receiver { get; set; }
     }
 }

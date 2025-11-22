@@ -9,6 +9,9 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(50)]
-        public string RoleName { get; set; } = string.Empty;
+        public string RoleName { get; set; } 
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<ApprovalRule> ApprovalRules { get; set; } = new List<ApprovalRule>();
+
     }
 }
