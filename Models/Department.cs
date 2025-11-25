@@ -13,9 +13,16 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(50)]
+        public int BudgetID { get; set; }
+
+        [ Required]
+        [StringLength(50)]
         public string BudgetCode { get; set; }
+        public int? ManagerID { get; set; }
+        public virtual User? Manager { get; set; }
         public Budget? Budget { get; set; }
         public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
 
     }
 }

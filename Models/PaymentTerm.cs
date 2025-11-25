@@ -5,7 +5,7 @@ namespace GBazaar.Models
     public class PaymentTerm
     {
         [Key]
-        public int PaymentTermsID { get; set; }
+        public int PaymentTermID { get; set; }
 
         [Required]
         [StringLength(100)]

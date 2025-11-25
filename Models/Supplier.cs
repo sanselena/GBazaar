@@ -15,10 +15,13 @@ namespace GBazaar.Models
         [StringLength(100)]
         public string? ContactName { get; set; }
 
+        [StringLength(100)] 
+        public string? ContactInfo { get; set; }
+
         [StringLength(20)]
         public string? TaxID { get; set; }
 
-        public int PaymentTermsID { get; set; }
+        public int PaymentTermID { get; set; }
 
         public virtual PaymentTerm PaymentTerm { get; set; }
 

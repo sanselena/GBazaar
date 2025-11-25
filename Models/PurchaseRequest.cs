@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GBazaar.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GBazaar.Models
@@ -26,9 +27,8 @@ namespace GBazaar.Models
         public virtual User Requester { get; set; }
 
         [Required]
-        public virtual PRStatus PRStatus { get; set; }
-
-        public virtual PurchaseOrder PurchaseOrder { get; set; }
+        public PRStatusType PRStatus { get; set; }
+        public virtual PurchaseOrder? PurchaseOrder { get; set; }
         public virtual ICollection<PRItem> PRItems { get; set; } = new List<PRItem>();
         public virtual ICollection<ApprovalHistory> ApprovalHistories { get; set; } = new List<ApprovalHistory>();
     }

@@ -12,6 +12,7 @@ namespace GBazaar.Models
         public string RoleName { get; set; } 
         public virtual ICollection<User> Users { get; set; } = new List<User>();
         public virtual ICollection<ApprovalRule> ApprovalRules { get; set; } = new List<ApprovalRule>();
+        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
 
     }
 }
