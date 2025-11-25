@@ -16,7 +16,7 @@ namespace GBazaar.Models
         public decimal TotalBudget { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal? AmountCommited { get; set; } 
+        public decimal? AmountCommitted { get; set; } 
 
         public virtual Department Department { get; set; }
     }

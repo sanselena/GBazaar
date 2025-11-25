@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GBazaar.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GBazaar.Models
@@ -22,10 +23,11 @@ namespace GBazaar.Models
         public int POStatusID { get; set; }
         [Required] 
         public virtual PurchaseRequest PurchaseRequest { get; set; }
-        [Required] 
+         
         public virtual Supplier Supplier { get; set; }
-        [Required] 
-        public virtual POStatus POStatus { get; set; }
+
+        [Required]
+        public POStatusType POStatus { get; set; }
         public virtual ICollection<GoodsReceipt> GoodsReceipts { get; set; } = new List<GoodsReceipt>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public virtual ICollection<SupplierRating> SupplierRatings { get; set; } = new List<SupplierRating>();

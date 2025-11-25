@@ -10,6 +10,10 @@ namespace GBazaar.Models
         [Required]
         public int PRID { get; set; }
 
+        [Required]S
+        [StringLength(200)] 
+        public string PRItemName { get; set; }
+
         [Required]
         [StringLength(250)]
         public string Description { get; set; }
@@ -18,12 +22,16 @@ namespace GBazaar.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Quantity { get; set; }
 
+        [Required]
+        [StringLength(50)]
+        public string? UnitOfMeasure { get; set; }
+
+
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? UnitPrice { get; set; }
-        public int SubCategoryID { get; set; }
+
         [Required]
         public virtual PurchaseRequest PurchaseRequest { get; set; }
-        [Required]
-        public virtual SubCategory SubCategory { get; set; }
+     
     }
 }

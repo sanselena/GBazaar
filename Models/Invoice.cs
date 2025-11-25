@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GBazaar.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GBazaar.Models
@@ -16,6 +17,8 @@ namespace GBazaar.Models
         [Required]
         [StringLength(50)]
         public string InvoiceNumber { get; set; } = string.Empty;
+        public DateOnly? DueDate { get; set; }
+        public DateOnly? PaymentDate { get; set; }
 
         [Required]
         public DateOnly InvoiceDate { get; set; }
@@ -24,6 +27,7 @@ namespace GBazaar.Models
         public decimal? AmountDue { get; set; }
         public virtual PurchaseOrder PurchaseOrder { get; set; }
         public virtual Supplier Supplier { get; set; }
-        public virtual PaymentStatus? PaymentStatus { get; set; }
+        public PaymentStatusType? PaymentStatus { get; set; }
+
     }
 }
