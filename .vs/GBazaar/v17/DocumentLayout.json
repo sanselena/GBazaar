@@ -1,86 +1,94 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\",
+  "WorkspaceRootPath": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\.gitignore .gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:.gitignore .gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\rolepermission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\rolepermission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\permission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\permission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\attachmenttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\attachmenttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\paymentstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\paymentstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\approvalactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\approvalactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\goodsreceipt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\goodsreceipt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\goodsreceipt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\rolepermission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\rolepermission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\goodsreceiptitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\goodsreceiptitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\goodsreceiptitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\permission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\permission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\attachment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\enums\\attachmenttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\attachmenttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\enums\\paymentstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\paymentstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\enums\\approvalactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\approvalactions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\approvalrule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\rocksolid\\documents\\github\\gbazaar\\models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\supplierrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -95,12 +103,160 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": ".gitignore .gitignore",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\.gitignore .gitignore",
+              "RelativeDocumentMoniker": ".gitignore .gitignore",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\.gitignore .gitignore",
+              "RelativeToolTip": ".gitignore .gitignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-25T16:34:31.207Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T15:54:41.441Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AttachmentType.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\AttachmentType.cs",
+              "RelativeDocumentMoniker": "Models\\Enums\\AttachmentType.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\AttachmentType.cs",
+              "RelativeToolTip": "Models\\Enums\\AttachmentType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:38:57.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Attachment.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Attachment.cs",
+              "RelativeDocumentMoniker": "Models\\Attachment.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Attachment.cs",
+              "RelativeToolTip": "Models\\Attachment.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBwAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:32:54.132Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ApprovalHistory.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\ApprovalHistory.cs",
+              "RelativeDocumentMoniker": "Models\\ApprovalHistory.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\ApprovalHistory.cs",
+              "RelativeToolTip": "Models\\ApprovalHistory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:00:51.961Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "PurchaseOrder.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PurchaseOrder.cs",
+              "RelativeDocumentMoniker": "Models\\PurchaseOrder.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PurchaseOrder.cs",
+              "RelativeToolTip": "Models\\PurchaseOrder.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T13:30:02.933Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "PurchaseRequest.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PurchaseRequest.cs",
+              "RelativeDocumentMoniker": "Models\\PurchaseRequest.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PurchaseRequest.cs",
+              "RelativeToolTip": "Models\\PurchaseRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T13:16:52.368Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "PaymentStatusType.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\PaymentStatusType.cs",
+              "RelativeDocumentMoniker": "Models\\Enums\\PaymentStatusType.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\PaymentStatusType.cs",
+              "RelativeToolTip": "Models\\Enums\\PaymentStatusType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:14:20.189Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "POStatusType.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\POStatusType.cs",
+              "RelativeDocumentMoniker": "Models\\Enums\\POStatusType.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\POStatusType.cs",
+              "RelativeToolTip": "Models\\Enums\\POStatusType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:13:30.978Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "PRStatusType.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\PRStatusType.cs",
+              "RelativeDocumentMoniker": "Models\\Enums\\PRStatusType.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\PRStatusType.cs",
+              "RelativeToolTip": "Models\\Enums\\PRStatusType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T14:13:01.233Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PRItem.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PRItem.cs",
+              "RelativeDocumentMoniker": "Models\\PRItem.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\PRItem.cs",
+              "RelativeToolTip": "Models\\PRItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T13:07:26.434Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GoodsReceiptItem.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\GoodsReceiptItem.cs",
+              "RelativeDocumentMoniker": "Models\\GoodsReceiptItem.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\GoodsReceiptItem.cs",
+              "RelativeToolTip": "Models\\GoodsReceiptItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T13:46:43.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "ProcurementContext.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Data\\ProcurementContext.cs",
               "RelativeDocumentMoniker": "Data\\ProcurementContext.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Data\\ProcurementContext.cs",
               "RelativeToolTip": "Data\\ProcurementContext.cs",
-              "ViewState": "AgIAALAAAAAAAAAAAAAwwMIAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAAwJIAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-25T14:49:16.133Z",
               "EditorCaption": ""
@@ -108,47 +264,36 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\User.cs",
-              "RelativeDocumentMoniker": "Models\\User.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\User.cs",
-              "RelativeToolTip": "Models\\User.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAA4wCcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T15:10:30.278Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "RolePermission.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\RolePermission.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\RolePermission.cs",
               "RelativeDocumentMoniker": "Models\\RolePermission.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\RolePermission.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\RolePermission.cs",
               "RelativeToolTip": "Models\\RolePermission.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T15:05:09.11Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Role.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Role.cs",
-              "RelativeDocumentMoniker": "Models\\Role.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Role.cs",
-              "RelativeToolTip": "Models\\Role.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:46:51.899Z",
+              "WhenOpened": "2025-11-25T15:05:09.11Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
+              "Title": "GoodsReceipt.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\GoodsReceipt.cs",
+              "RelativeDocumentMoniker": "Models\\GoodsReceipt.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\GoodsReceipt.cs",
+              "RelativeToolTip": "Models\\GoodsReceipt.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T13:43:13.41Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Permission.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Permission.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Permission.cs",
               "RelativeDocumentMoniker": "Models\\Permission.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Permission.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Permission.cs",
               "RelativeToolTip": "Models\\Permission.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -157,106 +302,34 @@
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "AttachmentType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\AttachmentType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\AttachmentType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\AttachmentType.cs",
-              "RelativeToolTip": "Models\\Enums\\AttachmentType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Title": "Role.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Role.cs",
+              "RelativeDocumentMoniker": "Models\\Role.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Role.cs",
+              "RelativeToolTip": "Models\\Role.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:38:57.317Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Attachment.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Attachment.cs",
-              "RelativeDocumentMoniker": "Models\\Attachment.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Attachment.cs",
-              "RelativeToolTip": "Models\\Attachment.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBwAAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:32:54.132Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "ApprovalHistory.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalHistory.cs",
-              "RelativeDocumentMoniker": "Models\\ApprovalHistory.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalHistory.cs",
-              "RelativeToolTip": "Models\\ApprovalHistory.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:00:51.961Z"
+              "WhenOpened": "2025-11-25T14:46:51.899Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
-              "Title": "PurchaseOrder.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
-              "RelativeDocumentMoniker": "Models\\PurchaseOrder.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
-              "RelativeToolTip": "Models\\PurchaseOrder.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAkAAAAAAAAAA==",
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\User.cs",
+              "RelativeDocumentMoniker": "Models\\User.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\User.cs",
+              "RelativeToolTip": "Models\\User.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAA4wCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T13:30:02.933Z"
+              "WhenOpened": "2025-11-25T15:10:30.278Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "PurchaseRequest.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
-              "RelativeDocumentMoniker": "Models\\PurchaseRequest.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
-              "RelativeToolTip": "Models\\PurchaseRequest.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T13:16:52.368Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "PaymentStatusType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PaymentStatusType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\PaymentStatusType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PaymentStatusType.cs",
-              "RelativeToolTip": "Models\\Enums\\PaymentStatusType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:14:20.189Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "POStatusType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\POStatusType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\POStatusType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\POStatusType.cs",
-              "RelativeToolTip": "Models\\Enums\\POStatusType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:13:30.978Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "PRStatusType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PRStatusType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\PRStatusType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PRStatusType.cs",
-              "RelativeToolTip": "Models\\Enums\\PRStatusType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:13:01.233Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 18,
               "Title": "ApprovalActions.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\ApprovalActions.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\ApprovalActions.cs",
               "RelativeDocumentMoniker": "Models\\Enums\\ApprovalActions.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\ApprovalActions.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\Enums\\ApprovalActions.cs",
               "RelativeToolTip": "Models\\Enums\\ApprovalActions.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -264,11 +337,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 19,
               "Title": "ApprovalRule.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalRule.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\ApprovalRule.cs",
               "RelativeDocumentMoniker": "Models\\ApprovalRule.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\ApprovalRule.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\ApprovalRule.cs",
               "RelativeToolTip": "Models\\ApprovalRule.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -276,11 +349,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 20,
               "Title": "POItem.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POItem.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\POItem.cs",
               "RelativeDocumentMoniker": "Models\\POItem.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POItem.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\POItem.cs",
               "RelativeToolTip": "Models\\POItem.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -288,51 +361,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "GoodsReceiptItem.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\GoodsReceiptItem.cs",
-              "RelativeDocumentMoniker": "Models\\GoodsReceiptItem.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\GoodsReceiptItem.cs",
-              "RelativeToolTip": "Models\\GoodsReceiptItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T13:46:43.609Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "GoodsReceipt.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\GoodsReceipt.cs",
-              "RelativeDocumentMoniker": "Models\\GoodsReceipt.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\GoodsReceipt.cs",
-              "RelativeToolTip": "Models\\GoodsReceipt.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T13:43:13.41Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "SupplierRating.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SupplierRating.cs",
+              "DocumentMoniker": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\SupplierRating.cs",
               "RelativeDocumentMoniker": "Models\\SupplierRating.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\SupplierRating.cs",
+              "ToolTip": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\Models\\SupplierRating.cs",
               "RelativeToolTip": "Models\\SupplierRating.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-25T13:39:10.752Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "PRItem.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
-              "RelativeDocumentMoniker": "Models\\PRItem.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
-              "RelativeToolTip": "Models\\PRItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T13:07:26.434Z"
             }
           ]
         }
