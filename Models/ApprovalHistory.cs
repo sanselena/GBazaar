@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using GBazaar.Models.Enums;
 
 namespace GBazaar.Models
 {
@@ -16,15 +17,16 @@ namespace GBazaar.Models
         public DateTime ActionDate { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string ActionType { get; set; } = string.Empty;
+        public ApprovalActionType ActionType { get; set; } 
 
         [Required]
         public int ApprovalLevel { get; set; }
 
         public string? Notes { get; set; }
 
+        [ForeignKey(nameof(PRID))] 
         public virtual PurchaseRequest PurchaseRequest { get; set; }
+        [ForeignKey(nameof(ApproverID))] 
         public virtual User Approver { get; set; }
     }
 }

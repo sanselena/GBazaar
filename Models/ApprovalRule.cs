@@ -18,7 +18,9 @@ namespace GBazaar.Models
 
         [Required]
         public int ApprovalLevel { get; set; }
+
         [Required]
+        [ForeignKey(nameof(RequiredRoleID))]
         public virtual Role RequiredRole { get; set; }
     }
 }

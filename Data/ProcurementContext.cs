@@ -16,8 +16,6 @@ namespace Gbazaar.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<PaymentTerm> PaymentTerms { get; set; }    
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
         public DbSet<PRItem> PRItems { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
@@ -28,9 +26,7 @@ namespace Gbazaar.Data
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<PRStatus> PRStatuses { get; set; }
-        public DbSet<POStatus> POStatuses { get; set; }
-        public DbSet<PaymentStatus> PaymentStatuses { get; set; }
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,7 +35,7 @@ namespace Gbazaar.Data
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasIndex(u => u.UserName).IsUnique();
+                entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasOne(u => u.Role)
                       .WithMany(r => r.Users)
                       .HasForeignKey(u => u.RoleID)
