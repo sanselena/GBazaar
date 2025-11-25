@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - GBazaar</title>
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+    <nav class="custom-nav">
+        <div class="nav-left">
+            <a href="design.html" class="brand-logo">GBazaar</a>
+            <a href="design.html" class="nav-link-custom">Home</a>
+            <div class="dropdown-container">
+                <a href="#" class="nav-link-custom">Browse ▼</a>
+                <div class="dropdown-menu">
+                    <a href="#">Electronics</a>
+                    <a href="#">Fashion</a>
+                    <a href="#">Home & Garden</a>
+                    <a href="#">Sports</a>
+                </div>
+            </div>
+        </div>
+        <div class="nav-center">
+            <input type="text" class="search-input" placeholder="Search..." />
+        </div>
+        <div class="nav-right">
+            <a href="login.html" class="nav-link-custom" style="color: var(--primary)">Login / SignUp</a>
+            <a href="#" class="nav-link-custom">ShoppingCart</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4"> <div class="auth-wrapper" style="min-height: auto; padding-top: 20px; padding-bottom: 50px;">
+            <div class="auth-card">
+                <h2 class="text-center mb-4" style="color: var(--text-main);">Create Account</h2>
+                
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control custom-input" placeholder="John Doe">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control custom-input" placeholder="name@example.com">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control custom-input" placeholder="Minimum 8 characters">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control custom-input" placeholder="Re-enter password">
+                    </div>
+
+                    <button type="button" class="btn btn-custom w-100 mt-3">Sign Up</button>
+                    
+                    <div class="text-center mt-3">
+                        <p>Already have an account? <a href="login.html" style="color: var(--primary);">Log In</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,31 +1,262 @@
-html {
-  font-size: 14px;
+/* wwwroot/css/site.css */
+
+/* --- 1. THE PALETTE (Change colors here!) --- */
+:root {
+  /* "Current white spaces" - Keeping your lavender */
+  --bg-main: #C4C1ED; 
+
+  /* "The Purple" */
+  --primary: #6E6DCC;
+
+  /* "Highlights" (Dropdown hover color) */
+  --highlight: #9B9FC4;
+
+  /* "The Blacks" */
+  --text-main: #12121D;
+
+  /* "Thin border lines" - CHANGED from Pink to Purple */
+  --border-pop: #6E6DCC; 
+
+  --pinky: #AD3D87;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* --- 2. GLOBAL STYLES --- */
 body {
-  margin-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-main); /* Using your Lavender for the whole page bg */
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* --- 3. NAVBAR CONTAINER --- */
+.custom-nav {
+  background-color: var(--bg-main); /* Matches body or can be lighter */
+  border-bottom: 3px solid var(--border-pop); /* Magenta border */
+  padding: 10px 30px;
+  
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* --- LEFT GROUP (Logo) --- */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 200px;
+}
+
+.brand-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary); /* The Purple */
+  text-decoration: none;
+}
+
+.nav-link-custom {
+  color: var(--text-main); /* The Black */
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+/* Hover Effect */
+.nav-link-custom:hover {
+  color: var(--primary); 
+  cursor: pointer;
+}
+
+/* --- CENTER GROUP (Search) --- */
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 20px;
+  background-color: var(--bg-main); /* Blend with background */
+  color: var(--text-main);
+  
+  border: 2px solid var(--border-pop); /* Magenta border */
+  border-radius: 50px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--primary); /* Using highlight color for placeholder text */
+}
+
+/* --- RIGHT GROUP (Auth) --- */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+/* --- DROPDOWN MENU --- */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    
+    background-color: var(--bg-main); /* Lavender background */
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    
+    border-radius: 15px;
+    border: 2px solid var(--border-pop); /* Magenta border */
+    z-index: 1000;
+    padding: 5px;
+    margin-top: 0px;
+}
+
+.dropdown-container:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    color: var(--text-main);
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+    border-radius: 10px;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--highlight); /* The Blue-Grey Highlight on hover */
+    color: var(--text-main);
+}
+
+/* --- PRODUCT GRID --- */
+.product-grid {
+  display: grid;
+  /* This magically creates 3 columns that shrink automatically on mobile */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px; /* Spacing between cards */
+  padding-bottom: 50px;
+}
+
+/* --- PRODUCT CARD --- */
+.product-card {
+  background-color: white; /* White card background */
+  border: 2px solid var(--border-pop); /* Purple border line */
+  border-radius: 20px; /* Rounded corners */
+  overflow: hidden; /* Ensures the image doesn't bleed out the rounded corners */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Little hover pop effect for polish */
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(110, 109, 204, 0.2); /* Soft purple shadow */
+}
+
+/* --- IMAGE SECTION --- */
+.card-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* FORCES A PERFECT SQUARE */
+  background-color: var(--bg-main); /* Lavender placeholder bg */
+}
+
+.card-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures image fills the square without stretching */
+}
+
+/* --- INFO SECTION (Bottom part) --- */
+.card-info {
+  padding: 15px;
+  border-top: 2px solid var(--border-pop); /* The dividing line from sketch */
+  background-color: var(--bg-main); /* BURAYA FOTO GELİCEK AAAAAAAAAAAAAAAAAAAAAAAA */
+  
+  /* Flex magic to align Name left and Price right */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.product-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.supplier-name {
+  margin: 5px 0 0 0;
+  font-size: 0.9rem;
+  color: var(--text-main); /* Muted purple/grey for supplier */
+}
+
+.product-price {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--primary); /* Purple price tag */
+}
+
+/* --- AUTH PAGES (Login/Signup) --- */
+.auth-wrapper {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  min-height: 60vh; /* Pushes it down a bit so it's not hugging the top */
+}
+
+.auth-card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 20px;
+  border: 2px solid var(--border-pop);
+  width: 100%;
+  max-width: 450px; /* Don't let it get too wide */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+/* Reusing your "Pill" shape for inputs */
+.custom-input {
+  border: 2px solid var(--border-pop) !important;
+  border-radius: 50px !important; /* Super round */
+  padding: 10px 20px !important;
+  background-color: var(--bg-main) !important;
+}
+
+.custom-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(110, 109, 204, 0.25) !important; /* Purple glow */
+}
+
+/* The Big Purple Button */
+.btn-custom {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 50px;
+  padding: 10px;
+  font-weight: bold;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.btn-custom:hover {
+  background-color: var(--border-pop); /* Slightly darker/different purple */
+  color: white;
+  transform: scale(1.02); /* Tiny grow effect */
 }
