@@ -1,23 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace GBazaar.Models
 {
     public class GoodsReceiptItem
     {
         [Key]
-        public int GoodsReceiptItemID { get; set; }
+        public int GRItemID { get; set; }
 
-        public int ReceiptID { get; set; }
-        public int POItemID { get; set; }
-
-        public decimal QuantityReceived { get; set; }
-
-        [ForeignKey(nameof(ReceiptID))]
+        [Required]
+        public int GRID { get; set; }
+        [ForeignKey("GRID")]
         public GoodsReceipt GoodsReceipt { get; set; }
 
-        [ForeignKey(nameof(POItemID))]
+        [Required]
+        public int POItemID { get; set; }
+        [ForeignKey("POItemID")]
         public POItem POItem { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal QuantityReceived { get; set; }
     }
+}
 

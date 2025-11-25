@@ -7,15 +7,17 @@ namespace GBazaar.Models
     {
         [Key]
         public int PRItemID { get; set; }
+
         [Required]
         public int PRID { get; set; }
 
-        [Required]S
-        [StringLength(200)] 
+        [Required]
+        [StringLength(200)]
         public string PRItemName { get; set; }
 
         [Required]
         [StringLength(250)]
+
         public string Description { get; set; }
 
         [Required]
@@ -24,14 +26,12 @@ namespace GBazaar.Models
 
         [Required]
         [StringLength(50)]
-        public string? UnitOfMeasure { get; set; }
-
+        public string UnitOfMeasure { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? UnitPrice { get; set; }
 
         [Required]
         public virtual PurchaseRequest PurchaseRequest { get; set; }
-     
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using GBazaar.Models;
-using System;
-using System.Linq;
+using GBazaar.Models.Enums;
 
 namespace Gbazaar.Data
 {
@@ -11,28 +10,56 @@ namespace Gbazaar.Data
             : base(options)
         {
         }
+
+        // DbSet properties for all your models
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
-        public DbSet<PaymentTerm> PaymentTerms { get; set; }    
+        public DbSet<PaymentTerm> PaymentTerms { get; set; }
         public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
         public DbSet<PRItem> PRItems { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+        public DbSet<POItem> POItems { get; set; }
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<ApprovalRule> ApprovalRules { get; set; }
         public DbSet<ApprovalHistory> ApprovalHistories { get; set; }
         public DbSet<GoodsReceipt> GoodsReceipts { get; set; }
+        public DbSet<GoodsReceiptItem> GoodsReceiptItems { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
-        
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // --- Enum Conversions ---
+            modelBuilder.Entity<PurchaseRequest>()
+                .Property(pr => pr.PRStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .Property(po => po.POStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.PaymentStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<ApprovalHistory>()
+                .Property(ah => ah.ActionType)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Attachment>()
+                .Property(a => a.EntityType)
+                .HasConversion<string>();
+
+            // --- Entity Configurations ---
+
+            // User
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u => u.Email).IsUnique();
@@ -44,257 +71,197 @@ namespace Gbazaar.Data
                       .WithMany(d => d.Users)
                       .HasForeignKey(u => u.DepartmentID)
                       .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany (u => u.PurchaseRequests)
-                      .WithOne(pr => pr.Requester)
-                      .HasForeignKey(pr => pr.RequesterID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany (u => u.ApprovalHistories)
-                      .WithOne(ah => ah.Approver)
-                      .HasForeignKey(ah => ah.ApproverID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany (u => u.GoodsReceipts)
-                      .WithOne(gr => gr.Receiver)
-                      .HasForeignKey(gr => gr.ReceivedByUserID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany (u => u.SupplierRatings)
-                      .WithOne(sr => sr.Rater)
-                      .HasForeignKey(sr => sr.RatedByUserID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany (u => u.Attachments)
-                      .WithOne(a => a.Uploader)
-                      .HasForeignKey(a => a.UploadedByUserID)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Role
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.HasIndex(r => r.RoleName).IsUnique();
-                entity.HasMany (r => r.Users)
-                      .WithOne(u => u.Role)
-                      .HasForeignKey(u => u.RoleID)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Permission
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+                entity.HasIndex(p => p.Name).IsUnique();
+            });
+
+            // RolePermission (Many-to-Many)
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                // Corrected composite key to match the model (RoleID and PermissionId)
+                entity.HasKey(rp => new { rp.RoleID, rp.PermissionId }); 
+                entity.HasOne(rp => rp.Role)
+                      .WithMany(r => r.RolePermissions)
+                      .HasForeignKey(rp => rp.RoleID);
+                entity.HasOne(rp => rp.Permission)
+                      .WithMany(p => p.RolePermissions)
+                      .HasForeignKey(rp => rp.PermissionId); // Corrected FK to match the model
+            });
+
+            // Department
             modelBuilder.Entity<Department>(entity =>
             {
                 entity.HasIndex(d => d.DepartmentName).IsUnique();
                 entity.HasIndex(d => d.BudgetCode).IsUnique();
-                entity.HasMany (d => d.Users)
-                      .WithOne(u => u.Department)
-                      .HasForeignKey(u => u.DepartmentID)
-                      .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(d => d.Budget)
                       .WithOne(b => b.Department)
                       .HasForeignKey<Budget>(b => b.DepartmentID)
                       .OnDelete(DeleteBehavior.Restrict);
-
             });
 
+            // Supplier
             modelBuilder.Entity<Supplier>(entity =>
             {
                 entity.HasIndex(s => s.SupplierName).IsUnique();
                 entity.HasIndex(s => s.TaxID).IsUnique();
-                entity.HasMany (s => s.PurchaseOrders)
-                      .WithOne(po => po.Supplier)
-                      .HasForeignKey(po => po.SupplierID)
-                      .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(s => s.PaymentTerm)
                       .WithMany(pt => pt.Suppliers)
-                      .HasForeignKey(s => s.PaymentTermsID)
+                      .HasForeignKey(s => s.PaymentTermID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // PaymentTerm
             modelBuilder.Entity<PaymentTerm>(entity =>
             {
                 entity.HasIndex(pt => pt.Description).IsUnique();
-                entity.HasMany(pt => pt.Suppliers)
-                      .WithOne(s => s.PaymentTerm)
-                      .HasForeignKey(s => s.PaymentTermsID)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Category>(Entity =>
+            // PurchaseRequest
+            modelBuilder.Entity<PurchaseRequest>(entity =>
             {
-                Entity.HasIndex(c => c.CategoryName).IsUnique();
-                Entity.HasMany(c => c.SubCategories)
-                      .WithOne(sc => sc.Category)
-                      .HasForeignKey(sc => sc.CategoryID)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<SubCategory>(Entity =>
-            {
-                Entity.HasIndex(sc => sc.SubCategoryName).IsUnique();
-                Entity.HasOne(sc => sc.Category)
-                      .WithMany(c => c.SubCategories)
-                      .HasForeignKey(sc => sc.CategoryID)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<PurchaseRequest>(Entity =>
-            {
-                Entity.HasOne(pr => pr.Requester)
+                entity.HasOne(pr => pr.Requester)
                       .WithMany(u => u.PurchaseRequests)
                       .HasForeignKey(pr => pr.RequesterID)
                       .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(pr => pr.PRStatus)
-                      .WithMany(s => s.PurchaseRequests)
-                      .HasForeignKey(pr => pr.PRStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasMany(pr => pr.PRItems)
+                entity.HasMany(pr => pr.PRItems)
                       .WithOne(item => item.PurchaseRequest)
                       .HasForeignKey(item => item.PRID)
                       .OnDelete(DeleteBehavior.Cascade);
-                Entity.HasOne(pr => pr.PurchaseOrder)
-                      .WithOne(po => po.PurchaseRequest)
-                      .HasForeignKey<PurchaseOrder>(po => po.PRID)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<PRItem>(Entity =>
+            // PRItem
+            modelBuilder.Entity<PRItem>(entity =>
             {
-                Entity.HasOne(pri => pri.PurchaseRequest)
-                      .WithMany(pr => pr.PRItems)
-                      .HasForeignKey(pri => pri.PRID)
-                      .OnDelete(DeleteBehavior.Cascade);
-                Entity.HasOne(pri => pri.SubCategory)
-                      .WithMany(sc => sc.PRItems)
-                      .HasForeignKey(pri => pri.SubCategoryID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasKey(e => e.PRItemID);
             });
 
-            modelBuilder.Entity<PurchaseOrder>(Entity =>
+            // PurchaseOrder
+            modelBuilder.Entity<PurchaseOrder>(entity =>
             {
-                Entity.HasIndex(po => po.PRID).IsUnique();
-                Entity.HasOne(po => po.PurchaseRequest)
+                entity.HasIndex(po => po.PRID).IsUnique();
+                entity.HasOne(po => po.Supplier)
+                      .WithMany(s => s.PurchaseOrders)
+                      .HasForeignKey(po => po.SupplierID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // REMOVED: HasMany for POItems because the navigation property does not exist on PurchaseOrder model.
+                // The relationship is configured from the POItem side.
+                entity.HasOne(po => po.PurchaseRequest)
                       .WithOne(pr => pr.PurchaseOrder)
                       .HasForeignKey<PurchaseOrder>(po => po.PRID)
                       .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasMany(po => po.GoodsReceipts)
-                      .WithOne(gr => gr.PurchaseOrder)
-                      .HasForeignKey(gr => gr.POID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasMany(po => po.Invoices)
-                      .WithOne(inv => inv.PurchaseOrder)
-                      .HasForeignKey(inv => inv.POID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasMany(po => po.SupplierRatings)
-                      .WithOne(sr => sr.PurchaseOrder)
-                      .HasForeignKey(sr => sr.POID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(Entity => Entity.Supplier)
-                      .WithMany(s => s.PurchaseOrders)
-                      .HasForeignKey(Entity => Entity.SupplierID)
-                      .OnDelete(DeleteBehavior.Restrict); 
-                Entity.HasOne(Entity => Entity.POStatus)        
-                      .WithMany(s => s.PurchaseOrders)
-                      .HasForeignKey(Entity => Entity.POStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Budget>(Entity =>
+            // POItem
+            modelBuilder.Entity<POItem>(entity =>
             {
-                Entity.HasOne(b => b.Department)
-                      .WithOne(d => d.Budget)
-                      .HasForeignKey<Budget>(b => b.DepartmentID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasKey(poi => poi.POItemID);
+                entity.HasOne(poi => poi.PurchaseOrder) // Added this relationship from the "many" side
+                      .WithMany() // No navigation property on PurchaseOrder, so WithMany() is empty
+                      .HasForeignKey(poi => poi.POID);
             });
 
-            modelBuilder.Entity<ApprovalRule>(Entity =>
+            // Budget
+            modelBuilder.Entity<Budget>(entity =>
             {
-                Entity.HasOne(ar => ar.RequiredRole)
-                      .WithMany(r => r.ApprovalRules)
+                entity.HasKey(b => b.BudgetID);
+            });
+
+            // ApprovalRule
+            modelBuilder.Entity<ApprovalRule>(entity =>
+            {
+                entity.HasOne(ar => ar.RequiredRole)
+                      .WithMany()
                       .HasForeignKey(ar => ar.RequiredRoleID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<ApprovalHistory>(Entity =>
+            // ApprovalHistory
+            modelBuilder.Entity<ApprovalHistory>(entity =>
             {
-                Entity.HasOne(ah => ah.PurchaseRequest)
+                entity.HasOne(ah => ah.PurchaseRequest)
                       .WithMany(pr => pr.ApprovalHistories)
                       .HasForeignKey(ah => ah.PRID)
                       .OnDelete(DeleteBehavior.Cascade);
-                Entity.HasOne(ah => ah.Approver)
-                      .WithMany(u => u.ApprovalHistories)
+                entity.HasOne(ah => ah.Approver)
+                      .WithMany()
                       .HasForeignKey(ah => ah.ApproverID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<GoodsReceipt>(Entity =>
+            // GoodsReceipt
+            modelBuilder.Entity<GoodsReceipt>(entity =>
             {
-                Entity.HasOne(gr => gr.PurchaseOrder)
+                entity.HasOne(gr => gr.PurchaseOrder)
                       .WithMany(po => po.GoodsReceipts)
                       .HasForeignKey(gr => gr.POID)
                       .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(gr => gr.Receiver)
-                      .WithMany(u => u.GoodsReceipts)
+                entity.HasOne(gr => gr.Receiver)
+                      .WithMany()
                       .HasForeignKey(gr => gr.ReceivedByUserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // REMOVED: HasMany for GoodsReceiptItems because the navigation property does not exist on GoodsReceipt model.
+                // The relationship is configured from the GoodsReceiptItem side.
+            });
+
+            // GoodsReceiptItem
+            modelBuilder.Entity<GoodsReceiptItem>(entity =>
+            {
+                entity.HasKey(gri => gri.GRItemID);
+                entity.HasOne(gri => gri.GoodsReceipt) // Added this relationship from the "many" side
+                      .WithMany() // No navigation property on GoodsReceipt, so WithMany() is empty
+                      .HasForeignKey(gri => gri.GRID);
+                entity.HasOne(gri => gri.POItem)
+                      .WithMany()
+                      .HasForeignKey(gri => gri.POItemID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Invoice>(Entity =>
+            // Invoice
+            modelBuilder.Entity<Invoice>(entity =>
             {
-                Entity.HasIndex(inv => inv.InvoiceNumber).IsUnique();
-                Entity.HasOne(inv => inv.PurchaseOrder)
+                entity.HasIndex(inv => inv.InvoiceNumber).IsUnique();
+                entity.HasOne(inv => inv.PurchaseOrder)
                       .WithMany(po => po.Invoices)
                       .HasForeignKey(inv => inv.POID)
                       .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(inv => inv.PaymentStatus)
-                      .WithMany(ps => ps.Invoices)
-                      .HasForeignKey(inv => inv.PaymentStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(inv => inv.Supplier)  
-                      .WithMany(s => s.Invoices)
+                entity.HasOne(inv => inv.Supplier)
+                      .WithMany()
                       .HasForeignKey(inv => inv.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
-            
-            modelBuilder.Entity<SupplierRating>(Entity =>
+
+            // SupplierRating
+            modelBuilder.Entity<SupplierRating>(entity =>
             {
-                Entity.HasOne(sr => sr.PurchaseOrder)
+                entity.HasOne(sr => sr.PurchaseOrder)
                       .WithMany(po => po.SupplierRatings)
                       .HasForeignKey(sr => sr.POID)
                       .OnDelete(DeleteBehavior.Restrict);
-                Entity.HasOne(sr => sr.Rater)
-                      .WithMany(u => u.SupplierRatings)
+                entity.HasOne(sr => sr.Rater)
+                      .WithMany()
                       .HasForeignKey(sr => sr.RatedByUserID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Attachment>(Entity => 
+            // Attachment
+            modelBuilder.Entity<Attachment>(entity =>
             {
-                Entity.HasOne(a => a.Uploader)
-                      .WithMany(u => u.Attachments)
+                entity.HasOne(a => a.Uploader)
+                      .WithMany()
                       .HasForeignKey(a => a.UploadedByUserID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
-
-            modelBuilder.Entity<PRStatus>(Entity =>
-            {
-                Entity.HasIndex(s => s.StatusType).IsUnique();
-                Entity.HasMany(s => s.PurchaseRequests)
-                      .WithOne(pr => pr.PRStatus)
-                      .HasForeignKey(pr => pr.PRStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<POStatus>(Entity =>
-            {
-                Entity.HasIndex(s => s.StatusType).IsUnique();
-                Entity.HasMany(s => s.PurchaseOrders)
-                      .WithOne(po => po.POStatus)
-                      .HasForeignKey(po => po.POStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<PaymentStatus>(Entity =>
-            {
-                Entity.HasIndex(s => s.StatusType).IsUnique();
-                Entity.HasMany(s => s.Invoices)
-                      .WithOne(inv => inv.PaymentStatus)
-                      .HasForeignKey(inv => inv.PaymentStatusID)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-        }   
+        }
     }
 }
