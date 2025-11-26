@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\GBazaar.csproj": {}
+    "C:\\Users\\mayki\\source\\repos\\GBazaar\\GBazaar.csproj": {}
   },
   "projects": {
-    "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\GBazaar.csproj": {
+    "C:\\Users\\mayki\\source\\repos\\GBazaar\\GBazaar.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\GBazaar.csproj",
+        "projectUniqueName": "C:\\Users\\mayki\\source\\repos\\GBazaar\\GBazaar.csproj",
         "projectName": "GBazaar",
-        "projectPath": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\GBazaar.csproj",
-        "packagesPath": "C:\\Users\\RockSolid\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\RockSolid\\Documents\\GitHub\\GBazaar\\obj\\",
+        "projectPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\GBazaar.csproj",
+        "packagesPath": "C:\\Users\\mayki\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\RockSolid\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mayki\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -51,6 +51,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -65,7 +69,7 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.0, )"
+              "version": "[9.0.0, )"
             }
           },
           "imports": [
@@ -87,7 +91,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

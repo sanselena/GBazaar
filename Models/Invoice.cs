@@ -26,6 +26,8 @@ namespace GBazaar.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? AmountDue { get; set; }
         public virtual PurchaseOrder PurchaseOrder { get; set; }
+
+        [ForeignKey("SupplierID")]
         public virtual Supplier Supplier { get; set; }
         public PaymentStatusType? PaymentStatus { get; set; }
 

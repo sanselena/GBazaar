@@ -17,7 +17,7 @@ namespace GBazaar.Models
 
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
-        public int QuantityReceived { get; set; }
+        public decimal QuantityReceived { get; set; }
         
         [Required]
         [ForeignKey(nameof(POID))] 
@@ -26,5 +26,6 @@ namespace GBazaar.Models
         [Required]
         [ForeignKey(nameof(ReceivedByUserID))] 
         public virtual User Receiver { get; set; }
+        public virtual ICollection<GoodsReceiptItem> GoodsReceiptItems { get; set; } = new List<GoodsReceiptItem>();
     }
 }

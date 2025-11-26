@@ -21,6 +21,8 @@ namespace GBazaar.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal QuantityReceived { get; set; }
+        public ICollection<GoodsReceiptItem> GoodsReceiptItems { get; set; } = new List<GoodsReceiptItem>();
+
     }
 }
 
