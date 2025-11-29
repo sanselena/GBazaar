@@ -1,0 +1,290 @@
+@{
+    ViewData["Title"] = "Supplier Dashboard";
+}
+
+<div class="container supplier-dashboard my-5">
+    <div class="supplier-dashboard__header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="mb-1" style="color: var(--text-main);">Supplier Dashboard</h1>
+            <p class="text-muted mb-0">Stay on top of buyer requests and keep a record of accepted deals.</p>
+        </div>
+                <form asp-controller="Auth" asp-action="Logout" method="get" class="dashboard-inline-form">
+                    <button type="submit" name="logout" class="btn btn-outline-secondary">Sign Out</button>
+                </form>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Incoming Requests</h5>
+                        <span class="badge bg-primary">3 new</span>
+                    </div>
+                    <p class="text-muted">Requests shown here will come directly from the procurement workflow once the greatest software engineer of all time, Fulya, connects the backend.</p>
+                    <table class="table table-hover align-middle dashboard-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Request</th>
+                                <th scope="col">Buyer</th>
+                                <th scope="col">Value</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>RFQ-3109</td>
+                                <td>Acme Manufacturing</td>
+                                <td>$1,250</td>
+                                <td><span class="badge text-bg-warning">Awaiting Response</span></td>
+                            </tr>
+                            <tr>
+                                <td>RFQ-3112</td>
+                                <td>Brightline Retail</td>
+                                <td>$4,600</td>
+                                <td><span class="badge text-bg-info">In Negotiation</span></td>
+                            </tr>
+                            <tr>
+                                <td>RFQ-3119</td>
+                                <td>Northwind Traders</td>
+                                <td>$980</td>
+                                <td><span class="badge text-bg-success">Accepted</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="small text-muted mb-0">Table data is illustrative and will be replaced when the request feed is live.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-4 h-100">
+                <div class="card dashboard-card flex-fill">
+                    <div class="card-body">
+                        <h5 class="card-title">Accepted Requests History</h5>
+                        <p class="text-muted">A snapshot of recently fulfilled requests for quick reference.</p>
+                        <ul class="list-group list-group-flush dashboard-list">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="fw-semibold">PO-2981</span>
+                                <span class="text-muted">$3,400 &middot; 21 Nov</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="fw-semibold">PO-2975</span>
+                                <span class="text-muted">$2,150 &middot; 18 Nov</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="fw-semibold">PO-2972</span>
+                                <span class="text-muted">$6,900 &middot; 15 Nov</span>
+                            </li>
+                        </ul>
+                        <button type="button" name="viewHistory" class="btn btn-link px-0 mt-3" data-modal-trigger="historyModal">
+                            View full history
+                        </button>
+                    </div>
+                </div>
+                <div class="card dashboard-card supplier-dashboard__chart flex-fill">
+                    <div class="card-body">
+                        <h5 class="card-title">Revenue Mix by Buyer</h5>
+                        <p class="text-muted">Breakdown of earnings from recent accepted requests.</p>
+                        <div class="chart-container">
+                            <canvas id="supplierRevenueChart" aria-label="Revenue distribution pie chart" role="img"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <h5 class="card-title mb-1">Performance Highlights</h5>
+                        <p class="text-muted mb-0">Surface metrics like response times and fulfillment rates once analytics are connected.</p>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">92%</div>
+                            <small class="text-muted">On-time delivery</small>
+                        </div>
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">48h</div>
+                            <small class="text-muted">Avg. response</small>
+                        </div>
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">4.8</div>
+                            <small class="text-muted">Supplier rating</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent text-muted small">
+                    Metrics use placeholder values until the reporting module is delivered.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" class="dashboard-modal" aria-hidden="true" role="dialog" aria-labelledby="historyModalTitle">
+    <div class="dashboard-modal__backdrop" data-modal-close></div>
+    <div class="dashboard-modal__dialog" role="document">
+        <div class="dashboard-modal__header">
+            <div>
+                <h5 id="historyModalTitle" class="mb-1">Accepted Requests History</h5>
+                <p class="text-muted mb-0">Full ledger of accepted requests across buyers.</p>
+            </div>
+            <button type="button" name="closeHistory" class="dashboard-modal__close" aria-label="Close" data-modal-close>
+                &times;
+            </button>
+        </div>
+        <div class="dashboard-modal__body">
+            <div class="list-group dashboard-list">
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2981</span>
+                    <span class="text-muted">$3,400 &middot; 21 Nov &middot; Acme Manufacturing</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2975</span>
+                    <span class="text-muted">$2,150 &middot; 18 Nov &middot; Brightline Retail</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2972</span>
+                    <span class="text-muted">$6,900 &middot; 15 Nov &middot; Northwind Traders</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2968</span>
+                    <span class="text-muted">$1,450 &middot; 12 Nov &middot; Contoso Retail</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2960</span>
+                    <span class="text-muted">$5,300 &middot; 09 Nov &middot; Tailspin Toys</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2954</span>
+                    <span class="text-muted">$3,850 &middot; 05 Nov &middot; Adventure Works</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2950</span>
+                    <span class="text-muted">$2,780 &middot; 03 Nov &middot; Wide World Importers</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2946</span>
+                    <span class="text-muted">$7,120 &middot; 31 Oct &middot; Northwind Traders</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2938</span>
+                    <span class="text-muted">$4,060 &middot; 27 Oct &middot; Fabrikam Services</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span class="fw-semibold">PO-2930</span>
+                    <span class="text-muted">$6,540 &middot; 24 Oct &middot; Coho Vineyard</span>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-modal__footer">
+            <button type="button" name="closeHistoryFooter" class="btn btn-secondary" data-modal-close>Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (() => {
+        const ctx = document.getElementById("supplierRevenueChart");
+        if (ctx && ctx.dataset.chartInitialized !== "true") {
+            ctx.dataset.chartInitialized = "true";
+
+            const chart = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: ["Acme Manufacturing", "Brightline Retail", "Northwind Traders"],
+                    datasets: [
+                        {
+                            data: [3400, 2150, 6900],
+                            backgroundColor: [
+                                "rgba(110, 109, 204, 0.85)",
+                                "rgba(155, 159, 196, 0.85)",
+                                "rgba(173, 61, 135, 0.85)"
+                            ],
+                            borderColor: "rgba(244, 242, 255, 0.9)",
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue("--text-main") || "#12121D"
+                            }
+                        }
+                    }
+                }
+            });
+
+            window.supplierRevenueChart = chart;
+        }
+
+        const toggleModal = (show) => {
+            const modal = document.getElementById("historyModal");
+            if (!modal) {
+                return;
+            }
+
+            modal.setAttribute("aria-hidden", show ? "false" : "true");
+            modal.classList.toggle("is-active", show);
+
+            if (show) {
+                const focusTarget = modal.querySelector("[data-modal-close]");
+                focusTarget?.focus();
+                document.body.classList.add("dashboard-modal-open");
+            } else {
+                document.body.classList.remove("dashboard-modal-open");
+            }
+        };
+
+        const openButtons = document.querySelectorAll('[data-modal-trigger="historyModal"]');
+        openButtons.forEach((btn) => {
+            btn.addEventListener("click", () => toggleModal(true));
+        });
+
+        const closeTargets = document.querySelectorAll("#historyModal [data-modal-close]");
+        closeTargets.forEach((target) => {
+            target.addEventListener("click", () => toggleModal(false));
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && document.body.classList.contains("dashboard-modal-open")) {
+                toggleModal(false);
+            }
+        });
+
+        // Accessibility: trap focus on dialog elements when active.
+        const modal = document.getElementById("historyModal");
+        if (modal) {
+            modal.addEventListener("keydown", (event) => {
+                if (event.key !== "Tab") {
+                    return;
+                }
+
+                const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusable.length === 0) {
+                    return;
+                }
+
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            });
+        }
+    })();
+</script>
