@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,15 +23,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProcurementContext.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
-              "RelativeDocumentMoniker": "Data\\ProcurementContext.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
-              "RelativeToolTip": "Data\\ProcurementContext.cs",
-              "ViewState": "AgIAAP4AAAAAAAAAAAAIwA4BAAAxAAAAAAAAAA==",
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "Controllers\\AuthController.cs",
+              "ViewState": "AgIAAFkAAAAAAAAAAAAswGoAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T14:49:16.133Z",
-              "IsPinned": true,
+              "WhenOpened": "2025-11-29T22:33:23.621Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-29T22:32:40.856Z",
               "EditorCaption": ""
             }
           ]

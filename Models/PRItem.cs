@@ -31,6 +31,10 @@ namespace GBazaar.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? UnitPrice { get; set; }
 
+        public int? SupplierID { get; set; }
+        [ForeignKey(nameof(SupplierID))]
+        public virtual Supplier? Supplier { get; set; }
+
         [Required]
         public virtual PurchaseRequest PurchaseRequest { get; set; }
     }

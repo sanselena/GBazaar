@@ -25,6 +25,9 @@ namespace GBazaar.Models
 
         [Required] 
         public virtual User Requester { get; set; }
+        public int? SupplierID { get; set; }
+        [ForeignKey(nameof(SupplierID))]
+        public virtual Supplier? Supplier { get; set; }
 
         [Required]
         public PRStatusType PRStatus { get; set; }
