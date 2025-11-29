@@ -6,6 +6,7 @@
         Issued = 2,
         PartiallyReceived = 3,
         FullyReceived = 4,
-        Closed = 5
+        Closed = 5,
+        Rejected = 6
     }
 }
