@@ -1,8 +1,32 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<div class="container mt-5">
+        <div class="product-grid">
+            <!--AŞK burda ürünler listelenecek her product card bir ürün gibi düşün. ürünlerin id'lerine göre sıralanması için bir metod olmalı-->
+            <!--AŞK ayrıca her ürüne tıklandığında o ürünün detay sayfasına gidilmeli, see: product-details.html-->
+            <div class="product-card">
+                <a asp-controller="Product" asp-action="Details" class="card-image-container stretched-link">
+                    <img src="..." alt="Mock Product" /> <!--AŞK ürünlerin bilgileri / resimlerini buralara koyarız tek tek-->
+                </a>
+                <div class="card-info">
+                    <div class="info-left">
+                        <h3 class="product-name">Organic Tomatoes (Grade A)</h3>
+                        <p class="supplier-name">Supplier: FarmFresh Anatolia</p>
+                    </div>
+                    <div class="product-price">$1.20 / kg</div>
+                </div>
+            </div>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+            <div class="product-card">
+                <a asp-controller="Product" asp-action="Details" class="card-image-container stretched-link">
+                    <img src="..." alt="Mock Product" />
+                </a>
+                <div class="card-info">
+                    <div class="info-left">
+                        <h3 class="product-name">Cool T-Shirt</h3>
+                        <p class="supplier-name">Supplier: Cotton Co.</p>
+                    </div>
+                    <div class="product-price">$19.99</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
