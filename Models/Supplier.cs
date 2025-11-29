@@ -27,5 +27,8 @@ namespace GBazaar.Models
 
         public virtual ICollection<PurchaseOrder> PurchaseOrders { get; set; } = new List<PurchaseOrder>();
         public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public virtual ICollection<PRItem> PRItems { get; set; } = new List<PRItem>();
+        public virtual ICollection<PurchaseRequest> PurchaseRequests { get; set; } = new List<PurchaseRequest>();
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

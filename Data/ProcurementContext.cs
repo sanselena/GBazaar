@@ -99,6 +99,14 @@ namespace Gbazaar.Data
                       .WithOne(i => i.Supplier)
                       .HasForeignKey(i => i.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(s => s.PRItems)
+                      .WithOne(i => i.Supplier)
+                      .HasForeignKey(i => i.SupplierID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(s => s.PurchaseRequests) 
+                      .WithOne(pr => pr.Supplier)
+                      .HasForeignKey(pr => pr.SupplierID)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<Budget>(entity =>
@@ -124,6 +132,10 @@ namespace Gbazaar.Data
                 entity.HasOne(i => i.PurchaseRequest)
                       .WithMany(pr => pr.PRItems)
                       .HasForeignKey(i => i.PRID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(i => i.Supplier)
+                      .WithMany(s => s.PRItems)
+                      .HasForeignKey(i => i.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -162,6 +174,10 @@ namespace Gbazaar.Data
                       .OnDelete(DeleteBehavior.Restrict);
                 entity.Property(pr => pr.PRStatus)
                       .HasConversion<int>();
+                entity.HasOne(pr => pr.Supplier)
+                      .WithMany(s => s.PurchaseRequests)
+                      .HasForeignKey(pr => pr.SupplierID)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<PurchaseOrder>(entity =>
@@ -270,6 +286,15 @@ namespace Gbazaar.Data
                       .WithMany(po => po.POItems)
                       .HasForeignKey(i => i.POID)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasOne(p => p.Supplier)
+                      .WithMany(s => s.Products)
+                      .HasForeignKey(p => p.SupplierID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(p => new { p.SupplierID, p.ProductName }).IsUnique();
             });
 
             modelBuilder.Entity<GoodsReceiptItem>(entity =>

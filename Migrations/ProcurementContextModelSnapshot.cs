@@ -366,6 +366,9 @@ namespace GBazaar.Migrations
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<int?>("SupplierID")
+                        .HasColumnType("int");
+
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -377,6 +380,8 @@ namespace GBazaar.Migrations
                     b.HasKey("PRItemID");
 
                     b.HasIndex("PRID");
+
+                    b.HasIndex("SupplierID");
 
                     b.ToTable("PRItems");
                 });
@@ -427,6 +432,41 @@ namespace GBazaar.Migrations
                         .IsUnique();
 
                     b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("GBazaar.Models.Product", b =>
+                {
+                    b.Property<int>("ProductID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductID"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("SupplierID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("ProductID");
+
+                    b.HasIndex("SupplierID", "ProductName")
+                        .IsUnique();
+
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("GBazaar.Models.PurchaseOrder", b =>
@@ -491,9 +531,14 @@ namespace GBazaar.Migrations
                     b.Property<int>("RequesterID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SupplierID")
+                        .HasColumnType("int");
+
                     b.HasKey("PRID");
 
                     b.HasIndex("RequesterID");
+
+                    b.HasIndex("SupplierID");
 
                     b.ToTable("PurchaseRequests");
                 });
@@ -803,7 +848,25 @@ namespace GBazaar.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GBazaar.Models.Supplier", "Supplier")
+                        .WithMany("PRItems")
+                        .HasForeignKey("SupplierID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("PurchaseRequest");
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("GBazaar.Models.Product", b =>
+                {
+                    b.HasOne("GBazaar.Models.Supplier", "Supplier")
+                        .WithMany("Products")
+                        .HasForeignKey("SupplierID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("GBazaar.Models.PurchaseOrder", b =>
@@ -833,7 +896,14 @@ namespace GBazaar.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GBazaar.Models.Supplier", "Supplier")
+                        .WithMany("PurchaseRequests")
+                        .HasForeignKey("SupplierID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Requester");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("GBazaar.Models.RolePermission", b =>
@@ -963,7 +1033,13 @@ namespace GBazaar.Migrations
                 {
                     b.Navigation("Invoices");
 
+                    b.Navigation("PRItems");
+
+                    b.Navigation("Products");
+
                     b.Navigation("PurchaseOrders");
+
+                    b.Navigation("PurchaseRequests");
                 });
 
             modelBuilder.Entity("GBazaar.Models.User", b =>

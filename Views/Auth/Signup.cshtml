@@ -19,72 +19,85 @@
                 <div class="tab-content" id="pills-tabContent">
                     
                     <div class="tab-pane fade show active" id="pills-buyer" role="tabpanel">
-                        <form>
+                        <form method="post" asp-action="SignupBuyer">
                             <!--AŞK bu formdaki girdileri USER İÇİN database'e çekmek lazım-->
-                            <div class="mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control custom-input" placeholder="John Doe">
+
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input name="FullName" type="text" class="form-control custom-input" placeholder="John Doe">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Company Name</label>
+                                <input name="CompanyName" type="text" class="form-control custom-input" placeholder="e.g. Walmart">
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Company Name</label>
-                                    <input type="text" class="form-control custom-input" placeholder="e.g. Walmart">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Department</label>
-                                    <input type="text" class="form-control custom-input" placeholder="e.g. Procurement">
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Department</label>
+                                <input name="Department" type="text" class="form-control custom-input" placeholder="e.g. Procurement">
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" class="form-control custom-input" placeholder="name@company.com">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" class="form-control custom-input" placeholder="Minimum 8 characters">
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="termsCheck">
-                                <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
-                                    I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>. 
-                                    <!--AŞK buralara istersek terms of service ve privacy policy linkleri ekleyebiliriz-->
-                                </label>
-                             </div>
-                            <button type="button" class="btn btn-custom w-100 mt-3">Create Buyer Account</button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input name="Email" type="email" class="form-control custom-input" placeholder="name@company.com">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input name="Password" type="password" class="form-control custom-input" placeholder="Minimum 8 characters">
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input name="AcceptTerms" type="checkbox" class="form-check-input" id="termsCheck" value="true">
+                            <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
+                                I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom w-100 mt-3">
+                            Create Buyer Account
+                        </button>
                         </form>
                     </div>
 
                     <div class="tab-pane fade" id="pills-supplier" role="tabpanel">
-                        <form>
+                        <form method="post" asp-action="SignupSupplier">
                             <!--AŞK bu formdaki girdileri SUPPLIER İÇİN database'e çekmek lazım-->
-                            <div class="mb-3">
-                                <label class="form-label">Business Name</label>
-                                <input type="text" class="form-control custom-input" placeholder="e.g. FarmFresh Anatolia">
-                            </div>
-                            
-                            <div class="mb-3">
-                                    <label class="form-label">Tax ID (VKN)</label>
-                                    <input type="text" class="form-control custom-input" placeholder="10-digit ID">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Business Name</label>
+                            <input name="BusinessName" type="text" class="form-control custom-input">
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Official Contact Info</label>
-                                <input type="tel / email" class="form-control custom-input" placeholder="+90 555 000 0000 / contact@farmfresh.com">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tax ID (VKN)</label>
+                            <input name="TaxId" type="text" class="form-control custom-input">
+                        </div>
 
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Create Password</label>
-                                <input type="password" class="form-control custom-input" placeholder="Minimum 8 characters">
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="termsCheck">
-                                <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
-                                    I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>. 
-                                    <!--AŞK buralara istersek terms of service ve privacy policy linkleri ekleyebiliriz-->
-                                </label>
-                             </div>
-                            <button type="button" class="btn btn-custom w-100 mt-3" style="background-color: var(--text-main);">Register as Supplier</button>
+                        <div class="mb-3">
+                            <label class="form-label">Official Contact</label>
+                            <input name="ContactInfo" type="text" class="form-control custom-input">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Create Password</label>
+                            <input name="Password" type="password" class="form-control custom-input">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input name="AcceptTerms"
+                                   type="checkbox"
+                                   class="form-check-input"
+                                   id="termsCheck"
+                                   value="true">
+
+                            <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
+                                I agree to the
+                                <a href="#" style="color: var(--primary);">Terms of Service</a> &
+                                <a href="#" style="color: var(--primary);">Privacy Policy</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom w-100 mt-3">Register as Supplier</button>
                         </form>
                     </div>
 
