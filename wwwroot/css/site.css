@@ -425,27 +425,3 @@ body {
     color: var(--primary);
     font-weight: 600;
 }
-
-/* --- SIGNUP TABS STYLING --- */
-.nav-pills .nav-link {
-    color: var(--text-main); /* Black text when inactive */
-    background-color: transparent;
-    border: 2px solid transparent;
-    border-radius: 50px; /* Pill shape */
-    font-weight: 600;
-    margin: 0 5px;
-    transition: all 0.2s ease;
-}
-
-/* The Active Tab (Purple) */
-.nav-pills .nav-link.active {
-    background-color: var(--primary) !important; /* Your Purple */
-    color: white !important;
-    box-shadow: 0 4px 10px rgba(110, 109, 204, 0.3);
-}
-
-/* Hover effect for inactive tabs */
-.nav-pills .nav-link:hover:not(.active) {
-    background-color: var(--highlight); /* Lavender */
-    color: var(--text-main);
-}

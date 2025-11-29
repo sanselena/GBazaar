@@ -36,8 +36,8 @@
         <div class="auth-wrapper">
             <div class="auth-card">
                 <h2 class="text-center mb-4" style="color: var(--text-main);">Welcome Back</h2>
-                
-                <form>
+                <!--AŞK burda giriş yapabilmesi için database'e query gitmesi lazım-->
+                <form id="loginForm">
                     <div class="mb-3">
                         <label class="form-label">Email Address</label>
                         <input type="email" class="form-control custom-input" placeholder="name@example.com">
@@ -47,8 +47,14 @@
                         <label class="form-label">Password</label>
                         <input type="password" class="form-control custom-input" placeholder="••••••••">
                     </div>
-
-                    <button type="button" class="btn btn-custom w-100 mt-3">Log In</button>
+                    <div id="passwordError" class="alert alert-danger d-none" role="alert">
+                        Incorrect password. Please try again.
+                    </div>
+                    <div class="d-flex justify-content-end mb-3">
+                         <a href="#" style="font-size: 0.9rem; color: #666; text-decoration: none;">Forgot Password?</a>
+                         <!--AŞK buraya şifre sıfırlama linki gelmese de olur kalsın öyle boşver-->
+                    </div>
+                    <button type="button" id="loginButton" class="btn btn-custom w-100 mt-3">Log In</button>
                     
                     <div class="text-center mt-3">
                         <p>Don't have an account? <a href="signup.html" style="color: var(--primary);">Sign Up</a></p>
@@ -58,5 +64,30 @@
         </div>
     </div>
 
+<!--AŞK şimdilik yanlış password scripti koydum bu unrelated-->
+
+    <script>
+        (() => {
+            const loginButton = document.getElementById("loginButton");
+            const passwordError = document.getElementById("passwordError");
+
+            const showPasswordError = (message) => {
+                if (message) {
+                    passwordError.textContent = message;
+                }
+                passwordError.classList.remove("d-none");
+            };
+
+            const hidePasswordError = () => passwordError.classList.add("d-none");
+
+            loginButton.addEventListener("click", () => {
+                hidePasswordError();
+                showPasswordError();
+            });
+
+            // Expose helpers for real validation hooks.
+            window.passwordErrorUI = { showPasswordError, hidePasswordError };
+        })();
+    </script>
 </body>
 </html>
