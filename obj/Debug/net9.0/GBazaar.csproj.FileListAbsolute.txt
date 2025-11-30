@@ -214,4 +214,3 @@ C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\refint\GBazaar.dll
 C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.pdb
 C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\GBazaar.genruntimeconfig.cache
 C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\ref\GBazaar.dll
-C:\Users\mayki\source\repos\GBazaar\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -1,21 +1,26 @@
 using System.Diagnostics;
+using Gbazaar.Data;
 using GBazaar.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GBazaar.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ProcurementContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
+        public HomeController(ProcurementContext context){
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var products = _context.Products
+                .Include(p => p.Supplier)
+                .OrderByDescending(p => p.ProductID)
+                .ToList();
+            return View(products);
         }
 
         public IActionResult Privacy()

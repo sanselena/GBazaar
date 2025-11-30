@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GBazaar")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75c66dcb99de12b979f35bc2bdfcad7ee7476933")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a11439df9145a04afa615c8ea18a66b12ef4af02")]
 [assembly: System.Reflection.AssemblyProductAttribute("GBazaar")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GBazaar")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

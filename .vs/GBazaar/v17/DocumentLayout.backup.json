@@ -3,180 +3,58 @@
   "WorkspaceRootPath": "C:\\Users\\mayki\\source\\repos\\GBazaar\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\supplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\supplier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:data\\procurementcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\prstatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaseorder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\enums\\postatustype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\pritem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\purchaserequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|c:\\users\\mayki\\source\\repos\\gbazaar\\models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BB8B84CB-A911-4CBC-ABD7-187236EB4713}|GBazaar.csproj|solutionrelative:models\\poitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
     {
-      "Orientation": 0,
+      "Orientation": 1,
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
+          "DockedHeight": 200,
           "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Product.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Product.cs",
-              "RelativeDocumentMoniker": "Models\\Product.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Product.cs",
-              "RelativeToolTip": "Models\\Product.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:59:00.224Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-29T21:48:13.025Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "ProcurementContext.cs",
               "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
               "RelativeDocumentMoniker": "Data\\ProcurementContext.cs",
               "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Data\\ProcurementContext.cs",
               "RelativeToolTip": "Data\\ProcurementContext.cs",
-              "ViewState": "AgIAAAoBAAAAAAAAAAAuwCgBAABVAAAAAAAAAA==",
+              "ViewState": "AgIAABEBAAAAAAAAAAAowCIBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:33:47.2Z",
+              "WhenOpened": "2025-11-29T23:48:07.224Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "POItem.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POItem.cs",
-              "RelativeDocumentMoniker": "Models\\POItem.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\POItem.cs",
-              "RelativeToolTip": "Models\\POItem.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABoAAAAtAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Product.cs",
+              "RelativeDocumentMoniker": "Models\\Product.cs",
+              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Product.cs",
+              "RelativeToolTip": "Models\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:16:30.699Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "POStatusType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\POStatusType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\POStatusType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\POStatusType.cs",
-              "RelativeToolTip": "Models\\Enums\\POStatusType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAATAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:15:56.558Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Supplier.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Supplier.cs",
-              "RelativeDocumentMoniker": "Models\\Supplier.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Supplier.cs",
-              "RelativeToolTip": "Models\\Supplier.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAswCIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:14:36.012Z",
+              "WhenOpened": "2025-11-29T23:44:53.032Z",
               "EditorCaption": ""
-            },
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "PRStatusType.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PRStatusType.cs",
-              "RelativeDocumentMoniker": "Models\\Enums\\PRStatusType.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\Enums\\PRStatusType.cs",
-              "RelativeToolTip": "Models\\Enums\\PRStatusType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:40:03.021Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "PurchaseOrder.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
-              "RelativeDocumentMoniker": "Models\\PurchaseOrder.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseOrder.cs",
-              "RelativeToolTip": "Models\\PurchaseOrder.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:08:41.321Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "PurchaseRequest.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
-              "RelativeDocumentMoniker": "Models\\PurchaseRequest.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PurchaseRequest.cs",
-              "RelativeToolTip": "Models\\PurchaseRequest.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBQAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:11:24.097Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "PRItem.cs",
-              "DocumentMoniker": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
-              "RelativeDocumentMoniker": "Models\\PRItem.cs",
-              "ToolTip": "C:\\Users\\mayki\\source\\repos\\GBazaar\\Models\\PRItem.cs",
-              "RelativeToolTip": "Models\\PRItem.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAIAwwCMAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-29T21:10:05.658Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             }
           ]
         }

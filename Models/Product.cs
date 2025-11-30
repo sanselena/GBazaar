@@ -26,6 +26,8 @@ namespace GBazaar.Models
         [StringLength(50)]
         public string? UnitOfMeasure { get; set; }
 
-      
+        public virtual ICollection<PRItem> PRItems { get; set; } = new List<PRItem>();
+
+
     }
 }

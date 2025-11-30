@@ -4,6 +4,7 @@ using Gbazaar.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GBazaar.Migrations
 {
     [DbContext(typeof(ProcurementContext))]
-    partial class ProcurementContextModelSnapshot : ModelSnapshot
+    [Migration("20251130000659_renaming")]
+    partial class renaming
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -345,7 +348,10 @@ namespace GBazaar.Migrations
             modelBuilder.Entity("GBazaar.Models.PRItem", b =>
                 {
                     b.Property<int>("PRItemID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PRItemID"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -359,9 +365,6 @@ namespace GBazaar.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("ProductID")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18, 2)");
@@ -848,18 +851,10 @@ namespace GBazaar.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GBazaar.Models.Product", "Product")
-                        .WithMany("PRItems")
-                        .HasForeignKey("PRItemID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("GBazaar.Models.Supplier", "Supplier")
                         .WithMany("PRItems")
                         .HasForeignKey("SupplierID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Product");
 
                     b.Navigation("PurchaseRequest");
 
@@ -1006,11 +1001,6 @@ namespace GBazaar.Migrations
             modelBuilder.Entity("GBazaar.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("GBazaar.Models.Product", b =>
-                {
-                    b.Navigation("PRItems");
                 });
 
             modelBuilder.Entity("GBazaar.Models.PurchaseOrder", b =>
