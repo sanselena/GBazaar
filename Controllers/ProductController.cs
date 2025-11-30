@@ -1,6 +1,9 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Gbazaar.Data;
 using GBazaar.Models;
 using GBazaar.Models.ViewModels;
+using GBazaar.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,24 +12,59 @@ namespace GBazaar.Controllers
     public class ProductController : Controller
     {
         private readonly ProcurementContext _context;
+        private readonly ILogger<ProductController> _logger;
+        private static readonly TimeSpan ProductQueryTimeout = TimeSpan.FromSeconds(2);
 
-        public ProductController(ProcurementContext context)
+        public ProductController(ProcurementContext context, ILogger<ProductController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         //tiklayinca acilcak
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var product = _context.Products
-                .Include(p => p.Supplier)      
-                //.Include(p => p.Reviews)
-                .FirstOrDefault(p => p.ProductID == id);
+            Product? product = null;
+            var shouldUseFallback = false;
 
-            if (product == null)
-                return NotFound();
+            try
+            {
+                using var cts = new CancellationTokenSource(ProductQueryTimeout);
 
-            return View(product);
+                product = await _context.Products
+                    .AsNoTracking()
+                    .Include(p => p.Supplier)
+                    .FirstOrDefaultAsync(p => p.ProductID == id, cts.Token);
+            }
+            catch (OperationCanceledException ex)
+            {
+                _logger.LogWarning(ex, "Timed out retrieving product {ProductId}. Falling back to sample data.", id);
+                shouldUseFallback = true;
+            }
+            catch (Exception ex) when (CatalogFallbackService.IsCatalogConnectivityIssue(ex))
+            {
+                _logger.LogWarning(ex, "Unable to reach catalog for product {ProductId}. Falling back to sample data.", id);
+                shouldUseFallback = true;
+            }
+
+            if (product != null)
+            {
+                ViewBag.UsingSampleProduct = false;
+                return View(product);
+            }
+
+            if (shouldUseFallback && CatalogFallbackService.TryCreateSampleProduct(id, out var sample))
+            {
+                ViewBag.UsingSampleProduct = true;
+                return View(sample);
+            }
+
+            if (shouldUseFallback)
+            {
+                _logger.LogWarning("No sample fallback available for product {ProductId}.", id);
+            }
+
+            return NotFound();
         }
 
         //pr olusturma

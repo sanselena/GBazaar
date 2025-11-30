@@ -1,0 +1,495 @@
+@using System.Globalization
+@using System.Text.Json
+@model GBazaar.ViewModels.Supplier.SupplierDashboardViewModel
+
+@{
+    ViewData["Title"] = "Supplier Dashboard";
+    var successMessage = TempData["DashboardMessage"] as string;
+    var errorMessage = TempData["DashboardError"] as string;
+    var revenueLabels = JsonSerializer.Serialize(Model.RevenueMix.Select(slice => slice.Label));
+    var revenueValues = JsonSerializer.Serialize(Model.RevenueMix.Select(slice => slice.Amount));
+    var revenueHasData = Model.RevenueMix.Any();
+}
+
+<div class="container supplier-dashboard my-5">
+    <div class="supplier-dashboard__header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="mb-1" style="color: var(--text-main);">Supplier Dashboard</h1>
+            <p class="text-muted mb-0">Stay on top of buyer requests and keep a record of accepted deals.</p>
+        </div>
+        <form asp-controller="Auth" asp-action="Logout" method="get" class="dashboard-inline-form">
+            <button type="submit" name="logout" class="btn btn-outline-secondary">Sign Out</button>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <div class="alert alert-success" role="status">@successMessage</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    <div class="row g-4 align-items-stretch">
+        <div class="col-12 col-xl-8">
+            <div class="card dashboard-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+                        <div>
+                            <h5 class="card-title mb-1">Incoming Requests</h5>
+                            <p class="text-muted mb-0">Approve or reject requests in bulk or individually. Grouped by buyer.</p>
+                        </div>
+                        <span class="badge bg-primary">@Model.IncomingRequests.Sum(group => group.Requests.Count) pending</span>
+                    </div>
+
+                    @if (!Model.IncomingRequests.Any())
+                    {
+                        <p class="text-muted mb-0">No pending purchase requests right now. Take a breather!</p>
+                    }
+                    else
+                    {
+                        <form asp-action="BulkDecideRequests" method="post" class="flex-grow-1 d-flex flex-column" novalidate>
+                            <div class="table-responsive flex-grow-1">
+                                <table class="table table-hover align-middle dashboard-table mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col" style="width: 3rem;">
+                                                <span class="visually-hidden">Select request</span>
+                                            </th>
+                                            <th scope="col">Request</th>
+                                            <th scope="col">Value</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Needed By</th>
+                                            <th scope="col" class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var group in Model.IncomingRequests)
+                                        {
+                                            var groupKey = $"buyer-{group.BuyerId}";
+                                            <tr class="table-group-header">
+                                                <td class="bg-body-secondary">
+                                                    <input class="form-check-input js-group-checkbox"
+                                                           type="checkbox"
+                                                           aria-label="Select all requests for @group.BuyerName"
+                                                           data-group-checkbox="@groupKey" />
+                                                </td>
+                                                <td colspan="5" class="bg-body-secondary fw-semibold text-uppercase small">
+                                                    @group.BuyerName
+                                                </td>
+                                            </tr>
+
+                                            foreach (var request in group.Requests)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <input class="form-check-input js-request-checkbox"
+                                                               type="checkbox"
+                                                               name="SelectedRequestIds"
+                                                               value="@request.RequestId"
+                                                               aria-label="Select @request.Reference"
+                                                               data-group-member="@groupKey" />
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-semibold">@request.Reference</div>
+                                                        <small class="text-muted">Submitted @request.DateSubmitted.ToString("dd MMM yyyy", CultureInfo.CurrentCulture)</small>
+                                                    </td>
+                                                    <td>@request.EstimatedTotal.ToString("C", CultureInfo.CurrentCulture)</td>
+                                                    <td>
+                                                        <span class="badge text-bg-info">@request.StatusLabel</span>
+                                                    </td>
+                                                    <td>
+                                                        @(request.NeededBy?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture) ?? "—")
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group" role="group" aria-label="Decide @request.Reference">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-success"
+                                                                    name="singleDecision"
+                                                                    value="accept"
+                                                                    formaction="@Url.Action("DecideRequest", "Supplier", new { requestId = request.RequestId, decision = "accept" })"
+                                                                    formmethod="post">
+                                                                Accept
+                                                            </button>
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-danger"
+                                                                    name="singleDecision"
+                                                                    value="reject"
+                                                                    formaction="@Url.Action("DecideRequest", "Supplier", new { requestId = request.RequestId, decision = "reject" })"
+                                                                    formmethod="post">
+                                                                Reject
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-3">
+                                <p class="text-muted mb-0 small">Select any combination of requests to accept or reject in one go.</p>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" name="Decision" value="accept" class="btn btn-primary">Accept selected</button>
+                                    <button type="submit" name="Decision" value="reject" class="btn btn-outline-secondary">Reject selected</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Active Orders</h5>
+                        <span class="badge bg-secondary">@Model.ActiveOrders.Count active</span>
+                    </div>
+                    <p class="text-muted">Orders that are accepted but not yet fully delivered and paid.</p>
+
+                    @if (!Model.ActiveOrders.Any())
+                    {
+                        <p class="text-muted mb-0">No active orders right now. Responses will appear here once buyers confirm.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush dashboard-list flex-grow-1">
+                            @foreach (var order in Model.ActiveOrders)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-semibold">@order.Reference</div>
+                                            <small class="text-muted">PO-@order.PurchaseOrderId.ToString("0000")</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-semibold">@order.TotalAmount.ToString("C", CultureInfo.CurrentCulture)</div>
+                                            <small class="text-muted">@(order.EstimatedDeliveryDate?.ToString("dd MMM") ?? "No ETA")</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <span class="badge text-bg-@(order.IsPaymentComplete ? "success" : "warning")">Payment: @order.PaymentStatusLabel</span>
+                                        <span class="badge text-bg-@(order.IsDelivered ? "success" : "info")">Fulfillment: @order.FulfillmentStatusLabel</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1 align-items-stretch">
+        <div class="col-12 col-lg-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Accepted Requests History</h5>
+                    <p class="text-muted">Recently fulfilled requests move here once payment and delivery are complete.</p>
+
+                    @if (!Model.AcceptedHistory.Any())
+                    {
+                        <p class="text-muted mb-0">You have not closed any orders yet. Once deliveries land and payments clear, they will appear here.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush dashboard-list flex-grow-1">
+                            @foreach (var item in Model.AcceptedHistory.Take(4))
+                            {
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>
+                                        <span class="fw-semibold">@item.Reference</span>
+                                        <small class="text-muted d-block">@item.BuyerName</small>
+                                    </span>
+                                    <span class="text-end">
+                                        <span>@item.Amount.ToString("C", CultureInfo.CurrentCulture)</span>
+                                        <small class="text-muted d-block">@item.AcceptedOn?.ToString("dd MMM", CultureInfo.CurrentCulture)</small>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                        <button type="button" name="viewHistory" class="btn btn-link px-0 mt-3 align-self-start" data-modal-trigger="historyModal">
+                            View full history
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card dashboard-card supplier-dashboard__chart h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Revenue Mix by Buyer</h5>
+                    <p class="text-muted">Breakdown of recent closed orders.</p>
+                    <div class="chart-container flex-grow-1 d-flex align-items-center justify-content-center">
+                        <canvas id="supplierRevenueChart" aria-label="Revenue distribution pie chart" role="img" data-has-data="@(revenueHasData.ToString().ToLowerInvariant())"></canvas>
+                    </div>
+                    @if (!revenueHasData)
+                    {
+                        <p class="text-muted small mb-0 mt-3">Revenue insights will display once you close and bill an order.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <h5 class="card-title mb-1">Performance Highlights</h5>
+                        <p class="text-muted mb-0">Surface metrics like response times and fulfillment rates once analytics are connected.</p>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@Model.Performance.OnTimeDeliveryPercentage%</div>
+                            <small class="text-muted">On-time delivery</small>
+                        </div>
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@($"{Model.Performance.AverageResponseHours}h")</div>
+                            <small class="text-muted">Avg. response</small>
+                        </div>
+                        <div>
+                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@Model.Performance.AverageRating</div>
+                            <small class="text-muted">Supplier rating</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent text-muted small">
+                    Metrics use placeholder values until the reporting module is delivered.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" class="dashboard-modal" aria-hidden="true" role="dialog" aria-labelledby="historyModalTitle">
+    <div class="dashboard-modal__backdrop" data-modal-close></div>
+    <div class="dashboard-modal__dialog" role="document">
+        <div class="dashboard-modal__header d-flex align-items-start justify-content-between gap-3">
+            <div>
+                <h5 id="historyModalTitle" class="mb-1">Accepted Requests History</h5>
+                <p class="text-muted mb-0">Full ledger of accepted requests across buyers.</p>
+            </div>
+            <button type="button" name="closeHistory" class="dashboard-modal__close" aria-label="Close" data-modal-close>
+                &times;
+            </button>
+        </div>
+        <div class="dashboard-modal__body">
+            @if (!Model.AcceptedHistory.Any())
+            {
+                <p class="text-muted mb-0">History will populate once you complete and bill an order.</p>
+            }
+            else
+            {
+                <div class="list-group dashboard-list">
+                    @foreach (var item in Model.AcceptedHistory)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-2">
+                                <div>
+                                    <div class="fw-semibold">@item.Reference</div>
+                                    <small class="text-muted">@item.BuyerName</small>
+                                </div>
+                                <div class="text-md-end">
+                                    <div class="fw-semibold">@item.Amount.ToString("C", CultureInfo.CurrentCulture)</div>
+                                    <small class="text-muted">Accepted @(item.AcceptedOn?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture) ?? "—")</small>
+                                </div>
+                            </div>
+
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mt-3 small">
+                                <div class="col">
+                                    <span class="text-uppercase text-muted d-block">Fulfillment Status</span>
+                                    <span class="fw-semibold text-body">@item.FulfillmentStatusLabel</span>
+                                    @if (item.DeliveryDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Delivery date @item.DeliveryDate?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture)</small>
+                                    }
+                                </div>
+                                <div class="col">
+                                    <span class="text-uppercase text-muted d-block">Payment Status</span>
+                                    <span class="fw-semibold text-body">@item.PaymentStatusLabel</span>
+                                    @if (item.PaymentDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Paid @item.PaymentDate?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture)</small>
+                                    }
+                                    else if (item.PaymentDueDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Due @item.PaymentDueDate?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture)</small>
+                                    }
+                                </div>
+                                <div class="col">
+                                    <span class="text-uppercase text-muted d-block">Invoice</span>
+                                    <span class="fw-semibold text-body">@(string.IsNullOrWhiteSpace(item.InvoiceNumber) ? "—" : item.InvoiceNumber)</span>
+                                    <small class="text-muted d-block">
+                                        @{
+                                            var invoiceDateLabel = item.InvoiceDate?.ToString("dd MMM yyyy", CultureInfo.CurrentCulture) ?? "No invoice date";
+                                            var invoiceAmountLabel = item.InvoiceAmount.HasValue ? item.InvoiceAmount.Value.ToString("C", CultureInfo.CurrentCulture) : null;
+                                            var invoiceMeta = string.IsNullOrEmpty(invoiceAmountLabel)
+                                                ? invoiceDateLabel
+                                                : $"{invoiceDateLabel} · {invoiceAmountLabel}";
+                                        }
+                                        @invoiceMeta
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (() => {
+        const ctx = document.getElementById("supplierRevenueChart");
+        const hasData = ctx?.dataset?.hasData === "true";
+
+        if (ctx && ctx.dataset.chartInitialized !== "true" && hasData) {
+            ctx.dataset.chartInitialized = "true";
+
+            const labels = @Html.Raw(revenueLabels);
+            const values = @Html.Raw(revenueValues);
+
+            const chart = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data: values,
+                            backgroundColor: [
+                                "rgba(110, 109, 204, 0.85)",
+                                "rgba(155, 159, 196, 0.85)",
+                                "rgba(173, 61, 135, 0.85)",
+                                "rgba(227, 135, 182, 0.85)",
+                                "rgba(133, 162, 210, 0.85)"
+                            ],
+                            borderColor: "rgba(244, 242, 255, 0.9)",
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue("--text-main") || "#12121D"
+                            }
+                        }
+                    }
+                }
+            });
+
+            window.supplierRevenueChart = chart;
+        }
+
+        const toggleModal = (show) => {
+            const modal = document.getElementById("historyModal");
+            if (!modal) {
+                return;
+            }
+
+            modal.setAttribute("aria-hidden", show ? "false" : "true");
+            modal.classList.toggle("is-active", show);
+
+            if (show) {
+                const focusTarget = modal.querySelector("[data-modal-close]");
+                focusTarget?.focus();
+                document.body.classList.add("dashboard-modal-open");
+            } else {
+                document.body.classList.remove("dashboard-modal-open");
+            }
+        };
+
+        const openButtons = document.querySelectorAll('[data-modal-trigger="historyModal"]');
+        openButtons.forEach((btn) => {
+            btn.addEventListener("click", () => toggleModal(true));
+        });
+
+        const closeTargets = document.querySelectorAll("#historyModal [data-modal-close]");
+        closeTargets.forEach((target) => {
+            target.addEventListener("click", () => toggleModal(false));
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && document.body.classList.contains("dashboard-modal-open")) {
+                toggleModal(false);
+            }
+        });
+
+        const modal = document.getElementById("historyModal");
+        if (modal) {
+            modal.addEventListener("keydown", (event) => {
+                if (event.key !== "Tab") {
+                    return;
+                }
+
+                const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusable.length === 0) {
+                    return;
+                }
+
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            });
+        }
+
+        const groupCheckboxes = document.querySelectorAll(".js-group-checkbox");
+        if (groupCheckboxes.length > 0) {
+            const requestCheckboxes = Array.from(document.querySelectorAll(".js-request-checkbox"));
+            const groups = new Map();
+
+            requestCheckboxes.forEach((checkbox) => {
+                const groupKey = checkbox.dataset.groupMember;
+                if (!groups.has(groupKey)) {
+                    groups.set(groupKey, []);
+                }
+                groups.get(groupKey)?.push(checkbox);
+            });
+
+            const refreshGroupState = (groupCheckbox, members) => {
+                const allChecked = members.every((checkbox) => checkbox.checked);
+                const anyChecked = members.some((checkbox) => checkbox.checked);
+                groupCheckbox.checked = allChecked;
+                groupCheckbox.indeterminate = !allChecked && anyChecked;
+            };
+
+            groupCheckboxes.forEach((groupCheckbox) => {
+                const key = groupCheckbox.dataset.groupCheckbox;
+                const members = groups.get(key) ?? [];
+
+                groupCheckbox.addEventListener("change", () => {
+                    members.forEach((member) => {
+                        member.checked = groupCheckbox.checked;
+                    });
+                    refreshGroupState(groupCheckbox, members);
+                });
+
+                members.forEach((member) => {
+                    member.addEventListener("change", () => {
+                        refreshGroupState(groupCheckbox, members);
+                    });
+                });
+
+                refreshGroupState(groupCheckbox, members);
+            });
+        }
+    })();
+</script>

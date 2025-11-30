@@ -1,32 +1,46 @@
-﻿<div class="container mt-5">
-        <div class="product-grid">
-            <!--AŞK burda ürünler listelenecek her product card bir ürün gibi düşün. ürünlerin id'lerine göre sıralanması için bir metod olmalı-->
-            <!--AŞK ayrıca her ürüne tıklandığında o ürünün detay sayfasına gidilmeli, see: product-details.html-->
-            <div class="product-card">
-                <a asp-controller="Product" asp-action="Details" class="card-image-container stretched-link">
-                    <img src="..." alt="Mock Product" /> <!--AŞK ürünlerin bilgileri / resimlerini buralara koyarız tek tek-->
-                </a>
-                <div class="card-info">
-                    <div class="info-left">
-                        <h3 class="product-name">Organic Tomatoes (Grade A)</h3>
-                        <p class="supplier-name">Supplier: FarmFresh Anatolia</p>
-                    </div>
-                    <div class="product-price">$1.20 / kg</div>
-                </div>
-            </div>
+﻿@model IReadOnlyList<GBazaar.ViewModels.Home.ProductCardViewModel>
 
-            <div class="product-card">
-                <a asp-controller="Product" asp-action="Details" class="card-image-container stretched-link">
-                    <img src="..." alt="Mock Product" />
-                </a>
-                <div class="card-info">
-                    <div class="info-left">
-                        <h3 class="product-name">Cool T-Shirt</h3>
-                        <p class="supplier-name">Supplier: Cotton Co.</p>
-                    </div>
-                    <div class="product-price">$19.99</div>
-                </div>
-            </div>
+@{
+    var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;
+}
 
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1" style="color: var(--text-main);">Featured Marketplace Listings</h1>
+            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>
         </div>
+        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">
+            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>
+        </form>
     </div>
+
+    @if (usingSamples)
+    {
+        <div class="alert alert-info" role="alert">
+            Showing two sample listings so the card layout can be reviewed before real data arrives.
+        </div>
+    }
+
+    <div class="product-grid">
+        @foreach (var product in Model)
+        {
+            var imageUrl = string.IsNullOrWhiteSpace(product.ImageUrl)
+                ? "https://placehold.co/600x600/ebe9ff/12121d?text=huh?+no+image"
+                : product.ImageUrl;
+
+            <div class="product-card">
+                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductId" class="card-image-container stretched-link">
+                    <img src="@imageUrl" alt="@product.ProductName" />
+                </a>
+                <div class="card-info">
+                    <div class="info-left">
+                        <h3 class="product-name">@product.ProductName</h3>
+                        <p class="supplier-name">Supplier: @product.SupplierName</p>
+                    </div>
+                    <div class="product-price">@product.DisplayPrice()</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

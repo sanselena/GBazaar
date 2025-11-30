@@ -29,9 +29,8 @@ namespace Gbazaar.Data
         public DbSet<GoodsReceiptItem> GoodsReceiptItems { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
-        public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<Product> Products { get; set; }
-
+      public DbSet<Attachment> Attachments { get; set; }
+      public DbSet<Product> Products { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
