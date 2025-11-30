@@ -1,129 +1,169 @@
 using Gbazaar.Data;
 using GBazaar.Models;
-using System.Linq;
 using GBazaar.Models.Enums;
+using GBazaar.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace GBazaar.Controllers
 {
     public class AuthController : Controller
     {
         private readonly ProcurementContext _context;
+        private readonly PasswordHasher<User> _passwordHasher;
 
         public AuthController(ProcurementContext context)
         {
             _context = context;
-        }
-        public IActionResult Login()
-        {
-            return View();
-        }
-        public IActionResult Signup()
-        {
-            return View();
+            _passwordHasher = new PasswordHasher<User>();
         }
 
+        public IActionResult Login() => View();
+
+        public IActionResult Signup() => View();
 
         [HttpPost]
-        public IActionResult SignupBuyer(string FullName,string CompanyName, string Department, string Email, string Password)
+        //terms and cond ekle
+        public IActionResult SignupBuyer(SignupBuyerVM model)
         {
-           if(string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            if (!ModelState.IsValid)
+                return View("Signup", model);
+
+            var email = model.Email.Trim().ToLowerInvariant(); //olmali mi idk belki silerim
+
+            if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
-                ViewBag.Error = "Email and Password are required.";
-                return View("Signup");
+                ModelState.AddModelError("", "This email is already registered as a supplier.");
+                return View("Signup", model);
             }
 
-           if(_context.Users.Any(u => u.Email == Email))
+            if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
-                ViewBag.Error = "Email is already registered.";
-                return View("Signup");
+                ModelState.AddModelError("", "Email is already registered.");
+                return View("Signup", model);
             }
 
-           var dept = _context.Departments.FirstOrDefault(d => d.DepartmentName == CompanyName + Department);
-              if(dept == null)
+            var deptName = $"{model.CompanyName?.Trim()} {model.Department?.Trim()}".Trim().ToLower();
+            var dept = _context.Departments.FirstOrDefault(d => d.DepartmentName.ToLower() == deptName);
+
+            if (dept == null)
             {
                 dept = new Department
                 {
-                    DepartmentName = CompanyName +" "+ Department
+                    DepartmentName = $"{model.CompanyName?.Trim()} {model.Department?.Trim()}"
                 };
                 _context.Departments.Add(dept);
-                _context.SaveChanges();
             }
 
-                var user = new User
+            var user = new User
             {
-                FullName = FullName,
-                DepartmentID = dept.DepartmentID,
-                Email = Email,
-                PasswordHash = Password, // In real application, hash the password
-               // RoleID = (int)UserRole.Buyer rol eklencek
-               // JobTitle = JobTitle eklencek
+                FullName = model.FullName?.Trim(),
+                Email = email,
+                DepartmentID = dept.DepartmentID
+                //role eklencek
             };
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+
+            try
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An unexpected error occurred while creating the account.");
+                return View("Signup", model);
+            }
 
             return RedirectToAction("Login");
         }
 
         [HttpPost]
-        public IActionResult SignupSupplier(string BusinessName, string TaxId, string ContactInfo, string Password, bool AcceptTerms)
+        public IActionResult SignupSupplier(SignupSupplierVM model)
         {
-            if (string.IsNullOrWhiteSpace(ContactInfo) ||
-                string.IsNullOrWhiteSpace(Password) ||
-                string.IsNullOrWhiteSpace(BusinessName) ||
-                string.IsNullOrWhiteSpace(TaxId))
+            if (!ModelState.IsValid)
+                return View("Signup", model);
+
+            var email = model.ContactInfo.Trim().ToLowerInvariant();
+
+            if (_context.Suppliers.Any(s => s.TaxID == model.TaxId))
             {
-                ViewBag.Error = "All fields are required.";
-                return View("Signup");
+                ModelState.AddModelError("", "Tax ID is already registered.");
+                return View("Signup", model);
             }
 
-            if (!AcceptTerms)
+            if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
-                ViewBag.Error = "You must accept the terms and conditions.";
-                return View("Signup");
+                ModelState.AddModelError("", "This email is already registered as a buyer.");
+                return View("Signup", model);
             }
 
-            if(_context.Suppliers.Any(s=>s.TaxID == TaxId))
+            if (!model.AcceptTerms)
             {
-                ViewBag.Error = "Tax ID is already registered.";
-                return View("Signup");
+                ModelState.AddModelError("", "You must accept the terms and conditions.");
+                return View("Signup", model);
             }
 
             var supplier = new Supplier
             {
-                SupplierName = BusinessName,
-                TaxID = TaxId,
-                ContactInfo = ContactInfo,
-                //PasswordHash = Password // In real application, hash the password
+                SupplierName = model.BusinessName?.Trim(),
+                TaxID = model.TaxId?.Trim(),
+                ContactInfo = email
+                // simdilik Password yok 
             };
 
-            _context.Suppliers.Add(supplier);
-            _context.SaveChanges();
+            try
+            {
+                _context.Suppliers.Add(supplier);
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An unexpected error occurred while creating supplier account.");
+                return View("Signup", model);
+            }
 
             return RedirectToAction("Login");
         }
 
         [HttpPost]
-        public IActionResult Login(string Email, string Password)
+        public IActionResult Login(LoginVM model)
         {
-            if(string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var email = model.Email.Trim().ToLowerInvariant();
+
+            var user = _context.Users.SingleOrDefault(u => u.Email.ToLower() == email);
+
+            if (user != null)
             {
-                ViewBag.Error = "Email and Password are required.";
-                return View();
-            }
-            
-           var userExists = _context.Users.Any(u => u.Email == Email && u.PasswordHash == Password);
-           var supplierExist = _context.Suppliers.Any(s => s.ContactInfo == Email /*&& s.PasswordHash == Password*/);
+                var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+                if (verify == PasswordVerificationResult.Success ||
+                    verify == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    //cookie?
+                    return RedirectToAction("Index", "Home");
+                }
 
-            if (userExists && supplierExist) {
-                return RedirectToAction("Index", "Home");
+                ModelState.AddModelError("", "Invalid email or password.");
+                return View(model);
             }
-            
-            ViewBag.Error = "Account not found";
-            return View();
 
+            var supplier = _context.Suppliers.SingleOrDefault(s => s.ContactInfo.ToLower() == email);
+
+            if (supplier != null)
+            {
+                // simdilik passwordsuz giris ok
+                return RedirectToAction("Dashboard", "Supplier", new { id = supplier.SupplierID });
+            }
+
+            ModelState.AddModelError("", "Account not found.");
+            return View(model);
         }
-
     }
 }

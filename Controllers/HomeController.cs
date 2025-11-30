@@ -4,25 +4,25 @@ using GBazaar.Models;
 using GBazaar.ViewModels.Home;
 using Gbazaar.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace GBazaar.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ProcurementContext _context;
+    private readonly ILogger<HomeController> _logger;
+    private readonly ProcurementContext _context;
 
-        private static readonly TimeSpan CatalogQueryTimeout = TimeSpan.FromSeconds(2);
-        private static readonly TimeSpan CatalogRetryCooldown = TimeSpan.FromMinutes(5);
-        private static readonly object CatalogStateGate = new();
-        private static DateTimeOffset _catalogRetryAfterUtc = DateTimeOffset.MinValue;
+    private static readonly TimeSpan CatalogQueryTimeout = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan CatalogRetryCooldown = TimeSpan.FromMinutes(5);
+    private static readonly object CatalogStateGate = new();
+    private static DateTimeOffset _catalogRetryAfterUtc = DateTimeOffset.MinValue;
 
-        public HomeController(ILogger<HomeController> logger, ProcurementContext context)
-        {
-            _logger = logger;
-            _context = context;
+    public HomeController(ILogger<HomeController> logger, ProcurementContext context)
+    {
+        _logger = logger;
+        _context = context;
         }
 
         public async Task<IActionResult> Index()

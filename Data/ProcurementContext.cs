@@ -29,9 +29,8 @@ namespace Gbazaar.Data
         public DbSet<GoodsReceiptItem> GoodsReceiptItems { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
-        public DbSet<Attachment> Attachments { get; set; }
+      public DbSet<Attachment> Attachments { get; set; }
       public DbSet<Product> Products { get; set; }
-       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -137,6 +136,10 @@ namespace Gbazaar.Data
                 entity.HasOne(i => i.Supplier)
                       .WithMany(s => s.PRItems)
                       .HasForeignKey(i => i.SupplierID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(i => i.Product)
+                      .WithMany(p => p.PRItems)
+                      .HasForeignKey(i => i.PRItemID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -296,6 +299,10 @@ namespace Gbazaar.Data
                       .HasForeignKey(p => p.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
                 entity.HasIndex(p => new { p.SupplierID, p.ProductName }).IsUnique();
+                entity.HasMany(p => p.PRItems)
+                      .WithOne(pri => pri.Product)
+                      .HasForeignKey(p => p.PRItemID)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<GoodsReceiptItem>(entity =>
