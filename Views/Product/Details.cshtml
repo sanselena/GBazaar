@@ -1,125 +1,141 @@
 <!--AŞK buraya öyle bir metod lazım ki hangi ürünün id'si ile bu sayfa açılmışsa o ürünün detayları  gözüksün nasıl olacağına pek kafam basmıyor şu an-->
 @model GBazaar.Models.Product
-    <div class="container mt-5 mb-5">
-        
-        <div class="row">
-            
-            <div class="col-md-6">
-                <div class="main-image-container">
-                    <div class="arrow arrow-left"><i class="fas fa-chevron-left"></i></div>
-                    <img src="https://via.placeholder.com/600/C4C1ED/6E6DCC?text=Main+Product+Photo" class="main-img" alt="Main Product">
-                    <div class="arrow arrow-right"><i class="fas fa-chevron-right"></i></div>
+
+@{
+    var usingSampleProduct = ViewBag.UsingSampleProduct is bool sample && sample;
+    var priceDisplay = Model.UnitPrice.HasValue
+        ? Model.UnitPrice.Value.ToString("C")
+        : "Pricing on request";
+    var unitSuffix = string.IsNullOrWhiteSpace(Model.UnitOfMeasure)
+        ? string.Empty
+        : $" / {Model.UnitOfMeasure}";
+    var supplierName = Model.Supplier?.SupplierName ?? "Unknown Supplier";
+    var supplierInitial = string.IsNullOrWhiteSpace(supplierName)
+        ? "?"
+        : supplierName.Trim()[0].ToString().ToUpperInvariant();
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div class="main-image-container">
+                <div class="arrow arrow-left"><i class="fas fa-chevron-left"></i></div>
+                <img src="https://via.placeholder.com/600/C4C1ED/6E6DCC?text=Main+Product+Photo" class="main-img" alt="@Model.ProductName main image">
+                <div class="arrow arrow-right"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <div class="thumbnail-strip mt-3">
+                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=1" class="thumb active" alt="Product thumbnail 1">
+                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=2" class="thumb" alt="Product thumbnail 2">
+                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=3" class="thumb" alt="Product thumbnail 3">
+            </div>
+        </div>
+
+        <div class="col-md-6 product-details-col">
+            @if (usingSampleProduct)
+            {
+                <div class="alert alert-info mb-3" role="alert">
+                    Showing a placeholder listing because the live product catalog is currently unreachable.
                 </div>
-                
-                <div class="thumbnail-strip mt-3">
-                    <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=1" class="thumb active">
-                    <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=2" class="thumb">
-                    <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=3" class="thumb">
+            }
+
+            <span class="badge bg-secondary mb-2">Wholesale / Bulk</span>
+            <h1 class="product-title">@Model.ProductName</h1>
+
+            <div class="supplier-card mb-3 p-2 border rounded d-flex align-items-center gap-3" style="background-color: white;">
+                <div class="avatar-circle" style="background-color: var(--primary);">@supplierInitial</div>
+                <div>
+                    <div style="font-weight: bold; font-size: 0.9rem;">@supplierName</div>
+                    <div style="font-size: 0.8rem; color: #666;">Member since 2021 • Success Rate: 94%</div>
                 </div>
             </div>
 
-            <div class="col-md-6 product-details-col">
-    
-    <span class="badge bg-secondary mb-2">Wholesale / Bulk</span>
-    <h1 class="product-title">Organic Tomatoes (Grade A)</h1>
-    
-    <div class="supplier-card mb-3 p-2 border rounded d-flex align-items-center gap-3" style="background-color: white;">
-        <div class="avatar-circle" style="background-color: var(--primary);">F</div>
-        <div>
-            <div style="font-weight: bold; font-size: 0.9rem;">FarmFresh Anatolia</div>
-            <div style="font-size: 0.8rem; color: #666;">Member since 2021 • Success Rate: 94%</div>
-        </div>
-    </div>
+            <div class="rating-section mb-3">
+                <span class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </span>
+                <span class="review-count">(Based on 42 fulfilled orders)</span>
+            </div>
 
-    <div class="rating-section mb-3">
-        <span class="stars">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-            <!--AŞK yıldız rating hesaplaması-->
-        </span>
-        <span class="review-count">(Based on 42 fulfilled orders)</span>
-    </div>
+            <div class="price-info mb-4">
+                <span class="text-muted">Supplier Asking Price:</span>
+                <div class="price-tag" style="font-size: 1.5rem;">@priceDisplay<span style="font-size: 1rem; color: #666;">@unitSuffix</span></div>
+                <div style="font-size: 0.9rem; color: #28a745;"><i class="fas fa-check-circle"></i> 50,000 kg Available Now</div>
+            </div>
 
-    <div class="price-info mb-4">
-        <span class="text-muted">Supplier Asking Price:</span>
-        <div class="price-tag" style="font-size: 1.5rem;">$1.20 <span style="font-size: 1rem; color: #666;">/ kg</span></div>
-        <div style="font-size: 0.9rem; color: #28a745;"><i class="fas fa-check-circle"></i> 50,000 kg Available Now</div>
-    </div>
-
-    <div class="offer-card p-4" style="background-color: #f8f9fa; border: 2px solid var(--border-pop); border-radius: 15px;">
-        <h4 class="mb-3" style="color: var(--text-main); font-weight: 700;">Create Purchase Request</h4>
+            <div class="offer-card p-4" style="background-color: #f8f9fa; border: 2px solid var(--border-pop); border-radius: 15px;">
+                <h4 class="mb-3" style="color: var(--text-main); font-weight: 700;">Create Purchase Request</h4>
 
                 <form asp-action="CreatePurchaseRequest" asp-controller="Product" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600;">Quantity Required (kg)</label>
+                        <input type="number" class="form-control custom-input" placeholder="e.g. 10000">
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label" style="font-weight: 600;">Quantity Required (kg)</label>
-                <input type="number" class="form-control custom-input" placeholder="e.g. 10000">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600;">Your Offer per Unit ($)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" placeholder="e.g. 1.00" style="border-radius: 0 50px 50px 0;">
+                        </div>
+                        <small class="text-muted">You are offering $0.20 less than asking.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600;">Note to Supplier</label>
+                        <textarea class="form-control" rows="2" style="border-radius: 15px; border: 1px solid #ccc;" placeholder="Need delivery by next Friday..."></textarea>
+                    </div>
+
+                    <button type="button" class="btn w-100" style="background-color: var(--text-main); color: white; border-radius: 50px; padding: 12px; font-weight: bold;">
+                        Submit Proposal
+                    </button>
+                </form>
             </div>
-
-            <div class="mb-3">
-                <label class="form-label" style="font-weight: 600;">Your Offer per Unit ($)</label>
-                <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" placeholder="e.g. 1.00" style="border-radius: 0 50px 50px 0;">
-                </div>
-                <small class="text-muted">You are offering $0.20 less than asking.</small>
-                <!--AŞK küçük bir hesaplama metodu-->
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label" style="font-weight: 600;">Note to Supplier</label>
-                <textarea class="form-control" rows="2" style="border-radius: 15px; border: 1px solid #ccc;" placeholder="Need delivery by next Friday..."></textarea>
-            </div>
-
-            <button type="button" class="btn w-100" style="background-color: var(--text-main); color: white; border-radius: 50px; padding: 12px; font-weight: bold;">
-                Submit Proposal
-                <!--AŞK burdan gerçekten request gitmesi gerekiyor supplier'a-->
-            </button>
-        </form>
+        </div>
     </div>
 
-</div>
-                <h1 class="product-title">Organic Ass Tomatoass</h1>
-                
-                <div class="price-tag">$49.99</div>
+    <div class="row mt-5">
+        <div class="col-lg-10 mx-auto">
+            <h1 class="product-title">@Model.ProductName</h1>
+            <div class="price-tag">@priceDisplay</div>
 
-                <div class="rating-section">
-                    <span class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i> </span>
-                    <span class="review-count">(42 reviews)</span>
-                    <!--AŞK 42 yerine kaç comment varsa onun değişkenini koyarız-->
+            <div class="rating-section d-flex flex-column flex-md-row align-items-md-center gap-2 mt-3">
+                <span class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </span>
+                <span class="review-count">(42 reviews)</span>
+                <!--AŞK 42 yerine kaç comment varsa onun değişkenini koyarız-->
+            </div>
+
+            <div class="mt-4">
+                <h5 style="border-bottom: 2px solid var(--border-pop); padding-bottom: 10px; display:inline-block;">Logistics & Specs</h5>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li><strong>Origin:</strong> Antalya, TR</li>
+                        <li><strong>Harvest Date:</strong> Nov 24, 2025</li>
+                        <li><strong>Shelf Life:</strong> 14 Days</li>
+                    </ul>
                 </div>
+                <div class="col-md-6">
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li><strong>Min Order:</strong> 500 kg</li>
+                        <li><strong>Shipping:</strong> Refrigerated Truck</li>
+                        <li><strong>Certifications:</strong> Organic, ISO 9001</li>
+                    </ul>
+                </div>
+            </div>
 
-                <div class="product-description mt-5">
-    <h5 style="border-bottom: 2px solid var(--border-pop); padding-bottom: 10px; display:inline-block;">Logistics & Specs</h5>
-    <div class="row mt-3">
-        <div class="col-6">
-            <ul style="list-style: none; padding-left: 0;">
-                <li><strong>Origin:</strong> Antalya, TR</li>
-                <li><strong>Harvest Date:</strong> Nov 24, 2025</li>
-                <li><strong>Shelf Life:</strong> 14 Days</li>
-            </ul>
-        </div>
-        <div class="col-6">
-            <ul style="list-style: none; padding-left: 0;">
-                <li><strong>Min Order:</strong> 500 kg</li>
-                <li><strong>Shipping:</strong> Refrigerated Truck</li>
-                <li><strong>Certifications:</strong> Organic, ISO 9001</li>
-            </ul>
+            <p class="mt-3">Premium grade organic tomatoes suitable for retail sale or sauce production. Hand-picked and washed.</p>
         </div>
     </div>
-    <p class="mt-3">Premium grade organic tomatoes suitable for retail sale or sauce production. Hand-picked and washed.</p>
-       
-        </div>
 
-        <hr class="my-5" style="border-color: var(--border-pop);">
-
-        </div>
     <!--DUZENLENCEK BACKE VERI-->
-    </div>
+</div>
 
 
-               

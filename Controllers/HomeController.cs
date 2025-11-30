@@ -1,28 +1,27 @@
 using System.Diagnostics;
-using System.Net.Sockets;
 using GBazaar.Models;
+using GBazaar.Services;
 using GBazaar.ViewModels.Home;
 using Gbazaar.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBazaar.Controllers
 {
     public class HomeController : Controller
     {
-    private readonly ILogger<HomeController> _logger;
-    private readonly ProcurementContext _context;
+        private readonly ILogger<HomeController> _logger;
+        private readonly ProcurementContext _context;
 
-    private static readonly TimeSpan CatalogQueryTimeout = TimeSpan.FromSeconds(2);
-    private static readonly TimeSpan CatalogRetryCooldown = TimeSpan.FromMinutes(5);
-    private static readonly object CatalogStateGate = new();
-    private static DateTimeOffset _catalogRetryAfterUtc = DateTimeOffset.MinValue;
+        private static readonly TimeSpan CatalogQueryTimeout = TimeSpan.FromSeconds(2);
+        private static readonly TimeSpan CatalogRetryCooldown = TimeSpan.FromMinutes(5);
+        private static readonly object CatalogStateGate = new();
+        private static DateTimeOffset _catalogRetryAfterUtc = DateTimeOffset.MinValue;
 
-    public HomeController(ILogger<HomeController> logger, ProcurementContext context)
-    {
-        _logger = logger;
-        _context = context;
+        public HomeController(ILogger<HomeController> logger, ProcurementContext context)
+        {
+            _logger = logger;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -72,7 +71,7 @@ namespace GBazaar.Controllers
                     _logger.LogWarning(ex, "Falling back to sample products because the catalog query timed out.");
                     RegisterCatalogFailure(now, CatalogRetryCooldown);
                 }
-                catch (Exception ex) when (IsCatalogConnectivityIssue(ex))
+                catch (Exception ex) when (CatalogFallbackService.IsCatalogConnectivityIssue(ex))
                 {
                     _logger.LogWarning(ex, "Falling back to sample products because the catalog database is unreachable.");
                     RegisterCatalogFailure(now, CatalogRetryCooldown);
@@ -87,7 +86,7 @@ namespace GBazaar.Controllers
             if (cards is null || !cards.Any())
             {
                 ViewBag.UsingSampleProducts = true;
-                return View(ShuffleCards(CreateSampleCatalog()));
+                return View(ShuffleCards(CatalogFallbackService.CreateSampleCatalog()));
             }
 
             ViewBag.UsingSampleProducts = false;
@@ -111,48 +110,6 @@ namespace GBazaar.Controllers
             {
                 _catalogRetryAfterUtc = now.Add(delay);
             }
-        }
-
-        private static bool IsCatalogConnectivityIssue(Exception ex)
-        {
-            if (ex is SqlException || ex is SocketException)
-            {
-                return true;
-            }
-
-            if (ex.InnerException is not null)
-            {
-                return IsCatalogConnectivityIssue(ex.InnerException);
-            }
-
-            return false;
-        }
-
-        private static List<ProductCardViewModel> CreateSampleCatalog()
-        {
-            return new List<ProductCardViewModel>
-            {
-                new()
-                {
-                    ProductId = 1,
-                    ProductName = "Organic Tomatoes (Sample)",
-                    SupplierName = "FarmFresh Anatolia",
-                    UnitPrice = 1.20m,
-                    UnitOfMeasure = "kg",
-                    Description = "Sun-ripened tomatoes ready for salad prep.",
-                    ImageUrl = null
-                },
-                new()
-                {
-                    ProductId = 2,
-                    ProductName = "Cool T-Shirt (Sample)",
-                    SupplierName = "Cotton Co.",
-                    UnitPrice = 19.99m,
-                    UnitOfMeasure = null,
-                    Description = "Pre-shrunk cotton tee with unisex fit.",
-                    ImageUrl = null
-                }
-            };
         }
 
         private static List<ProductCardViewModel> ShuffleCards(IEnumerable<ProductCardViewModel> source)
