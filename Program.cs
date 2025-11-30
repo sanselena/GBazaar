@@ -2,6 +2,7 @@
 using GBazaar.Models;
 using Gbazaar.Data;// Ensure Models are accessible if needed globally (Good practice)
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,10 @@ builder.Services.AddDbContext<ProcurementContext>(options =>
 
 
 var app = builder.Build();
+
+var defaultCulture = CultureInfo.GetCultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
 // ==========================================================
 // 2. APPLICATION PIPELINE (app.Use...)

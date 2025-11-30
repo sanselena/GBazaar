@@ -30,6 +30,7 @@ namespace Gbazaar.Data
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
+      public DbSet<Product> Products { get; set; }
        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
