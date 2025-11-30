@@ -34,6 +34,10 @@ namespace GBazaar.Models
         public int? SupplierID { get; set; }
         [ForeignKey(nameof(SupplierID))]
         public virtual Supplier? Supplier { get; set; }
+        public int ProductID { get; set; }
+        [ForeignKey(nameof(ProductID))]
+        public virtual Product Product { get; set; }
+
 
         [Required]
         public virtual PurchaseRequest PurchaseRequest { get; set; }
