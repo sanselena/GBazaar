@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    
+    @using Microsoft.AspNetCore.Http
+    @inject IHttpContextAccessor HttpContextAccessor
+
     <!--NAVBAR -->
     <nav class="custom-nav">
         <div class="nav-left">
@@ -22,9 +24,34 @@
             <input type="text" class="search-input" placeholder="Search..." />
         </div>
         <div class="nav-right">
-            <!-- ASP.NET Helpers for links -->
-            <a asp-controller="Auth" asp-action="Login" class="nav-link-custom">Login / SignUp</a>
-            <a href="#" class="nav-link-custom">ShoppingCart</a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                var userType = User.FindFirst("UserType")?.Value;
+
+                <div class="top-menu d-flex align-items-center">
+                    @if (userType == "Buyer")
+                    {
+                        <a asp-controller="Buyer" asp-action="Profile" class="nav-link-custom">Workspace</a>
+                    }
+                    else if (userType == "Supplier")
+                    {
+                        <a asp-controller="Supplier" asp-action="Dashboard" class="nav-link-custom">Dashboard</a>
+                    }
+
+                    <a asp-controller="Cart" asp-action="Index" class="nav-link-custom">ShoppingCart</a>
+
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="ms-2">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Sign Out</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="top-menu">
+                    <a asp-controller="Auth" asp-action="Login" class="nav-link-custom">Login / SignUp</a>
+                    <a asp-controller="Cart" asp-action="Index" class="nav-link-custom">ShoppingCart</a>
+                </div>
+            }
         </div>
     </nav>
 

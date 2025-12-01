@@ -8,17 +8,21 @@ namespace GBazaar.Models.ViewModels
         public string FullName { get; set; }
 
         [Required]
-        public string CompanyName { get; set; }
-
-        [Required]
-        public string Department { get; set; }
-
-        [Required, EmailAddress]
         public string Email { get; set; }
 
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
         public string Password { get; set; }
+
+        [Required]
+        public int DepartmentID { get; set; }
+
+        [Required]
+        public bool AcceptTerms { get; set; }
+
+
+
+
     }
 
 }

@@ -1,4 +1,4 @@
- // Ensures ProcurementContext is found
+// Ensures ProcurementContext is found
 using GBazaar.Models;
 using Gbazaar.Data;// Ensure Models are accessible if needed globally (Good practice)
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add MVC services
 builder.Services.AddControllersWithViews();
+
+//cookie auth
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddHttpContextAccessor();
 
 // --- DATABASE SETUP START ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -45,6 +58,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles(); // Essential for serving CSS, JS, etc.
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -40,6 +40,7 @@ namespace GBazaar.Models
 
 
         [Required]
+        [ForeignKey(nameof(PRID))] 
         public virtual PurchaseRequest PurchaseRequest { get; set; }
     }
 }

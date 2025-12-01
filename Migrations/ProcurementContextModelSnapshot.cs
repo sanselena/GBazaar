@@ -345,7 +345,10 @@ namespace GBazaar.Migrations
             modelBuilder.Entity("GBazaar.Models.PRItem", b =>
                 {
                     b.Property<int>("PRItemID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PRItemID"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -380,6 +383,8 @@ namespace GBazaar.Migrations
                     b.HasKey("PRItemID");
 
                     b.HasIndex("PRID");
+
+                    b.HasIndex("ProductID");
 
                     b.HasIndex("SupplierID");
 
@@ -588,12 +593,18 @@ namespace GBazaar.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierID"));
 
                     b.Property<string>("ContactInfo")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ContactName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("PaymentTermID")
                         .HasColumnType("int");
@@ -608,6 +619,9 @@ namespace GBazaar.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("SupplierID");
+
+                    b.HasIndex("ContactInfo")
+                        .IsUnique();
 
                     b.HasIndex("PaymentTermID");
 
@@ -850,7 +864,7 @@ namespace GBazaar.Migrations
 
                     b.HasOne("GBazaar.Models.Product", "Product")
                         .WithMany("PRItems")
-                        .HasForeignKey("PRItemID")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

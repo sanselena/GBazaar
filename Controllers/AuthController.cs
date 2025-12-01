@@ -1,72 +1,116 @@
-using Gbazaar.Data;
+﻿using Gbazaar.Data;
 using GBazaar.Models;
 using GBazaar.Models.Enums;
 using GBazaar.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Security.Claims;
 
 namespace GBazaar.Controllers
 {
     public class AuthController : Controller
     {
         private readonly ProcurementContext _context;
-        private readonly PasswordHasher<User> _passwordHasher;
+        private readonly PasswordHasher<User> _userPasswordHasher;
+        private readonly PasswordHasher<Supplier> _supplierPasswordHasher;
 
         public AuthController(ProcurementContext context)
         {
             _context = context;
-            _passwordHasher = new PasswordHasher<User>();
+            _userPasswordHasher = new PasswordHasher<User>();
+            _supplierPasswordHasher = new PasswordHasher<Supplier>();
         }
 
         public IActionResult Login() => View();
 
-        public IActionResult Signup() => View();
+        public IActionResult Signup()
+        {
+            // dep dropdownı
+            ViewBag.Departments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentID.ToString(),
+                    Text = d.DepartmentName
+                })
+                .ToList();
+
+            return View();
+        }
 
         [HttpPost]
-        //terms and cond ekle
         public IActionResult SignupBuyer(SignupBuyerVM model)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.Departments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentID.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
                 return View("Signup", model);
+            }
 
-            var email = model.Email.Trim().ToLowerInvariant(); //olmali mi idk belki silerim
+            var email = model.Email.Trim().ToLowerInvariant();
 
             if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a supplier.");
+                ViewBag.Departments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentID.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
                 return View("Signup", model);
             }
 
             if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
                 ModelState.AddModelError("", "Email is already registered.");
+                ViewBag.Departments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentID.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
                 return View("Signup", model);
             }
 
-            var deptName = $"{model.CompanyName?.Trim()} {model.Department?.Trim()}".Trim().ToLower();
-            var dept = _context.Departments.FirstOrDefault(d => d.DepartmentName.ToLower() == deptName);
+            var dept = _context.Departments.FirstOrDefault(d => d.DepartmentID == model.DepartmentID);
 
             if (dept == null)
             {
-                dept = new Department
-                {
-                    DepartmentName = $"{model.CompanyName?.Trim()} {model.Department?.Trim()}"
-                };
-                _context.Departments.Add(dept);
+                ModelState.AddModelError("", "Selected department does not exist.");
+                ViewBag.Departments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentID.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
+                return View("Signup", model);
             }
 
             var user = new User
             {
                 FullName = model.FullName?.Trim(),
                 Email = email,
-                DepartmentID = dept.DepartmentID
-                //role eklencek
+                DepartmentID = dept.DepartmentID,
+                RoleID = 1, // Default olarak Officer (1) role'ü veriyoruz
+                IsActive = true
             };
 
-            user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+            user.PasswordHash = _userPasswordHasher.HashPassword(user, model.Password);
 
             try
             {
@@ -76,6 +120,13 @@ namespace GBazaar.Controllers
             catch (Exception)
             {
                 ModelState.AddModelError("", "An unexpected error occurred while creating the account.");
+                ViewBag.Departments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentID.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
                 return View("Signup", model);
             }
 
@@ -92,19 +143,19 @@ namespace GBazaar.Controllers
 
             if (_context.Suppliers.Any(s => s.TaxID == model.TaxId))
             {
-                ModelState.AddModelError("", "Tax ID is already registered.");
+                ModelState.AddModelError("TaxId", "Tax ID is already registered.");
                 return View("Signup", model);
             }
 
-            if (_context.Users.Any(u => u.Email.ToLower() == email))
+            if (_context.Users.Any(u => u.Email.ToLower() == email) || _context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
-                ModelState.AddModelError("", "This email is already registered as a buyer.");
+                ModelState.AddModelError("ContactInfo", "This email is already registered.");
                 return View("Signup", model);
             }
 
             if (!model.AcceptTerms)
             {
-                ModelState.AddModelError("", "You must accept the terms and conditions.");
+                ModelState.AddModelError("AcceptTerms", "You must accept the terms and conditions.");
                 return View("Signup", model);
             }
 
@@ -112,9 +163,10 @@ namespace GBazaar.Controllers
             {
                 SupplierName = model.BusinessName?.Trim(),
                 TaxID = model.TaxId?.Trim(),
-                ContactInfo = email
-                // simdilik Password yok 
+                ContactInfo = email,
             };
+
+            supplier.PasswordHash = _supplierPasswordHasher.HashPassword(supplier, model.Password);
 
             try
             {
@@ -123,7 +175,7 @@ namespace GBazaar.Controllers
             }
             catch (Exception)
             {
-                ModelState.AddModelError("", "An unexpected error occurred while creating supplier account.");
+                ModelState.AddModelError("", "An unexpected error occurred while creating the supplier account.");
                 return View("Signup", model);
             }
 
@@ -131,39 +183,82 @@ namespace GBazaar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(LoginVM model)
+        public async Task<IActionResult> Login(LoginVM model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             var email = model.Email.Trim().ToLowerInvariant();
+            var claims = new List<Claim>();
+            ClaimsIdentity identity;
 
-            var user = _context.Users.SingleOrDefault(u => u.Email.ToLower() == email);
+            // 1. Kullanıcı olarak giriş yapmayı dene
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .SingleOrDefaultAsync(u => u.Email.ToLower() == email);
 
-            if (user != null)
+            if (user != null && user.IsActive)
             {
-                var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-                if (verify == PasswordVerificationResult.Success ||
-                    verify == PasswordVerificationResult.SuccessRehashNeeded)
+                var verificationResult = _userPasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+                if (verificationResult == PasswordVerificationResult.Success || verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
                 {
-                    //cookie?
-                    return RedirectToAction("Index", "Home");
-                }
+                    claims.AddRange(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                        new Claim(ClaimTypes.Name, user.FullName),
+                        new Claim("UserType", "User"),
+                        new Claim(ClaimTypes.Role, user.RoleID.ToString()),
+                        new Claim("RoleName", user.Role?.RoleName ?? "Unknown")
+                    });
 
-                ModelState.AddModelError("", "Invalid email or password.");
-                return View(model);
+                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+                    await HttpContext.SignInAsync("CookieAuth", principal);
+
+                    // Kullanıcının rolüne göre yönlendirme
+                    return user.RoleID switch
+                    {
+                        1 => RedirectToAction("Profile", "Buyer"), // Officer
+                        2 => RedirectToAction("Profile", "Buyer"), // Manager
+                        3 => RedirectToAction("Profile", "Buyer"), // Director
+                        4 => RedirectToAction("Profile", "Buyer"), // CFO
+                        _ => RedirectToAction("Profile", "Buyer")  // Default
+                    };
+                }
             }
 
-            var supplier = _context.Suppliers.SingleOrDefault(s => s.ContactInfo.ToLower() == email);
-
+            // 2. Tedarikçi olarak giriş yapmayı dene
+            var supplier = await _context.Suppliers.SingleOrDefaultAsync(s => s.ContactInfo.ToLower() == email);
             if (supplier != null)
             {
-                // simdilik passwordsuz giris ok
-                return RedirectToAction("Dashboard", "Supplier", new { id = supplier.SupplierID });
+                var verificationResult = _supplierPasswordHasher.VerifyHashedPassword(supplier, supplier.PasswordHash, model.Password);
+                if (verificationResult == PasswordVerificationResult.Success || verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    claims.AddRange(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, supplier.SupplierID.ToString()),
+                        new Claim(ClaimTypes.Name, supplier.SupplierName),
+                        new Claim("UserType", "Supplier")
+                    });
+
+                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+                    await HttpContext.SignInAsync("CookieAuth", principal);
+
+                    return RedirectToAction("Dashboard", "Supplier");
+                }
             }
 
-            ModelState.AddModelError("", "Account not found.");
+            ModelState.AddModelError("", "Invalid email or password.");
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("CookieAuth");
+            return RedirectToAction("Login");
+        }
+
     }
 }

@@ -13,11 +13,9 @@ namespace GBazaar.Models.ViewModels
         [Required]
         public string ContactInfo { get; set; }
 
-        [Required]
-        [MinLength(6)]
-        public string Password { get; set; }
+        // [Required]
+        public string? Password { get; set; }
 
         public bool AcceptTerms { get; set; }
     }
-
 }
