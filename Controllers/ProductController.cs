@@ -1,11 +1,13 @@
-using System.Threading;
-using System.Threading.Tasks;
-using Gbazaar.Data;
+﻿using Gbazaar.Data;
 using GBazaar.Models;
 using GBazaar.Models.ViewModels;
 using GBazaar.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GBazaar.Controllers
 {
@@ -69,56 +71,51 @@ namespace GBazaar.Controllers
 
         //pr olusturma
         [HttpPost]
+        [Authorize] // Bu metoda sadece giriş yapmış kullanıcılar erişebilsin
         public IActionResult CreatePurchaseRequest(PRVM model)
         {
+            // 1. Giriş yapmış kullanıcının ID'sini al
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var buyerId))
+            {
+                // Kullanıcı bulunamazsa login sayfasına yönlendir
+                return RedirectToAction("Login", "Auth");
+            }
+
+            // 2. Model geçerliliğini kontrol et
             if (!ModelState.IsValid)
             {
+                // Hatanın ne olduğunu bul ve daha spesifik bir mesaj göster
+                string errorMsg = "Please ensure all required fields are filled correctly. ";
+                if (model.Quantity <= 0) errorMsg += "Quantity must be greater than zero. ";
+                if (model.UnitPrice <= 0) errorMsg += "Unit price must be greater than zero. ";
+
+                TempData["Error"] = errorMsg;
                 return RedirectToAction("Details", new { id = model.ProductId });
             }
 
-            var product = _context.Products
-                .Include(p => p.Supplier)
-                .FirstOrDefault(p => p.ProductID == model.ProductId);
-
+            var product = _context.Products.AsNoTracking().FirstOrDefault(p => p.ProductID == model.ProductId);
             if (product == null)
-                return NotFound();
-
-            PurchaseRequest pr;
-
-            if (model.PRID == 0)
             {
-                 pr = new PurchaseRequest
+                return NotFound();
+            }
+
+            try
+            {
+                // 3. Yeni bir PurchaseRequest nesnesi oluştur
+                var purchaseRequest = new PurchaseRequest
                 {
-                    RequesterID = model.BuyerId,
+                    RequesterID = buyerId,
                     SupplierID = product.SupplierID,
-                    DateSubmitted = DateTime.Now,
-                    PRStatus = Models.Enums.PRStatusType.PendingApproval,
-                    PRStatusID = (int)Models.Enums.PRStatusType.PendingApproval,
-                    EstimatedTotal = 0 //item eklenince assa yazdim
+                    DateSubmitted = DateTime.UtcNow,
+                    PRStatus = Models.Enums.PRStatusType.Draft, 
+                    PRStatusID = (int)Models.Enums.PRStatusType.Draft, 
+                    Justification = model.Justification,
+                    EstimatedTotal = model.Quantity * model.UnitPrice
                 };
 
-                _context.PurchaseRequests.Add(pr);
-                _context.SaveChanges();
-            }
-            else
-            {
-                pr = _context.PurchaseRequests.FirstOrDefault(pr => pr.PRID == model.PRID);
-                if (pr == null)
-                {
-                    return NotFound();
-                }
-
-                if(pr.SupplierID != product.SupplierID)
-                {
-                   ModelState.AddModelError("", "The selected product's supplier does not match the existing Purchase Request's supplier.");
-                     return RedirectToAction("Details", new { id = model.ProductId });
-                }
-
-            }
-            
+                // 4. PRItem'ı oluştur ve ekle
                 var prItem = new PRItem
                 {
-                    PRID = pr.PRID,
                     ProductID = model.ProductId,
                     PRItemName = model.ProductName,
                     Description = model.ProductDescription,
@@ -128,17 +125,23 @@ namespace GBazaar.Controllers
                     SupplierID = product.SupplierID
                 };
 
-                _context.PRItems.Add(prItem);
+                purchaseRequest.PRItems.Add(prItem);
+                _context.PurchaseRequests.Add(purchaseRequest);
                 _context.SaveChanges();
 
-            // esttotaalll
-            pr.EstimatedTotal = (decimal)_context.PRItems
-                .Where(item => item.PRID == pr.PRID)
-                .Sum(item => item.Quantity * item.UnitPrice);
-            _context.SaveChanges();
+                // 5. Approval chain başlat
+                return RedirectToAction("Submit", "Approval", new { id = purchaseRequest.PRID });
 
-            return RedirectToAction("Details", new {id = model.ProductId});
+                // Eski kod: TempData["Success"] = $"Purchase request for '{product.ProductName}' created successfully!";
+                // Eski kod: return RedirectToAction("Details", new { id = model.ProductId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating a purchase request for product {ProductId}.", model.ProductId);
+                TempData["Error"] = "An unexpected error occurred. Please try again.";
+                return RedirectToAction("Details", new { id = model.ProductId });
+            }
         }
-    }
 
+    }
 }

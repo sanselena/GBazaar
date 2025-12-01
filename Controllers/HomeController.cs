@@ -1,10 +1,8 @@
-using System.Diagnostics;
+﻿using Gbazaar.Data;
 using GBazaar.Models;
-using GBazaar.Services;
-using GBazaar.ViewModels.Home;
-using Gbazaar.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace GBazaar.Controllers
 {
@@ -12,11 +10,7 @@ namespace GBazaar.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ProcurementContext _context;
-
-        private static readonly TimeSpan CatalogQueryTimeout = TimeSpan.FromSeconds(2);
-        private static readonly TimeSpan CatalogRetryCooldown = TimeSpan.FromMinutes(5);
-        private static readonly object CatalogStateGate = new();
-        private static DateTimeOffset _catalogRetryAfterUtc = DateTimeOffset.MinValue;
+        private static readonly Random _random = new Random();
 
         public HomeController(ILogger<HomeController> logger, ProcurementContext context)
         {
@@ -26,71 +20,31 @@ namespace GBazaar.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var now = DateTimeOffset.UtcNow;
-            bool shouldAttemptCatalog;
+            // 1. Veritabanından sadece ürün ID'lerini al
+            var allProductIds = await _context.Products
+                .Select(p => p.ProductID)
+                .ToListAsync();
 
-            lock (CatalogStateGate)
-            {
-                shouldAttemptCatalog = now >= _catalogRetryAfterUtc;
-            }
+            // 2. ID listesini bellekte karıştır ve 12 tane seç
+            var randomIds = allProductIds
+                .OrderBy(id => _random.Next())
+                .Take(12)
+                .ToList();
 
-            List<ProductCardViewModel>? cards = null;
+            // 3. Sadece seçilen ID'lere sahip ürünleri veritabanından çek
+            var products = await _context.Products
+                .Where(p => randomIds.Contains(p.ProductID))
+                .Include(p => p.Supplier)
+                .AsNoTracking()
+                .ToListAsync();
 
-            if (shouldAttemptCatalog)
-            {
-                try
-                {
-                    using var cts = new CancellationTokenSource(CatalogQueryTimeout);
+            // 4. Son listeyi de rastgele sıralamak için (isteğe bağlı ama önerilir)
+            var finalProducts = products
+                .OrderBy(p => randomIds.IndexOf(p.ProductID))
+                .ToList();
 
-                    var products = await _context.Products
-                        .AsNoTracking()
-                        .Include(p => p.Supplier)
-                        .ToListAsync(cts.Token);
-
-                    if (products.Any())
-                    {
-                        cards = ShuffleCards(products.Select(p => new ProductCardViewModel
-                        {
-                            ProductId = p.ProductID,
-                            ProductName = p.ProductName,
-                            SupplierName = p.Supplier != null ? p.Supplier.SupplierName : "Unknown Supplier",
-                            UnitPrice = p.UnitPrice,
-                            UnitOfMeasure = p.UnitOfMeasure,
-                            Description = p.Description,
-                            ImageUrl = null
-                        }));
-                    }
-
-                    lock (CatalogStateGate)
-                    {
-                        _catalogRetryAfterUtc = DateTimeOffset.MinValue;
-                    }
-                }
-                catch (OperationCanceledException ex)
-                {
-                    _logger.LogWarning(ex, "Falling back to sample products because the catalog query timed out.");
-                    RegisterCatalogFailure(now, CatalogRetryCooldown);
-                }
-                catch (Exception ex) when (CatalogFallbackService.IsCatalogConnectivityIssue(ex))
-                {
-                    _logger.LogWarning(ex, "Falling back to sample products because the catalog database is unreachable.");
-                    RegisterCatalogFailure(now, CatalogRetryCooldown);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to load catalog for home page.");
-                    RegisterCatalogFailure(now, TimeSpan.FromSeconds(30));
-                }
-            }
-
-            if (cards is null || !cards.Any())
-            {
-                ViewBag.UsingSampleProducts = true;
-                return View(ShuffleCards(CatalogFallbackService.CreateSampleCatalog()));
-            }
-
-            ViewBag.UsingSampleProducts = false;
-            return View(cards);
+            // Ürünleri view'a model olarak gönder
+            return View(finalProducts);
         }
 
         public IActionResult Privacy()
@@ -102,27 +56,6 @@ namespace GBazaar.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private static void RegisterCatalogFailure(DateTimeOffset now, TimeSpan delay)
-        {
-            lock (CatalogStateGate)
-            {
-                _catalogRetryAfterUtc = now.Add(delay);
-            }
-        }
-
-        private static List<ProductCardViewModel> ShuffleCards(IEnumerable<ProductCardViewModel> source)
-        {
-            var cards = source.ToList();
-
-            for (var i = cards.Count - 1; i > 0; i--)
-            {
-                var j = Random.Shared.Next(i + 1);
-                (cards[i], cards[j]) = (cards[j], cards[i]);
-            }
-
-            return cards;
         }
     }
 }

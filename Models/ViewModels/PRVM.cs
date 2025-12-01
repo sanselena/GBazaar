@@ -6,7 +6,7 @@
         public int Quantity { get; set; }
        // public decimal OfferPrice { get; set; }
         public int BuyerId { get; set; }
-        public string Note { get; set; }
+        public string Justification { get; set; }
         public int SupplierId { get; set; }
         public string ProductName { get; set; }
         public string ProductDescription { get; set; } = string.Empty;

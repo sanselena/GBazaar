@@ -15,11 +15,17 @@ namespace GBazaar.Models
         [StringLength(100)]
         public string? ContactName { get; set; }
 
+        [Required]
+        [EmailAddress]
         [StringLength(100)] 
-        public string? ContactInfo { get; set; }
+        public string ContactInfo { get; set; }
 
         [StringLength(20)]
         public string? TaxID { get; set; }
+
+        [Required]
+        [StringLength(250)] 
+        public string PasswordHash { get; set; }
 
         public int PaymentTermID { get; set; }
 

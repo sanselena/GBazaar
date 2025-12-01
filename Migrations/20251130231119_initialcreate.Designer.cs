@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GBazaar.Migrations
 {
     [DbContext(typeof(ProcurementContext))]
-    [Migration("20251130000659_renaming")]
-    partial class renaming
+    [Migration("20251130231119_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -366,6 +366,9 @@ namespace GBazaar.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18, 2)");
 
@@ -383,6 +386,8 @@ namespace GBazaar.Migrations
                     b.HasKey("PRItemID");
 
                     b.HasIndex("PRID");
+
+                    b.HasIndex("ProductID");
 
                     b.HasIndex("SupplierID");
 
@@ -591,12 +596,18 @@ namespace GBazaar.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierID"));
 
                     b.Property<string>("ContactInfo")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ContactName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("PaymentTermID")
                         .HasColumnType("int");
@@ -611,6 +622,9 @@ namespace GBazaar.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("SupplierID");
+
+                    b.HasIndex("ContactInfo")
+                        .IsUnique();
 
                     b.HasIndex("PaymentTermID");
 
@@ -851,10 +865,18 @@ namespace GBazaar.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GBazaar.Models.Product", "Product")
+                        .WithMany("PRItems")
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("GBazaar.Models.Supplier", "Supplier")
                         .WithMany("PRItems")
                         .HasForeignKey("SupplierID")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Product");
 
                     b.Navigation("PurchaseRequest");
 
@@ -1001,6 +1023,11 @@ namespace GBazaar.Migrations
             modelBuilder.Entity("GBazaar.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("GBazaar.Models.Product", b =>
+                {
+                    b.Navigation("PRItems");
                 });
 
             modelBuilder.Entity("GBazaar.Models.PurchaseOrder", b =>

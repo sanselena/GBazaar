@@ -1,15 +1,18 @@
+﻿using Gbazaar.Data;
 using GBazaar.Models;
 using GBazaar.Models.Enums;
 using GBazaar.ViewModels.Buyer;
-using Gbazaar.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace GBazaar.Controllers
 {
+    [Authorize]
     public class BuyerController : Controller
     {
         private readonly ProcurementContext _context;
@@ -21,175 +24,361 @@ namespace GBazaar.Controllers
             _logger = logger;
         }
 
-        // GET: /Buyer/Profile
+        // GET: /Buyer/Profile - Tüm roller için tek profile
         public async Task<IActionResult> Profile()
         {
-            ViewBag.UserType = "Buyer";
+            // Giriş yapmış kullanıcının ID ve Role bilgisini al
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
 
-            const int buyerUserId = 1; // TODO: Replace with authenticated buyer id
+            if (!int.TryParse(User.FindFirst(ClaimTypes.Role)?.Value, out var userRoleId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
 
             try
             {
-                var buyer = await _context.Users
+                var user = await _context.Users
                     .AsNoTracking()
                     .Include(u => u.Department)
-                    .FirstOrDefaultAsync(u => u.UserID == buyerUserId);
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
 
-                if (buyer == null)
+                if (user == null)
                 {
-                    TempData["ProfileError"] = "We could not locate your buyer record.";
-                    return View(CreateSampleProfile());
+                    TempData["ProfileError"] = "User record not found.";
+                    return View(CreateSampleProfile(userRoleId));
                 }
 
-                Budget? latestBudget = null;
-                if (buyer.DepartmentID.HasValue)
-                {
-                    latestBudget = await _context.Budgets
-                        .AsNoTracking()
-                        .Where(b => b.DepartmentID == buyer.DepartmentID)
-                        .OrderByDescending(b => b.FiscalYear)
-                        .FirstOrDefaultAsync();
-                }
+                // Role'e göre ViewBag ayarla
+                SetViewBagByRole(userRoleId, user);
 
-                var companySnapshot = new CompanySnapshotViewModel
-                {
-                    TotalBudget = latestBudget?.TotalBudget ?? 10000m,
-                    CommittedSpend = latestBudget?.AmountCommitted ?? 2400m
-                };
-
-                var pendingApprovals = await _context.PurchaseRequests
-                    .AsNoTracking()
-                    .Where(pr => pr.RequesterID == buyerUserId && pr.PurchaseOrder == null && pr.PRStatus != PRStatusType.Rejected)
-                    .OrderByDescending(pr => pr.DateSubmitted)
-                    .Take(5)
-                    .Select(pr => new PendingApprovalViewModel
-                    {
-                        RequestId = pr.PRID,
-                        Reference = $"PR-{pr.PRID:0000}",
-                        Amount = pr.EstimatedTotal,
-                        Stage = pr.PRStatus.ToString()
-                    })
-                    .ToListAsync();
-
-                var recentlyApproved = await _context.PurchaseRequests
-                    .AsNoTracking()
-                    .Where(pr => pr.RequesterID == buyerUserId && pr.PurchaseOrder != null)
-                    .OrderByDescending(pr => pr.DateSubmitted)
-                    .Take(5)
-                    .Select(pr => new RecentlyApprovedViewModel
-                    {
-                        Reference = $"PR-{pr.PRID:0000}",
-                        Amount = pr.EstimatedTotal,
-                        FinalApprovalRole = pr.PurchaseOrder != null ? pr.PurchaseOrder.POStatus.ToString() : "--"
-                    })
-                    .ToListAsync();
-
-                var buyerOrders = await _context.PurchaseOrders
-                    .AsNoTracking()
-                    .Where(po => po.PurchaseRequest != null && po.PurchaseRequest.RequesterID == buyerUserId && po.POStatus != POStatusType.Rejected)
-                    .Include(po => po.PurchaseRequest)
-                        .ThenInclude(pr => pr.Supplier)
-                    .Include(po => po.Supplier)
-                    .Include(po => po.POItems)
-                    .Include(po => po.Invoices)
-                    .Include(po => po.SupplierRatings)
-                    .OrderByDescending(po => po.DateIssued)
-                    .ToListAsync();
-
-                var invoiceSummaries = new List<InvoiceSummaryViewModel>();
-
-                foreach (var po in buyerOrders)
-                {
-                    var latestInvoice = po.Invoices
-                        .OrderByDescending(i => i.InvoiceDate)
-                        .ThenByDescending(i => i.InvoiceID)
-                        .FirstOrDefault();
-
-                    if (latestInvoice == null)
-                    {
-                        continue;
-                    }
-
-                    var paymentStatus = latestInvoice.PaymentStatus;
-                    var totalAmount = po.POItems.Any()
-                        ? po.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice)
-                        : latestInvoice.AmountDue ?? 0m;
-                    var isDelivered = po.POStatus == POStatusType.FullyReceived || po.POStatus == POStatusType.Closed;
-                    var isPaymentComplete = paymentStatus == PaymentStatusType.Paid;
-
-                    if (isDelivered && isPaymentComplete)
-                    {
-                        continue;
-                    }
-
-                    var reference = po.PurchaseRequest != null
-                        ? $"PR-{po.PurchaseRequest.PRID:0000}"
-                        : $"PO-{po.POID:0000}";
-
-                    var existingRating = po.SupplierRatings
-                        .FirstOrDefault(r => r.RatedByUserID == buyerUserId)?.RatingScore;
-
-                    var invoiceItems = po.POItems
-                        .OrderBy(item => item.POItemID)
-                        .Select(item => new InvoiceLineSummaryViewModel
-                        {
-                            ItemName = item.ItemName,
-                            Quantity = item.QuantityOrdered,
-                            UnitPrice = item.UnitPrice
-                        })
-                        .ToList();
-
-                    invoiceSummaries.Add(new InvoiceSummaryViewModel
-                    {
-                        InvoiceId = latestInvoice.InvoiceID,
-                        PurchaseOrderId = po.POID,
-                        Reference = reference,
-                        InvoiceNumber = latestInvoice.InvoiceNumber,
-                        SupplierName = po.Supplier?.SupplierName ?? "Unknown Supplier",
-                        AmountDue = latestInvoice.AmountDue,
-                        TotalAmount = totalAmount,
-                        OutstandingAmount = latestInvoice.AmountDue ?? totalAmount,
-                        InvoiceDate = latestInvoice.InvoiceDate,
-                        DueDate = latestInvoice.DueDate,
-                        ExpectedDelivery = po.RequiredDeliveryDate,
-                        PaymentStatus = paymentStatus,
-                        FulfillmentStatus = po.POStatus,
-                        ExistingRating = existingRating,
-                        Items = invoiceItems
-                    });
-                }
-
-                var approvalLadder = new List<ApprovalLadderStepViewModel>
-                {
-                    new() { Role = "PO", ThresholdPercent = 25m, Description = "Handles purchases up to 25% of total budget." },
-                    new() { Role = "Manager", ThresholdPercent = 50m, Description = "Steps in between 25% and 50%." },
-                    new() { Role = "Director", ThresholdPercent = 75m, Description = "Required for 50% - 75% escalations." },
-                    new() { Role = "CFO", ThresholdPercent = 100m, Description = "Approves anything over 75% and manages budgets." }
-                };
-
-                var model = new BuyerProfileViewModel
-                {
-                    CompanySnapshot = companySnapshot,
-                    PendingApprovals = pendingApprovals,
-                    RecentlyApproved = recentlyApproved,
-                    ApprovalLadder = approvalLadder,
-                    Invoices = invoiceSummaries
-                };
+                // Role'e göre veri getir
+                var model = await GetProfileDataByRole(userId, userRoleId, user);
 
                 return View(model);
             }
             catch (Exception ex) when (IsProfileConnectivityIssue(ex))
             {
-                _logger.LogWarning(ex, "Falling back to buyer profile sample data due to connectivity issues.");
+                _logger.LogWarning(ex, "Falling back to sample data due to connectivity issues.");
                 TempData["ProfileError"] = "We couldn't reach the procurement database, showing sample data instead.";
-                return View(CreateSampleProfile());
+                return View(CreateSampleProfile(userRoleId));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load buyer profile.");
+                _logger.LogError(ex, "Failed to load profile for user {UserId} with role {RoleId}", userId, userRoleId);
                 TempData["ProfileError"] = "Something went wrong while loading your profile. Showing sample data instead.";
-                return View(CreateSampleProfile());
+                return View(CreateSampleProfile(userRoleId));
             }
+        }
+
+        private void SetViewBagByRole(int roleId, User user)
+        {
+            switch (roleId)
+            {
+                case 1: // Officer
+                    ViewBag.UserType = "Buyer";
+                    ViewBag.UserName = user.FullName;
+                    ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
+                    break;
+                case 2: // Manager
+                    ViewBag.UserType = "Manager";
+                    ViewBag.UserName = user.FullName;
+                    ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
+                    break;
+                case 3: // Director
+                    ViewBag.UserType = "Director";
+                    ViewBag.UserName = user.FullName;
+                    ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Executive";
+                    break;
+                case 4: // CFO
+                    ViewBag.UserType = "CFO";
+                    ViewBag.UserName = user.FullName;
+                    ViewBag.DepartmentName = "Finance & Operations";
+                    break;
+                default:
+                    ViewBag.UserType = "Buyer";
+                    ViewBag.UserName = user.FullName;
+                    ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
+                    break;
+            }
+        }
+
+        private async Task<BuyerProfileViewModel> GetProfileDataByRole(int userId, int roleId, User user)
+        {
+            return roleId switch
+            {
+                1 => await GetOfficerData(userId, user), // Officer/Buyer
+                2 => await GetManagerData(userId, user),  // Manager
+                3 => await GetDirectorData(userId, user), // Director
+                4 => await GetCFOData(userId, user),      // CFO
+                _ => await GetOfficerData(userId, user)   // Default
+            };
+        }
+
+        private async Task<BuyerProfileViewModel> GetOfficerData(int userId, User user)
+        {
+            // Mevcut Buyer logic'i
+            Budget? latestBudget = null;
+            if (user.DepartmentID.HasValue)
+            {
+                latestBudget = await _context.Budgets
+                    .AsNoTracking()
+                    .Where(b => b.DepartmentID == user.DepartmentID)
+                    .OrderByDescending(b => b.FiscalYear)
+                    .FirstOrDefaultAsync();
+            }
+
+            var companySnapshot = new CompanySnapshotViewModel
+            {
+                TotalBudget = latestBudget?.TotalBudget ?? 10000m,
+                CommittedSpend = latestBudget?.AmountCommitted ?? 2400m
+            };
+
+            var pendingApprovals = await _context.PurchaseRequests
+                .AsNoTracking()
+                .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder == null && pr.PRStatus != PRStatusType.Rejected)
+                .OrderByDescending(pr => pr.DateSubmitted)
+                .Take(5)
+                .Select(pr => new PendingApprovalViewModel
+                {
+                    RequestId = pr.PRID,
+                    Reference = $"PR-{pr.PRID:0000}",
+                    Amount = pr.EstimatedTotal,
+                    Stage = pr.PRStatus.ToString()
+                })
+                .ToListAsync();
+
+            var recentlyApproved = await _context.PurchaseRequests
+                .AsNoTracking()
+                .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder != null)
+                .OrderByDescending(pr => pr.DateSubmitted)
+                .Take(5)
+                .Select(pr => new RecentlyApprovedViewModel
+                {
+                    Reference = $"PR-{pr.PRID:0000}",
+                    Amount = pr.EstimatedTotal,
+                    FinalApprovalRole = pr.PurchaseOrder != null ? pr.PurchaseOrder.POStatus.ToString() : "--"
+                })
+                .ToListAsync();
+
+            // Officer için approval ladder
+            var approvalLadder = new List<ApprovalLadderStepViewModel>
+            {
+                new() { Role = "Officer", ThresholdPercent = 25m, Description = "You can create purchases up to 25% of department budget." },
+                new() { Role = "Manager", ThresholdPercent = 50m, Description = "Manager approval required between 25% and 50%." },
+                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of budget." }
+            };
+
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = companySnapshot,
+                PendingApprovals = pendingApprovals,
+                RecentlyApproved = recentlyApproved,
+                ApprovalLadder = approvalLadder,
+                Invoices = new List<InvoiceSummaryViewModel>() // Officer'lar genelde invoice takibi yapmaz
+            };
+        }
+
+        private async Task<BuyerProfileViewModel> GetManagerData(int userId, User user)
+        {
+            // Manager için department budget
+            Budget? latestBudget = null;
+            if (user.DepartmentID.HasValue)
+            {
+                latestBudget = await _context.Budgets
+                    .AsNoTracking()
+                    .Where(b => b.DepartmentID == user.DepartmentID)
+                    .OrderByDescending(b => b.FiscalYear)
+                    .FirstOrDefaultAsync();
+            }
+
+            var companySnapshot = new CompanySnapshotViewModel
+            {
+                TotalBudget = latestBudget?.TotalBudget ?? 50000m,
+                CommittedSpend = latestBudget?.AmountCommitted ?? 12000m
+            };
+
+            // Manager'ın onaylaması gereken PR'ları
+            var pendingApprovals = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderBy(ah => ah.ActionDate)
+                .Take(10)
+                .Select(ah => new PendingApprovalViewModel
+                {
+                    RequestId = ah.PRID,
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Stage = $"Level {ah.ApprovalLevel} - Manager Approval"
+                })
+                .ToListAsync();
+
+            // Manager'ın onayladığı PR'lar
+            var recentlyApproved = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderByDescending(ah => ah.ActionDate)
+                .Take(10)
+                .Select(ah => new RecentlyApprovedViewModel
+                {
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    FinalApprovalRole = "Manager"
+                })
+                .ToListAsync();
+
+            var approvalLadder = new List<ApprovalLadderStepViewModel>
+            {
+                new() { Role = "Officer", ThresholdPercent = 12.5m, Description = "Officers handle small purchases up to 12.5% of department budget." },
+                new() { Role = "Manager", ThresholdPercent = 50m, Description = "You approve purchases between 12.5% and 50%." },
+                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of department budget." }
+            };
+
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = companySnapshot,
+                PendingApprovals = pendingApprovals,
+                RecentlyApproved = recentlyApproved,
+                ApprovalLadder = approvalLadder,
+                Invoices = new List<InvoiceSummaryViewModel>() // Manager seviyesinde basit invoice takibi
+            };
+        }
+
+        private async Task<BuyerProfileViewModel> GetDirectorData(int userId, User user)
+        {
+            // Company-wide budget
+            var allBudgets = await _context.Budgets
+                .AsNoTracking()
+                .Where(b => b.FiscalYear == DateTime.Now.Year)
+                .ToListAsync();
+
+            var companySnapshot = new CompanySnapshotViewModel
+            {
+                TotalBudget = allBudgets.Sum(b => b.TotalBudget),
+                CommittedSpend = allBudgets.Sum(b => b.AmountCommitted ?? 0)
+            };
+
+            var pendingApprovals = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderBy(ah => ah.ActionDate)
+                .Take(15)
+                .Select(ah => new PendingApprovalViewModel
+                {
+                    RequestId = ah.PRID,
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Stage = $"Level {ah.ApprovalLevel} - Director Approval"
+                })
+                .ToListAsync();
+
+            var recentlyApproved = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderByDescending(ah => ah.ActionDate)
+                .Take(15)
+                .Select(ah => new RecentlyApprovedViewModel
+                {
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    FinalApprovalRole = "Director"
+                })
+                .ToListAsync();
+
+            var approvalLadder = new List<ApprovalLadderStepViewModel>
+            {
+                new() { Role = "Officer", ThresholdPercent = 6.25m, Description = "Officers handle routine purchases up to 6.25% of company budget." },
+                new() { Role = "Manager", ThresholdPercent = 25m, Description = "Managers handle departmental approvals between 6.25% and 25%." },
+                new() { Role = "Director", ThresholdPercent = 75m, Description = "You approve major purchases between 25% and 75%." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO handles strategic investments over 75% of company budget." }
+            };
+
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = companySnapshot,
+                PendingApprovals = pendingApprovals,
+                RecentlyApproved = recentlyApproved,
+                ApprovalLadder = approvalLadder,
+                Invoices = new List<InvoiceSummaryViewModel>() // Director seviyesinde strategic invoice takibi
+            };
+        }
+
+        private async Task<BuyerProfileViewModel> GetCFOData(int userId, User user)
+        {
+            // Company-wide financial overview
+            var allBudgets = await _context.Budgets
+                .AsNoTracking()
+                .Where(b => b.FiscalYear == DateTime.Now.Year)
+                .ToListAsync();
+
+            var companySnapshot = new CompanySnapshotViewModel
+            {
+                TotalBudget = allBudgets.Sum(b => b.TotalBudget),
+                CommittedSpend = allBudgets.Sum(b => b.AmountCommitted ?? 0)
+            };
+
+            var pendingApprovals = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderBy(ah => ah.ActionDate)
+                .Take(20)
+                .Select(ah => new PendingApprovalViewModel
+                {
+                    RequestId = ah.PRID,
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Stage = $"Level {ah.ApprovalLevel} - CFO Final Approval"
+                })
+                .ToListAsync();
+
+            var recentlyApproved = await _context.ApprovalHistories
+                .AsNoTracking()
+                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
+                .Include(ah => ah.PurchaseRequest)
+                .OrderByDescending(ah => ah.ActionDate)
+                .Take(20)
+                .Select(ah => new RecentlyApprovedViewModel
+                {
+                    Reference = $"PR-{ah.PRID:0000}",
+                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    FinalApprovalRole = "CFO"
+                })
+                .ToListAsync();
+
+            var approvalLadder = new List<ApprovalLadderStepViewModel>
+            {
+                new() { Role = "Officer", ThresholdPercent = 3.125m, Description = "Officers handle routine operational purchases up to 3.125% of total budget." },
+                new() { Role = "Manager", ThresholdPercent = 12.5m, Description = "Managers handle departmental strategic purchases between 3.125% and 12.5%." },
+                new() { Role = "Director", ThresholdPercent = 37.5m, Description = "Directors handle cross-departmental initiatives between 12.5% and 37.5%." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "You have final authority over all strategic investments above 37.5%." }
+            };
+
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = companySnapshot,
+                PendingApprovals = pendingApprovals,
+                RecentlyApproved = recentlyApproved,
+                ApprovalLadder = approvalLadder,
+                Invoices = new List<InvoiceSummaryViewModel>() // CFO seviyesinde full financial oversight
+            };
+        }
+
+        // Approval işlemleri - ApprovalController'a yönlendirme
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveRequest(int requestId)
+        {
+            return RedirectToAction("Approve", "Approval", new { id = requestId });
         }
 
         [HttpPost]
@@ -202,29 +391,22 @@ namespace GBazaar.Controllers
                 return RedirectToAction(nameof(Profile));
             }
 
-            const int buyerUserId = 1;
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
-                var invoice = await _context.Invoices
-                    .Include(i => i.PurchaseOrder)
-                        .ThenInclude(po => po.PurchaseRequest)
-                    .FirstOrDefaultAsync(i => i.InvoiceID == input.InvoiceId && i.POID == input.PurchaseOrderId);
-
-                if (invoice?.PurchaseOrder?.PurchaseRequest?.RequesterID != buyerUserId)
-                {
-                    TempData["ProfileError"] = "Invoice not found for your account.";
-                    return RedirectToAction(nameof(Profile));
-                }
-
                 var existingRating = await _context.SupplierRatings
-                    .FirstOrDefaultAsync(r => r.POID == input.PurchaseOrderId && r.RatedByUserID == buyerUserId);
+                    .FirstOrDefaultAsync(r => r.POID == input.PurchaseOrderId && r.RatedByUserID == userId);
 
                 if (existingRating == null)
                 {
                     var newRating = new SupplierRating
                     {
                         POID = input.PurchaseOrderId,
-                        RatedByUserID = buyerUserId,
+                        RatedByUserID = userId,
                         RatingScore = input.RatingScore,
                         RatedOn = DateTime.UtcNow
                     };
@@ -237,168 +419,111 @@ namespace GBazaar.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-
                 TempData["ProfileMessage"] = "Thanks for rating this order.";
-            }
-            catch (Exception ex) when (IsProfileConnectivityIssue(ex))
-            {
-                _logger.LogWarning(ex, "Unable to submit rating due to connectivity issues.");
-                TempData["ProfileError"] = "We couldn't submit your rating because the procurement database is offline.";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to submit rating.");
+                _logger.LogError(ex, "Failed to submit rating for user {UserId}", userId);
                 TempData["ProfileError"] = "Something went wrong while submitting your rating.";
             }
 
             return RedirectToAction(nameof(Profile));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveRequest(int requestId)
+        private BuyerProfileViewModel CreateSampleProfile(int roleId)
         {
-            const int buyerUserId = 1;
-
-            try
+            // Role'e göre sample data oluştur
+            return roleId switch
             {
-                var request = await _context.PurchaseRequests
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(pr => pr.PRID == requestId && pr.RequesterID == buyerUserId);
-
-                if (request == null)
-                {
-                    TempData["ProfileError"] = "Request not found or already processed.";
-                    return RedirectToAction(nameof(Profile));
-                }
-
-                _logger.LogInformation("Buyer {BuyerId} queued approval for PR-{RequestId}", buyerUserId, requestId);
-                TempData["ProfileMessage"] = $"Request PR-{requestId:0000} is queued for approval. Workflow wiring is coming soon.";
-            }
-            catch (Exception ex) when (IsProfileConnectivityIssue(ex))
-            {
-                _logger.LogWarning(ex, "Unable to queue approval due to connectivity issues.");
-                TempData["ProfileError"] = "We couldn't submit your approval because the procurement database is offline.";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to queue approval.");
-                TempData["ProfileError"] = "Something went wrong while submitting your approval.";
-            }
-
-            return RedirectToAction(nameof(Profile));
+                2 => CreateSampleManagerProfile(),
+                3 => CreateSampleDirectorProfile(),
+                4 => CreateSampleCFOProfile(),
+                _ => CreateSampleOfficerProfile()
+            };
         }
 
-        private BuyerProfileViewModel CreateSampleProfile()
+        // Sample profile metodları (mevcut CreateSampleProfile'ı böl)
+        private BuyerProfileViewModel CreateSampleOfficerProfile()
         {
+            // Mevcut sample profile logic
             var now = DateTime.UtcNow;
 
             var pendingApprovals = new List<PendingApprovalViewModel>
             {
-                new()
-                {
-                    RequestId = 4101,
-                    Reference = "PR-4101",
-                    Amount = 1900m,
-                    Stage = PRStatusType.PendingApproval.ToString()
-                },
-                new()
-                {
-                    RequestId = 4203,
-                    Reference = "PR-4203",
-                    Amount = 3750m,
-                    Stage = PRStatusType.PendingApproval.ToString()
-                }
+                new() { RequestId = 4101, Reference = "PR-4101", Amount = 1900m, Stage = PRStatusType.PendingApproval.ToString() },
+                new() { RequestId = 4203, Reference = "PR-4203", Amount = 3750m, Stage = PRStatusType.PendingApproval.ToString() }
             };
 
             var approvalLadder = new List<ApprovalLadderStepViewModel>
             {
-                new() { Role = "PO", ThresholdPercent = 25m, Description = "Handles purchases up to 25% of total budget." },
-                new() { Role = "Manager", ThresholdPercent = 50m, Description = "Steps in between 25% and 50%." },
-                new() { Role = "Director", ThresholdPercent = 75m, Description = "Required for 50% - 75% escalations." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "Approves anything over 75% and manages budgets." }
-            };
-
-            var recentlyApproved = new List<RecentlyApprovedViewModel>
-            {
-                new() { Reference = "PO-1002", Amount = 2150m, FinalApprovalRole = "PO" },
-                new() { Reference = "PR-2021", Amount = 4800m, FinalApprovalRole = "Manager" },
-                new() { Reference = "PR-2034", Amount = 7900m, FinalApprovalRole = "Director" }
-            };
-
-            var invoices = new List<InvoiceSummaryViewModel>
-            {
-                new()
-                {
-                    InvoiceId = 8891,
-                    PurchaseOrderId = 5051,
-                    Reference = "PR-5051",
-                    InvoiceNumber = "INV-5051",
-                    SupplierName = "Northwind Purchasing",
-                    AmountDue = 7825m,
-                    TotalAmount = 7825m,
-                    OutstandingAmount = 7825m,
-                    InvoiceDate = DateOnly.FromDateTime(now.AddDays(-3)),
-                    DueDate = DateOnly.FromDateTime(now.AddDays(12)),
-                    ExpectedDelivery = DateOnly.FromDateTime(now.AddDays(5)),
-                    PaymentStatus = PaymentStatusType.PartiallyPaid,
-                    FulfillmentStatus = POStatusType.PartiallyReceived,
-                    ExistingRating = null,
-                    Items = new List<InvoiceLineSummaryViewModel>
-                    {
-                        new()
-                        {
-                            ItemName = "Industrial Fasteners",
-                            Quantity = 200,
-                            UnitPrice = 8.50m
-                        },
-                        new()
-                        {
-                            ItemName = "Precision Bearings",
-                            Quantity = 50,
-                            UnitPrice = 52m
-                        }
-                    }
-                },
-                new()
-                {
-                    InvoiceId = 8920,
-                    PurchaseOrderId = 5052,
-                    Reference = "PR-5052",
-                    InvoiceNumber = "INV-5052",
-                    SupplierName = "Contoso Manufacturing",
-                    AmountDue = 3120m,
-                    TotalAmount = 3120m,
-                    OutstandingAmount = 3120m,
-                    InvoiceDate = DateOnly.FromDateTime(now.AddDays(-5)),
-                    DueDate = DateOnly.FromDateTime(now.AddDays(9)),
-                    ExpectedDelivery = DateOnly.FromDateTime(now.AddDays(2)),
-                    PaymentStatus = PaymentStatusType.NotPaid,
-                    FulfillmentStatus = POStatusType.Issued,
-                    ExistingRating = 4,
-                    Items = new List<InvoiceLineSummaryViewModel>
-                    {
-                        new()
-                        {
-                            ItemName = "Cooling Fans",
-                            Quantity = 25,
-                            UnitPrice = 45m
-                        }
-                    }
-                }
+                new() { Role = "Officer", ThresholdPercent = 25m, Description = "You can create purchases up to 25% of department budget." },
+                new() { Role = "Manager", ThresholdPercent = 50m, Description = "Manager approval required between 25% and 50%." },
+                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of budget." }
             };
 
             return new BuyerProfileViewModel
             {
-                CompanySnapshot = new CompanySnapshotViewModel
-                {
-                    TotalBudget = 10000m,
-                    CommittedSpend = 2400m
-                },
+                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 10000m, CommittedSpend = 2400m },
                 PendingApprovals = pendingApprovals,
                 ApprovalLadder = approvalLadder,
-                RecentlyApproved = recentlyApproved,
-                Invoices = invoices
+                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
+                Invoices = new List<InvoiceSummaryViewModel>()
+            };
+        }
+
+        private BuyerProfileViewModel CreateSampleManagerProfile()
+        {
+            // Manager sample data
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 50000m, CommittedSpend = 12000m },
+                PendingApprovals = new List<PendingApprovalViewModel>
+                {
+                    new() { RequestId = 5001, Reference = "PR-5001", Amount = 15000m, Stage = "Level 2 - Manager Approval" }
+                },
+                ApprovalLadder = new List<ApprovalLadderStepViewModel>
+                {
+                    new() { Role = "Manager", ThresholdPercent = 50m, Description = "You approve purchases between 12.5% and 50%." }
+                },
+                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
+                Invoices = new List<InvoiceSummaryViewModel>()
+            };
+        }
+
+        private BuyerProfileViewModel CreateSampleDirectorProfile()
+        {
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 500000m, CommittedSpend = 180000m },
+                PendingApprovals = new List<PendingApprovalViewModel>
+                {
+                    new() { RequestId = 7001, Reference = "PR-7001", Amount = 95000m, Stage = "Level 3 - Director Approval" }
+                },
+                ApprovalLadder = new List<ApprovalLadderStepViewModel>
+                {
+                    new() { Role = "Director", ThresholdPercent = 75m, Description = "You approve major purchases between 25% and 75%." }
+                },
+                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
+                Invoices = new List<InvoiceSummaryViewModel>()
+            };
+        }
+
+        private BuyerProfileViewModel CreateSampleCFOProfile()
+        {
+            return new BuyerProfileViewModel
+            {
+                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 1000000m, CommittedSpend = 420000m },
+                PendingApprovals = new List<PendingApprovalViewModel>
+                {
+                    new() { RequestId = 8001, Reference = "PR-8001", Amount = 275000m, Stage = "Level 4 - CFO Final Approval" }
+                },
+                ApprovalLadder = new List<ApprovalLadderStepViewModel>
+                {
+                    new() { Role = "CFO", ThresholdPercent = 100m, Description = "You have final authority over all strategic investments above 37.5%." }
+                },
+                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
+                Invoices = new List<InvoiceSummaryViewModel>()
             };
         }
 
@@ -411,7 +536,6 @@ namespace GBazaar.Controllers
                     return true;
                 }
             }
-
             return false;
         }
     }

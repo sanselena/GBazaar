@@ -1,55 +1,54 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+
 <div class="container mt-4 mb-5">
-        <div class="auth-wrapper" style="min-height: auto; padding-top: 20px;">
-            <div class="auth-card">
-                <h2 class="text-center mb-4" style="color: var(--text-main);">Create Account</h2>
+    <div class="auth-wrapper" style="min-height: auto; padding-top: 20px;">
+        <div class="auth-card">
+            <h2 class="text-center mb-4" style="color: var(--text-main);">Create Account</h2>
 
-                <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pills-buyer-tab" data-bs-toggle="pill" data-bs-target="#pills-buyer" type="button" role="tab">
-                            <i class="fas fa-shopping-bag"></i> I am a Buyer
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-supplier-tab" data-bs-toggle="pill" data-bs-target="#pills-supplier" type="button" role="tab">
-                            <i class="fas fa-truck"></i> I am a Supplier
-                        </button>
-                    </li>
-                </ul>
+            <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-buyer-tab" data-bs-toggle="pill" data-bs-target="#pills-buyer" type="button" role="tab">
+                        <i class="fas fa-shopping-bag"></i> I am a Buyer
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-supplier-tab" data-bs-toggle="pill" data-bs-target="#pills-supplier" type="button" role="tab">
+                        <i class="fas fa-truck"></i> I am a Supplier
+                    </button>
+                </li>
+            </ul>
 
-                <div class="tab-content" id="pills-tabContent">
-                    
-                    <div class="tab-pane fade show active" id="pills-buyer" role="tabpanel">
-                        <form method="post" asp-action="SignupBuyer">
-                            <!--AŞK bu formdaki girdileri USER İÇİN database'e çekmek lazım-->
+            <div class="tab-content" id="pills-tabContent">
 
+                <!-- Buyer Tab -->
+                <div class="tab-pane fade show active" id="pills-buyer" role="tabpanel">
+                    <form method="post" asp-action="SignupBuyer">
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
-                            <input name="FullName" type="text" class="form-control custom-input" placeholder="John Doe">
+                            <input name="FullName" type="text" class="form-control custom-input" placeholder="John Doe" required>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Company Name</label>
-                                <input name="CompanyName" type="text" class="form-control custom-input" placeholder="e.g. Walmart">
-                            </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Department</label>
-                                <input name="Department" type="text" class="form-control custom-input" placeholder="e.g. Procurement">
+                                <select name="DepartmentID" class="form-select" asp-items="ViewBag.Departments" required>
+                                    <option value="">-- Select Department --</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Email Address</label>
-                            <input name="Email" type="email" class="form-control custom-input" placeholder="name@company.com">
+                            <input name="Email" type="email" class="form-control custom-input" placeholder="name@company.com" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input name="Password" type="password" class="form-control custom-input" placeholder="Minimum 8 characters">
+                            <input name="Password" type="password" class="form-control custom-input" placeholder="Minimum 8 characters" minlength="8" required>
                         </div>
 
                         <div class="mb-3 form-check">
-                            <input name="AcceptTerms" type="checkbox" class="form-check-input" id="termsCheck" value="true">
+                            <input name="AcceptTerms" type="checkbox" class="form-check-input" id="termsCheck" value="true" required>
                             <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
                                 I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>.
                             </label>
@@ -58,53 +57,50 @@
                         <button type="submit" class="btn btn-custom w-100 mt-3">
                             Create Buyer Account
                         </button>
-                        </form>
-                    </div>
+                    </form>
+                </div>
 
-                    <div class="tab-pane fade" id="pills-supplier" role="tabpanel">
-                        <form method="post" asp-action="SignupSupplier">
-                            <!--AŞK bu formdaki girdileri SUPPLIER İÇİN database'e çekmek lazım-->
+                <!-- Supplier Tab -->
+                <div class="tab-pane fade" id="pills-supplier" role="tabpanel">
+                    <form method="post" asp-action="SignupSupplier">
                         <div class="mb-3">
                             <label class="form-label">Business Name</label>
-                            <input name="BusinessName" type="text" class="form-control custom-input">
+                            <input name="BusinessName" type="text" class="form-control custom-input" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Tax ID (VKN)</label>
-                            <input name="TaxId" type="text" class="form-control custom-input">
+                            <input name="TaxId" type="text" class="form-control custom-input" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Official Contact</label>
-                            <input name="ContactInfo" type="text" class="form-control custom-input">
+                            <input name="ContactInfo" type="text" class="form-control custom-input" required>
                         </div>
 
+                        @*
                         <div class="mb-3">
                             <label class="form-label">Create Password</label>
-                            <input name="Password" type="password" class="form-control custom-input">
+                            <input name="Password" type="password" class="form-control custom-input" minlength="8" required>
                         </div>
-                        <div class="mb-3 form-check">
-                            <input name="AcceptTerms"
-                                   type="checkbox"
-                                   class="form-check-input"
-                                   id="termsCheck"
-                                   value="true">
+                        *@
 
-                            <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
-                                I agree to the
-                                <a href="#" style="color: var(--primary);">Terms of Service</a> &
-                                <a href="#" style="color: var(--primary);">Privacy Policy</a>.
+                        <div class="mb-3 form-check">
+                            <input name="AcceptTerms" type="checkbox" class="form-check-input" id="termsCheckSupplier" value="true" required>
+                            <label class="form-check-label" for="termsCheckSupplier" style="font-size: 0.9rem;">
+                                I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>.
                             </label>
                         </div>
 
                         <button type="submit" class="btn btn-custom w-100 mt-3">Register as Supplier</button>
-                        </form>
-                    </div>
+                    </form>
+                </div>
 
-                </div>
-                <div class="text-center mt-4">
-                    <p>Already have an account? <a href="Login.cshtml" style="color: var(--primary);">Log In</a></p>
-                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p>Already have an account? <a asp-controller="Auth" asp-action="Login" style="color: var(--primary);">Log In</a></p>
             </div>
         </div>
     </div>
+</div>

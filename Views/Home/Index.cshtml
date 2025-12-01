@@ -1,46 +1,62 @@
-﻿@model IReadOnlyList<GBazaar.ViewModels.Home.ProductCardViewModel>
+﻿@model List<GBazaar.Models.Product>  
+@{  
+    ViewData["Title"] = "Home Page";  
+    var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;  
+}  
 
-@{
-    var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;
-}
+<div class="container my-5">  
+    <div class="d-flex justify-content-between align-items-center mb-4">  
+        <div>  
+            <h1 class="mb-1">Featured Marketplace Listings</h1>  
+            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>  
+        </div>  
+        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">  
+            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>  
+        </form>  
+    </div>  
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="mb-1" style="color: var(--text-main);">Featured Marketplace Listings</h1>
-            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>
-        </div>
-        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">
-            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>
-        </form>
-    </div>
+    @if (usingSamples)  
+    {  
+        <div class="alert alert-info" role="alert">  
+            Showing two sample listings so the card layout can be reviewed before real data arrives.  
+        </div>  
+    }  
 
-    @if (usingSamples)
-    {
-        <div class="alert alert-info" role="alert">
-            Showing two sample listings so the card layout can be reviewed before real data arrives.
+    @if (Model == null || !Model.Any())  
+    {  
+        <div class="alert alert-info" role="alert">  
+            There are no products to display at the moment. Please check back later.  
+        </div>  
+    }  
+    else  
+    {  
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">  
+            @foreach (var product in Model)  
+            {  
+                <div class="col">  
+                    <div class="card h-100 product-card">  
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="text-decoration-none">  
+                            <div class="product-card-img-container">  
+                                @{  
+                                    // Resim yolunu dinamik olarak oluştur  
+                                    var imagePath = $"/images/products/{product.ProductID}.jpg";  
+                                }  
+                                <img src="@imagePath" class="card-img-top" alt="@product.ProductName"  
+                                     onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\'card-img-top d-flex align-items-center justify-content-center bg-light text-muted\' style=\'height: 200px;\'><span>No Image</span></div>';" />  
+                            </div>  
+                            <div class="card-body">
+                                <h5 class="card-title">@product.ProductName</h5>
+                                <p class="card-text text-muted small">Supplier: @(product.Supplier?.SupplierName ?? "N/A")</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pb-3">
+                                <p class="card-text fw-bold text-primary">
+                                    @(product.UnitPrice.HasValue ? product.UnitPrice.Value.ToString("C") : "N/A") / @product.UnitOfMeasure
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
     }
-
-    <div class="product-grid">
-        @foreach (var product in Model)
-        {
-            var imageUrl = string.IsNullOrWhiteSpace(product.ImageUrl)
-                ? "https://placehold.co/600x600/ebe9ff/12121d?text=huh?+no+image"
-                : product.ImageUrl;
-
-            <div class="product-card">
-                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductId" class="card-image-container stretched-link">
-                    <img src="@imageUrl" alt="@product.ProductName" />
-                </a>
-                <div class="card-info">
-                    <div class="info-left">
-                        <h3 class="product-name">@product.ProductName</h3>
-                        <p class="supplier-name">Supplier: @product.SupplierName</p>
-                    </div>
-                    <div class="product-price">@product.DisplayPrice()</div>
-                </div>
-            </div>
-        }
-    </div>
 </div>

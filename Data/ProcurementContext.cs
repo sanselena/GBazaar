@@ -87,6 +87,7 @@ namespace Gbazaar.Data
             modelBuilder.Entity<Supplier>(entity =>
             { 
                 entity.HasIndex(s => s.SupplierName).IsUnique();
+                entity.HasIndex(s => s.ContactInfo).IsUnique();
                 entity.HasOne(s => s.PaymentTerm)
                       .WithMany(pt => pt.Suppliers)
                       .HasForeignKey(s => s.PaymentTermID)
@@ -132,14 +133,14 @@ namespace Gbazaar.Data
                 entity.HasOne(i => i.PurchaseRequest)
                       .WithMany(pr => pr.PRItems)
                       .HasForeignKey(i => i.PRID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(i => i.Supplier)
                       .WithMany(s => s.PRItems)
                       .HasForeignKey(i => i.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(i => i.Product)
                       .WithMany(p => p.PRItems)
-                      .HasForeignKey(i => i.PRItemID)
+                      .HasForeignKey(i => i.ProductID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -301,7 +302,7 @@ namespace Gbazaar.Data
                 entity.HasIndex(p => new { p.SupplierID, p.ProductName }).IsUnique();
                 entity.HasMany(p => p.PRItems)
                       .WithOne(pri => pri.Product)
-                      .HasForeignKey(p => p.PRItemID)
+                      .HasForeignKey(p => p.ProductID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
