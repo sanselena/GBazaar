@@ -1,0 +1,250 @@
+@model IEnumerable<GBazaar.Models.Supplier>
+@{
+    ViewData["Title"] = "Supplier Management";
+}
+
+<div class="cosmic-container">
+    <div class="cosmic-header">
+        <div class="cosmic-header__icon">
+            <i class="fas fa-truck"></i>
+        </div>
+        <div class="cosmic-header__content">
+            <h1 class="cosmic-header__title">Supplier Management</h1>
+            <p class="cosmic-header__subtitle">Manage suppliers and vendor relationships</p>
+        </div>
+        <div class="cosmic-header__actions">
+            <button class="cosmic-btn cosmic-btn--primary" onclick="openCreateSupplierModal()">
+                <i class="fas fa-plus"></i>
+                <span>Add New Supplier</span>
+            </button>
+            <a href="/Admin/Dashboard" class="cosmic-btn cosmic-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="cosmic-card">
+        <div class="cosmic-card__header">
+            <h3 class="cosmic-card__title">
+                <i class="fas fa-list"></i>
+                Supplier List
+            </h3>
+            <div class="cosmic-search">
+                <i class="fas fa-search"></i>
+                <input type="text" class="cosmic-search__input" placeholder="Search suppliers...">
+            </div>
+        </div>
+        
+        <div class="cosmic-table-wrapper">
+            <table class="cosmic-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Company Name</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Rating</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var supplier in Model)
+                        {
+                            var initials = string.Join("", supplier.SupplierName.Split(' ').Take(2).Select(n => n.FirstOrDefault())).ToUpper();
+                            <tr>
+                                <td>@supplier.SupplierID</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-cell__avatar">@initials</div>
+                                        <span>@supplier.SupplierName</span>
+                                    </div>
+                                </td>
+                                <td>@(supplier.ContactName ?? "N/A")</td>
+                                <td>@supplier.ContactInfo</td>
+                                <td>@(supplier.TaxID ?? "N/A")</td>
+                                <td>
+                                    <div class="rating-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <span>N/A</span>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-badge--active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn action-btn--view" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn action-btn--delete" title="Delete Supplier" onclick="deleteSupplier(@supplier.SupplierID, '@supplier.SupplierName')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.6);">
+                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
+                                No suppliers found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cosmic-pagination">
+            <button class="cosmic-pagination__btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="cosmic-pagination__info">Page 1 of 1</span>
+            <button class="cosmic-pagination__btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Create Supplier Modal -->
+<div id="createSupplierModal" class="cosmic-modal">
+    <div class="cosmic-modal__overlay" onclick="closeCreateSupplierModal()"></div>
+    <div class="cosmic-modal__content">
+        <div class="cosmic-modal__header">
+            <h3 class="cosmic-modal__title">
+                <i class="fas fa-plus"></i>
+                Add New Supplier
+            </h3>
+            <button class="cosmic-modal__close" onclick="closeCreateSupplierModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form class="cosmic-form" id="createSupplierForm">
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Company Name</label>
+                    <input type="text" class="cosmic-form__input" placeholder="Enter company name" required>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Contact Person</label>
+                    <input type="text" class="cosmic-form__input" placeholder="Enter contact name" required>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Email</label>
+                    <input type="email" class="cosmic-form__input" placeholder="Enter email" required>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Phone</label>
+                    <input type="tel" class="cosmic-form__input" placeholder="+1 555-0000" required>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Address</label>
+                    <input type="text" class="cosmic-form__input" placeholder="Enter address">
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">City</label>
+                    <input type="text" class="cosmic-form__input" placeholder="Enter city">
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Country</label>
+                    <select class="cosmic-form__select" required>
+                        <option value="">Select country...</option>
+                        <option value="usa">United States</option>
+                        <option value="uk">United Kingdom</option>
+                        <option value="canada">Canada</option>
+                        <option value="germany">Germany</option>
+                        <option value="turkey">Turkey</option>
+                    </select>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Payment Terms</label>
+                    <select class="cosmic-form__select">
+                        <option value="">Select payment terms...</option>
+                        <option value="net30">Net 30</option>
+                        <option value="net60">Net 60</option>
+                        <option value="net90">Net 90</option>
+                        <option value="cod">Cash on Delivery</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cosmic-form__actions">
+                <button type="button" class="cosmic-btn cosmic-btn--secondary" onclick="closeCreateSupplierModal()">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="submit" class="cosmic-btn cosmic-btn--primary">
+                    <i class="fas fa-save"></i>
+                    Add Supplier
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreateSupplierModal() {
+            document.getElementById('createSupplierModal').classList.add('cosmic-modal--active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateSupplierModal() {
+            document.getElementById('createSupplierModal').classList.remove('cosmic-modal--active');
+            document.body.style.overflow = '';
+        }
+
+        function deleteSupplier(supplierId, companyName) {
+            if (confirm(`Are you sure you want to delete supplier "${companyName}"?`)) {
+                fetch('/Admin/DeleteSupplier', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: supplierId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Supplier deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error deleting supplier: ' + error);
+                });
+            }
+        }
+
+        // Form submission
+        document.getElementById('createSupplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Implement create functionality
+            console.log('Creating supplier...');
+            alert('Create functionality will be implemented with database connection.');
+            closeCreateSupplierModal();
+        });
+    </script>
+}

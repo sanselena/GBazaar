@@ -1,0 +1,207 @@
+@{
+    ViewData["Title"] = "Budget Reports";
+    var currentYear = 2025;
+    var totalBudget = 12500000m;
+    var totalCommitted = 8750000m;
+    var totalAvailable = 3750000m;
+    var utilizationPercent = 70m;
+}
+
+<div class="cosmic-container">
+    <div class="cosmic-header">
+        <div class="cosmic-header__icon">
+            <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="cosmic-header__content">
+            <h1 class="cosmic-header__title">Budget Reports</h1>
+            <p class="cosmic-header__subtitle">Financial overview and budget tracking</p>
+        </div>
+        <div class="cosmic-header__actions">
+            <form method="get" style="display: inline-flex; gap: 10px; align-items: center;">
+                <select name="year" class="cosmic-form__select" onchange="this.form.submit()" style="width: auto; margin: 0;">
+                    <option value="2023">FY 2023</option>
+                    <option value="2024">FY 2024</option>
+                    <option value="2025" selected>FY 2025</option>
+                </select>
+            </form>
+            <a href="/Admin/Dashboard" class="cosmic-btn cosmic-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Budget Overview Cards -->
+    <div class="budget-overview">
+        <div class="budget-summary-card budget-summary-card--total">
+            <div class="budget-summary-card__icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="budget-summary-card__content">
+                <h3 class="budget-summary-card__title">Total Budget</h3>
+                <p class="budget-summary-card__amount">@totalBudget.ToString("C")</p>
+                <span class="budget-summary-card__label">FY @currentYear</span>
+            </div>
+        </div>
+
+        <div class="budget-summary-card budget-summary-card--committed">
+            <div class="budget-summary-card__icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="budget-summary-card__content">
+                <h3 class="budget-summary-card__title">Committed</h3>
+                <p class="budget-summary-card__amount">@totalCommitted.ToString("C")</p>
+                <span class="budget-summary-card__label">@utilizationPercent.ToString("F1")% Utilized</span>
+            </div>
+        </div>
+
+        <div class="budget-summary-card budget-summary-card--available">
+            <div class="budget-summary-card__icon">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <div class="budget-summary-card__content">
+                <h3 class="budget-summary-card__title">Available</h3>
+                <p class="budget-summary-card__amount">@totalAvailable.ToString("C")</p>
+                <span class="budget-summary-card__label">Remaining Funds</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Budgets Table -->
+    <div class="cosmic-card" style="margin-top: 40px;">
+        <div class="cosmic-card__header">
+            <h3 class="cosmic-card__title">
+                <i class="fas fa-building"></i>
+                Budget by Department
+            </h3>
+        </div>
+        
+        <div class="cosmic-table-wrapper">
+            <table class="cosmic-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Total Budget</th>
+                        <th>Committed</th>
+                        <th>Available</th>
+                        <th>Utilization</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- IT Department -->
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-cell__avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    <i class="fas fa-laptop-code"></i>
+                                </div>
+                                <span>IT Department</span>
+                            </div>
+                        </td>
+                        <td><strong>$2,500,000.00</strong></td>
+                        <td>$2,150,000.00</td>
+                        <td>$350,000.00</td>
+                        <td>
+                            <div class="budget-progress">
+                                <div class="budget-progress__bar">
+                                    <div class="budget-progress__fill budget-progress__fill--warning" style="width: 86%"></div>
+                                </div>
+                                <span class="budget-progress__text">86%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="budget-status budget-status--warning">
+                                <i class="fas fa-exclamation-circle"></i> Warning
+                            </span>
+                        </td>
+                    </tr>
+
+                    <!-- Procurement Department -->
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-cell__avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <span>Procurement</span>
+                            </div>
+                        </td>
+                        <td><strong>$5,800,000.00</strong></td>
+                        <td>$4,200,000.00</td>
+                        <td>$1,600,000.00</td>
+                        <td>
+                            <div class="budget-progress">
+                                <div class="budget-progress__bar">
+                                    <div class="budget-progress__fill budget-progress__fill--warning" style="width: 72.4%"></div>
+                                </div>
+                                <span class="budget-progress__text">72.4%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="budget-status budget-status--warning">
+                                <i class="fas fa-exclamation-circle"></i> Warning
+                            </span>
+                        </td>
+                    </tr>
+
+                    <!-- Finance Department -->
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-cell__avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span>Finance</span>
+                            </div>
+                        </td>
+                        <td><strong>$1,200,000.00</strong></td>
+                        <td>$450,000.00</td>
+                        <td>$750,000.00</td>
+                        <td>
+                            <div class="budget-progress">
+                                <div class="budget-progress__bar">
+                                    <div class="budget-progress__fill budget-progress__fill--success" style="width: 37.5%"></div>
+                                </div>
+                                <span class="budget-progress__text">37.5%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="budget-status budget-status--success">
+                                <i class="fas fa-check-circle"></i> Healthy
+                            </span>
+                        </td>
+                    </tr>
+
+                    <!-- Operations Department -->
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-cell__avatar" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                                <span>Operations</span>
+                            </div>
+                        </td>
+                        <td><strong>$3,000,000.00</strong></td>
+                        <td>$2,950,000.00</td>
+                        <td>$50,000.00</td>
+                        <td>
+                            <div class="budget-progress">
+                                <div class="budget-progress__bar">
+                                    <div class="budget-progress__fill budget-progress__fill--danger" style="width: 98.3%"></div>
+                                </div>
+                                <span class="budget-progress__text">98.3%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="budget-status budget-status--danger">
+                                <i class="fas fa-exclamation-triangle"></i> Critical
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
