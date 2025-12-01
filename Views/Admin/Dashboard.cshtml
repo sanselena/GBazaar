@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="admin-dashboard">
+    <div class="admin-dashboard__universe">
+        <!-- Central Admin Hub -->
+        <div class="admin-hub">
+            <div class="admin-hub__icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2 class="admin-hub__title">Admin Control</h2>
+            <p class="admin-hub__subtitle">System Management Hub</p>
+        </div>
+
+        <!-- Orbital Menu Items -->
+        <div class="orbital-menu">
+            <!-- User Management - Top -->
+            <a href="@Url.Action("UserManagement", "Admin")" class="orbital-menu__item orbital-menu__item--top">
+                <div class="orbital-menu__icon">
+                    <img src="~/favicon.ico" alt="User Management" />
+                </div>
+                <span class="orbital-menu__label">User Management</span>
+            </a>
+
+            <!-- Supplier Management - Right -->
+            <a href="@Url.Action("SupplierManagement", "Admin")" class="orbital-menu__item orbital-menu__item--right">
+                <div class="orbital-menu__icon">
+                    <img src="~/favicon.ico" alt="Supplier Management" />
+                </div>
+                <span class="orbital-menu__label">Supplier Management</span>
+            </a>
+
+            <!-- Product & Department - Bottom -->
+            <a href="@Url.Action("ProductDepartment", "Admin")" class="orbital-menu__item orbital-menu__item--bottom">
+                <div class="orbital-menu__icon">
+                    <img src="~/favicon.ico" alt="Product & Department" />
+                </div>
+                <span class="orbital-menu__label">Product & Department</span>
+            </a>
+
+            <!-- Budget & Reports - Left -->
+            <a href="@Url.Action("BudgetReports", "Admin")" class="orbital-menu__item orbital-menu__item--left">
+                <div class="orbital-menu__icon">
+                    <img src="~/favicon.ico" alt="Budget & Reports" />
+                </div>
+                <span class="orbital-menu__label">Budget & Reports</span>
+            </a>
+        </div>
+
+        <!-- Orbital Ring Decorations -->
+        <div class="orbital-ring orbital-ring--inner"></div>
+        <div class="orbital-ring orbital-ring--outer"></div>
+    </div>
+</div>

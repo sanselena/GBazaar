@@ -1,0 +1,291 @@
+@{
+    ViewData["Title"] = "Product & Department Management";
+}
+
+<div class="cosmic-container">
+    <div class="cosmic-header">
+        <div class="cosmic-header__icon">
+            <i class="fas fa-boxes"></i>
+        </div>
+        <div class="cosmic-header__content">
+            <h1 class="cosmic-header__title">Product & Department Management</h1>
+            <p class="cosmic-header__subtitle">Manage products catalog and departments</p>
+        </div>
+        <div class="cosmic-header__actions">
+            <button class="cosmic-btn cosmic-btn--primary" onclick="openCreateDepartmentModal()">
+                <i class="fas fa-building"></i>
+                <span>Add Department</span>
+            </button>
+            <a href="/Admin/Dashboard" class="cosmic-btn cosmic-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="cosmic-card" style="margin-bottom: 40px;">
+        <div class="cosmic-card__header">
+            <h3 class="cosmic-card__title">
+                <i class="fas fa-box"></i>
+                Product List
+            </h3>
+            <div class="cosmic-search">
+                <i class="fas fa-search"></i>
+                <input type="text" class="cosmic-search__input" placeholder="Search products...">
+            </div>
+        </div>
+        
+        <div class="cosmic-table-wrapper">
+            <table class="cosmic-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Unit Price</th>
+                        <th>Unit of Measure</th>
+                        <th>Supplier</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Products != null && ((IEnumerable<GBazaar.Models.Product>)ViewBag.Products).Any())
+                    {
+                        @foreach (var product in (IEnumerable<GBazaar.Models.Product>)ViewBag.Products)
+                        {
+                            <tr>
+                                <td>@product.ProductID</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="product-icon">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        <span>@product.ProductName</span>
+                                    </div>
+                                </td>
+                                <td>@(product.Description ?? "N/A")</td>
+                                <td>@(product.UnitPrice?.ToString("C") ?? "N/A")</td>
+                                <td>@(product.UnitOfMeasure ?? "N/A")</td>
+                                <td>@(product.Supplier?.SupplierName ?? "N/A")</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn action-btn--view" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn action-btn--delete" title="Delete Product" onclick="deleteProduct(@product.ProductID, '@product.ProductName')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.6);">
+                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
+                                No products found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cosmic-pagination">
+            <button class="cosmic-pagination__btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="cosmic-pagination__info">Page 1 of 1</span>
+            <button class="cosmic-pagination__btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Departments Section -->
+    <div class="cosmic-card">
+        <div class="cosmic-card__header">
+            <h3 class="cosmic-card__title">
+                <i class="fas fa-building"></i>
+                Department List
+            </h3>
+            <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> Total: 4 Departments
+            </div>
+        </div>
+        
+        <div class="department-grid">
+            @if (ViewBag.Departments != null && ((IEnumerable<GBazaar.Models.Department>)ViewBag.Departments).Any())
+            {
+                @foreach (var dept in (IEnumerable<GBazaar.Models.Department>)ViewBag.Departments)
+                {
+                    var userCount = dept.Users?.Count ?? 0;
+                    var totalBudget = dept.Budgets?.Sum(b => b.TotalBudget) ?? 0;
+                    <div class="department-card">
+                        <div class="department-card__header">
+                            <div class="department-card__icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <button class="department-card__delete" onclick="deleteDepartment(@dept.DepartmentID, '@dept.DepartmentName')" title="Delete Department">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <h4 class="department-card__title">@dept.DepartmentName</h4>
+                        <p class="department-card__description">Budget Code: @dept.BudgetCode</p>
+                        <div class="department-card__stats">
+                            <div class="department-stat">
+                                <i class="fas fa-users"></i>
+                                <span>@userCount Users</span>
+                            </div>
+                            <div class="department-stat">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>@totalBudget.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: rgba(255, 255, 255, 0.6);">
+                    <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 20px; display: block;"></i>
+                    <p style="font-size: 1.2rem;">No departments found</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Create Department Modal -->
+<div id="createDepartmentModal" class="cosmic-modal">
+    <div class="cosmic-modal__overlay" onclick="closeCreateDepartmentModal()"></div>
+    <div class="cosmic-modal__content" style="max-width: 600px;">
+        <div class="cosmic-modal__header">
+            <h3 class="cosmic-modal__title">
+                <i class="fas fa-building"></i>
+                Add New Department
+            </h3>
+            <button class="cosmic-modal__close" onclick="closeCreateDepartmentModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form class="cosmic-form" id="createDepartmentForm">
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group" style="grid-column: 1 / -1;">
+                    <label class="cosmic-form__label">Department Name</label>
+                    <input type="text" class="cosmic-form__input" placeholder="Enter department name" required>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group" style="grid-column: 1 / -1;">
+                    <label class="cosmic-form__label">Description</label>
+                    <textarea class="cosmic-form__input" rows="3" placeholder="Enter department description"></textarea>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Budget Amount</label>
+                    <input type="number" class="cosmic-form__input" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Icon</label>
+                    <select class="cosmic-form__select">
+                        <option value="laptop-code">IT / Technology</option>
+                        <option value="shopping-cart">Procurement</option>
+                        <option value="chart-line">Finance</option>
+                        <option value="cogs">Operations</option>
+                        <option value="users">Human Resources</option>
+                        <option value="bullhorn">Marketing</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cosmic-form__actions">
+                <button type="button" class="cosmic-btn cosmic-btn--secondary" onclick="closeCreateDepartmentModal()">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="submit" class="cosmic-btn cosmic-btn--primary">
+                    <i class="fas fa-save"></i>
+                    Add Department
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreateDepartmentModal() {
+            document.getElementById('createDepartmentModal').classList.add('cosmic-modal--active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateDepartmentModal() {
+            document.getElementById('createDepartmentModal').classList.remove('cosmic-modal--active');
+            document.body.style.overflow = '';
+        }
+
+        function deleteProduct(productId, productName) {
+            if (confirm(`Are you sure you want to delete product "${productName}"?`)) {
+                fetch('/Admin/DeleteProduct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: productId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Product deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error deleting product: ' + error);
+                });
+            }
+        }
+
+        function deleteDepartment(deptId, deptName) {
+            if (confirm(`Are you sure you want to delete department "${deptName}"?\n\nWarning: This may affect users assigned to this department.`)) {
+                fetch('/Admin/DeleteDepartment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: deptId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Department deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error deleting department: ' + error);
+                });
+            }
+        }
+
+        // Form submission
+        document.getElementById('createDepartmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Creating department...');
+            alert('Create functionality will be implemented with database connection.');
+            closeCreateDepartmentModal();
+        });
+    </script>
+}

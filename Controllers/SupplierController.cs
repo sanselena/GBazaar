@@ -353,6 +353,77 @@ namespace GBazaar.Controllers
             };
         }
 
+        // GET: Supplier/Upload
+        public IActionResult Upload()
+        {
+            ViewBag.UserType = "Supplier";
+            return View();
+        }
+
+        // POST: Supplier/Upload
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Upload(ProductUploadViewModel model)
+        {
+            ViewBag.UserType = "Supplier";
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                const int supplierId = 1; // TODO: Replace with authenticated supplier id from session/claims
+
+                // Create new product entity FIRST to get the ProductID
+                var product = new GBazaar.Models.Product
+                {
+                    SupplierID = supplierId,
+                    ProductName = model.ProductName.Trim(),
+                    Description = model.Description?.Trim(),
+                    UnitPrice = model.UnitPrice,
+                    UnitOfMeasure = model.UnitOfMeasure.Trim()
+                };
+
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync(); // This assigns the ProductID
+
+                // NOW handle image upload using the ProductID
+                if (model.ProductImage != null && model.ProductImage.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+
+                    // Get file extension from uploaded file
+                    var fileExtension = Path.GetExtension(model.ProductImage.FileName);
+                    
+                    // Name the file using ProductID
+                    var fileName = $"{product.ProductID}{fileExtension}";
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    // Save the image file
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProductImage.CopyToAsync(fileStream);
+                    }
+
+                    _logger.LogInformation("Product image saved as: {FileName} for ProductID: {ProductId}", fileName, product.ProductID);
+                }
+
+                _logger.LogInformation("Product created successfully: {ProductName} (ID: {ProductId})", product.ProductName, product.ProductID);
+                TempData["UploadSuccess"] = $"Product '{product.ProductName}' has been added successfully! (ID: {product.ProductID})";
+                
+                return RedirectToAction(nameof(Upload));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to upload product.");
+                ModelState.AddModelError(string.Empty, "An error occurred while uploading the product. Please try again.");
+                return View(model);
+            }
+        }
+
         private static bool IsDashboardConnectivityIssue(Exception exception)
         {
             for (var current = exception; current != null; current = current.InnerException)
