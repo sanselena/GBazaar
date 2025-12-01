@@ -29,6 +29,9 @@ namespace GBazaar.Models
 
         [Required]
         public virtual PurchaseOrder PurchaseOrder { get; set; }
+        public int ProductID { get; set; }
+        [ForeignKey(nameof(ProductID))]
+        public virtual Product Product { get; set; }
     }
 }
 

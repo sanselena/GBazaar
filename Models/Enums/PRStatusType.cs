@@ -7,7 +7,8 @@
         PendingApproval = 2,
         Approved = 3,
         Rejected = 4,
-        Ordered = 5
+        AwaitingSupplier =5,
+        Ordered = 6
     }
 }
 

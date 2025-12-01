@@ -79,6 +79,7 @@ namespace GBazaar.Controllers
 
             var pr = _context.PurchaseRequests
                 .Include(x => x.Requester)
+                .Include(x => x.PRItems) // ✅ PRItems'ları da include et
                 .FirstOrDefault(x => x.PRID == id);
 
             if (pr == null)
@@ -130,7 +131,7 @@ namespace GBazaar.Controllers
                 // Tüm onaylar tamamlandı, PR'ı Approved durumuna getir
                 pr.PRStatus = PRStatusType.Approved;
 
-                // PO oluşturma işlemi (opsiyonel)
+                // PO oluşturma işlemi
                 CreatePurchaseOrder(pr);
             }
             else
@@ -241,7 +242,7 @@ namespace GBazaar.Controllers
                 .FirstOrDefault();
         }
 
-        // Purchase Order oluşturma metodu (opsiyonel, ileride kullanılabilir)
+        // Purchase Order oluşturma metodu
         private void CreatePurchaseOrder(PurchaseRequest pr)
         {
             var po = new PurchaseOrder
@@ -249,12 +250,50 @@ namespace GBazaar.Controllers
                 PRID = pr.PRID,
                 SupplierID = pr.SupplierID ?? throw new InvalidOperationException("Supplier ID is required"),
                 DateIssued = DateTime.UtcNow,
-                POStatus = Models.Enums.POStatusType.Issued,
-                POStatusID = (int)Models.Enums.POStatusType.Issued
+
+                // ✅ PO önce supplier onayı bekliyor
+                POStatus = POStatusType.PendingSupplierApproval,
+                POStatusID = (int)POStatusType.PendingSupplierApproval,
+
+                RequiredDeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14))
             };
 
+            // PR'daki item'ları PO item'larına kopyala
+            foreach (var prItem in pr.PRItems)
+            {
+                var poItem = new POItem
+                {
+                    PurchaseOrder = po,
+                    ProductID = prItem.ProductID,
+                    ItemName = prItem.PRItemName,
+                    Description = prItem.Description,
+                    QuantityOrdered = (int)prItem.Quantity,
+                    UnitPrice = prItem.UnitPrice ?? 0
+                };
+                po.POItems.Add(poItem);
+            }
+
             _context.PurchaseOrders.Add(po);
-            pr.PRStatus = PRStatusType.Ordered;
+
+            // ✅ PR statusunu AwaitingSupplier yap
+            pr.PRStatus = PRStatusType.AwaitingSupplier;
         }
+
+        // ❌ Dashboard metodunu tamamen çıkardık!
+        // Dashboard metodu SupplierController'da olmalı!
+    }
+
+    public class RecentlyApprovedViewModel
+    {
+        public string Reference { get; init; } = string.Empty;
+        public decimal Amount { get; init; }
+        public string FinalApprovalRole { get; init; } = string.Empty;
+        
+        // ✅ Add properties for invoice generation
+        public int PurchaseOrderId { get; init; }
+        public POStatusType POStatus { get; init; }
+        public bool HasInvoice { get; init; }
+        public bool CanMakePayment { get; init; }
+        public PaymentStatusType? PaymentStatus { get; init; }
     }
 }

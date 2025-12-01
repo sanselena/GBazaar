@@ -291,6 +291,10 @@ namespace Gbazaar.Data
                       .WithMany(po => po.POItems)
                       .HasForeignKey(i => i.POID)
                       .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(i => i.Product)
+                      .WithMany(p => p.POItems)
+                      .HasForeignKey(i => i.ProductID)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -302,6 +306,10 @@ namespace Gbazaar.Data
                 entity.HasIndex(p => new { p.SupplierID, p.ProductName }).IsUnique();
                 entity.HasMany(p => p.PRItems)
                       .WithOne(pri => pri.Product)
+                      .HasForeignKey(p => p.ProductID)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(p => p.POItems)
+                      .WithOne(poi => poi.Product)
                       .HasForeignKey(p => p.ProductID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
