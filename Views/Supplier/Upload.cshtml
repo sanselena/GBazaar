@@ -1,0 +1,106 @@
+@model GBazaar.ViewModels.Supplier.ProductUploadViewModel
+
+@{
+    ViewData["Title"] = "Upload Product";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="auth-wrapper" style="min-height: auto; padding-top: 20px;">
+        <div class="auth-card" style="max-width: 700px;">
+            <h2 class="text-center mb-4" style="color: var(--text-main);">
+                <i class="fas fa-box-open"></i> Upload New Product
+            </h2>
+
+            @if (TempData["UploadSuccess"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> @TempData["UploadSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> Please fix the errors below and try again.
+                </div>
+            }
+
+            <form method="post" asp-action="Upload" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="ProductName" class="form-label">Product Name <span class="text-danger">*</span></label>
+                    <input asp-for="ProductName" type="text" class="form-control custom-input" placeholder="e.g., Fresh Tomatoes" />
+                    <span asp-validation-for="ProductName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Product Description</label>
+                    <textarea asp-for="Description" class="form-control custom-input" rows="4" placeholder="Describe your product (optional)"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UnitPrice" class="form-label">Unit Price (₺) <span class="text-danger">*</span></label>
+                        <input asp-for="UnitPrice" type="number" step="0.01" class="form-control custom-input" placeholder="0.00" />
+                        <span asp-validation-for="UnitPrice" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UnitOfMeasure" class="form-label">Unit of Measure <span class="text-danger">*</span></label>
+                        <input asp-for="UnitOfMeasure" type="text" class="form-control custom-input" placeholder="e.g., kg, piece, box" />
+                        <span asp-validation-for="UnitOfMeasure" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ProductImage" class="form-label">Product Image</label>
+                    <div class="custom-file-upload">
+                        <input asp-for="ProductImage" type="file" class="form-control custom-input" accept="image/*" id="productImageInput" />
+                        <label for="productImageInput" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i> Choose File
+                        </label>
+                        <span class="file-name-display">No file selected</span>
+                    </div>
+                    <span asp-validation-for="ProductImage" class="text-danger small"></span>
+                    <small class="form-text text-muted">
+                        <i class="fas fa-info-circle"></i> Supported formats: JPG, PNG, GIF (Max 5MB)
+                    </small>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-custom">
+                        <i class="fas fa-upload"></i> Upload Product
+                    </button>
+                    <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Custom file input handler
+        document.getElementById('productImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileNameDisplay = document.querySelector('.file-name-display');
+            
+            if (file) {
+                fileNameDisplay.textContent = file.name;
+                fileNameDisplay.style.color = 'var(--primary)';
+                console.log('Image selected:', file.name);
+            } else {
+                fileNameDisplay.textContent = 'No file selected';
+                fileNameDisplay.style.color = 'var(--text-main)';
+            }
+        });
+    </script>
+}
