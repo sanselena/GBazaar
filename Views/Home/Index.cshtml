@@ -1,56 +1,55 @@
-﻿@model List<GBazaar.Models.Product>  
-@{  
-    ViewData["Title"] = "Home Page";  
-    var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;  
-}  
+﻿@model List<GBazaar.Models.Product>
+@{
+    ViewData["Title"] = "Home Page";
+    var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;
+}
 
-<div class="container my-5">  
-    <div class="d-flex justify-content-between align-items-center mb-4">  
-        <div>  
-            <h1 class="mb-1">Featured Marketplace Listings</h1>  
-            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>  
-        </div>  
-        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">  
-            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>  
-        </form>  
-    </div>  
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Featured Marketplace Listings</h1>
+            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>
+        </div>
+        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">
+            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>
+        </form>
+    </div>
 
-    @if (usingSamples)  
-    {  
-        <div class="alert alert-info" role="alert">  
-            Showing two sample listings so the card layout can be reviewed before real data arrives.  
-        </div>  
-    }  
+    @if (usingSamples)
+    {
+        <div class="alert alert-info" role="alert">
+            Showing two sample listings so the card layout can be reviewed before real data arrives.
+        </div>
+    }
 
-    @if (Model == null || !Model.Any())  
-    {  
-        <div class="alert alert-info" role="alert">  
-            There are no products to display at the moment. Please check back later.  
-        </div>  
-    }  
-    else  
-    {  
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">  
-            @foreach (var product in Model)  
-            {  
-                <div class="col">  
-                    <div class="card h-100 product-card">  
-                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="text-decoration-none">  
-                            <div class="product-card-img-container">  
-                                @{  
-                                    // Resim yolunu dinamik olarak oluştur  
-                                    var imagePath = $"/images/products/{product.ProductID}.jpg";  
-                                }  
-                                <img src="@imagePath" class="card-img-top" alt="@product.ProductName"  
-                                     onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\'card-img-top d-flex align-items-center justify-content-center bg-light text-muted\' style=\'height: 200px;\'><span>No Image</span></div>';" />  
-                            </div>  
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            There are no products to display at the moment. Please check back later.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var product in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 product-card">
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="text-decoration-none">
+                            <div class="product-card-img-container">
+                                <img src="/images/products/@(product.ProductID).png"
+                                     class="card-img-top"
+                                     alt="@product.ProductName"
+                                     style="height: 200px; object-fit: cover;"
+                                     onerror="tryNextImageExtension(this, @product.ProductID, '@Uri.EscapeDataString(product.ProductName)')" />
+                            </div>
                             <div class="card-body">
                                 <h5 class="card-title">@product.ProductName</h5>
                                 <p class="card-text text-muted small">Supplier: @(product.Supplier?.SupplierName ?? "N/A")</p>
                             </div>
                             <div class="card-footer bg-transparent border-0 pb-3">
                                 <p class="card-text fw-bold text-primary">
-                                    @(product.UnitPrice.HasValue ? product.UnitPrice.Value.ToString("C") : "N/A") / @product.UnitOfMeasure
+                                    @(product.UnitPrice.HasValue? product.UnitPrice.Value.ToString("C") : "N/A") / @product.UnitOfMeasure
                                 </p>
                             </div>
                         </a>
@@ -60,3 +59,33 @@
         </div>
     }
 </div>
+
+<script>
+    function tryNextImageExtension(img, productId, productName) {
+        // Try different extensions in order
+        const extensions = ['jpg', 'jpeg', 'gif'];
+        const currentSrc = img.src;
+
+        // Find which extension we're currently trying
+        let currentExtension = '';
+        if (currentSrc.includes('.png')) currentExtension = 'png';
+        else if (currentSrc.includes('.jpg')) currentExtension = 'jpg';
+        else if (currentSrc.includes('.jpeg')) currentExtension = 'jpeg';
+        else if (currentSrc.includes('.gif')) currentExtension = 'gif';
+
+        // Find next extension to try
+        let nextExtension = '';
+        if (currentExtension === 'png') nextExtension = 'jpg';
+        else if (currentExtension === 'jpg') nextExtension = 'jpeg';
+        else if (currentExtension === 'jpeg') nextExtension = 'gif';
+
+        if (nextExtension) {
+            img.onerror = function() { tryNextImageExtension(this, productId, productName); };
+            img.src = `/images/products/${productId}.${nextExtension}`;
+        } else {
+            // No more extensions to try, use placeholder
+            img.onerror = null;
+            img.src = `https://via.placeholder.com/300x200/C4C1ED/6E6DCC?text=${encodeURIComponent(productName)}`;
+        }
+    }
+</script>

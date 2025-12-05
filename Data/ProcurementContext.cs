@@ -1,3 +1,4 @@
+﻿
 ﻿using Microsoft.EntityFrameworkCore;
 using GBazaar.Models;
 using GBazaar.Models.Enums;
@@ -29,13 +30,13 @@ namespace Gbazaar.Data
         public DbSet<GoodsReceiptItem> GoodsReceiptItems { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<SupplierRating> SupplierRatings { get; set; }
-      public DbSet<Attachment> Attachments { get; set; }
-      public DbSet<Product> Products { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<Product> Products { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>( entity =>
+            modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.Property(u => u.CreatedAt)
@@ -52,7 +53,7 @@ namespace Gbazaar.Data
 
             modelBuilder.Entity<Department>(entity =>
             {
-                entity.HasIndex(d => d.BudgetCode).IsUnique(); 
+                entity.HasIndex(d => d.BudgetCode).IsUnique();
                 entity.HasOne(d => d.Manager)
                       .WithMany()
                       .HasForeignKey(d => d.ManagerID)
@@ -68,7 +69,7 @@ namespace Gbazaar.Data
             });
 
             modelBuilder.Entity<Role>(entity =>
-            { 
+            {
                 entity.HasIndex(r => r.RoleName).IsUnique();
                 entity.HasMany(r => r.RolePermissions)
                       .WithOne(rp => rp.Role)
@@ -85,7 +86,7 @@ namespace Gbazaar.Data
             });
 
             modelBuilder.Entity<Supplier>(entity =>
-            { 
+            {
                 entity.HasIndex(s => s.SupplierName).IsUnique();
                 entity.HasIndex(s => s.ContactInfo).IsUnique();
                 entity.HasOne(s => s.PaymentTerm)
@@ -104,7 +105,7 @@ namespace Gbazaar.Data
                       .WithOne(i => i.Supplier)
                       .HasForeignKey(i => i.SupplierID)
                       .OnDelete(DeleteBehavior.Restrict);
-                entity.HasMany(s => s.PurchaseRequests) 
+                entity.HasMany(s => s.PurchaseRequests)
                       .WithOne(pr => pr.Supplier)
                       .HasForeignKey(pr => pr.SupplierID)
                       .OnDelete(DeleteBehavior.SetNull);
@@ -112,7 +113,7 @@ namespace Gbazaar.Data
 
             modelBuilder.Entity<Budget>(entity =>
             {
-                entity.HasIndex(b => new {b.DepartmentID, b.FiscalYear }).IsUnique();
+                entity.HasIndex(b => new { b.DepartmentID, b.FiscalYear }).IsUnique();
                 entity.HasOne(b => b.Department)
                       .WithMany(d => d.Budgets)
                       .HasForeignKey(b => b.DepartmentID)
@@ -120,7 +121,7 @@ namespace Gbazaar.Data
             });
 
             modelBuilder.Entity<PaymentTerm>(entity =>
-            { 
+            {
                 entity.HasIndex(pt => pt.Description).IsUnique();
                 entity.HasMany(pt => pt.Suppliers)
                       .WithOne(s => s.PaymentTerm)
@@ -156,7 +157,7 @@ namespace Gbazaar.Data
                       .HasForeignKey(i => i.POID)
                       .OnDelete(DeleteBehavior.Restrict);
                 entity.Property(i => i.PaymentStatus)
-                      .HasConversion<int?>();          
+                      .HasConversion<int?>();
             });
 
             modelBuilder.Entity<PurchaseRequest>(entity =>
@@ -249,7 +250,7 @@ namespace Gbazaar.Data
 
             modelBuilder.Entity<ApprovalRule>(entity =>
             {
-                entity.HasIndex(ar => new {ar.MinAmount, ar.MaxAmount ,ar.RequiredRoleID, ar.ApprovalLevel}).IsUnique();
+                entity.HasIndex(ar => new { ar.MinAmount, ar.MaxAmount, ar.RequiredRoleID, ar.ApprovalLevel }).IsUnique();
                 entity.HasOne(ar => ar.RequiredRole)
                       .WithMany(r => r.ApprovalRules)
                       .HasForeignKey(ar => ar.RequiredRoleID)
@@ -334,7 +335,7 @@ namespace Gbazaar.Data
                       .HasForeignKey(rp => rp.PermissionID)
                       .OnDelete(DeleteBehavior.Restrict);
             });
-            
+
             modelBuilder.Entity<RolePermission>(entity =>
             {
                 entity.HasKey(rp => new { rp.RoleID, rp.PermissionID });

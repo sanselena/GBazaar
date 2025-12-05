@@ -1,3 +1,4 @@
+using GBazaar.Controllers;
 using GBazaar.Models.Enums;
 using System.Collections.ObjectModel;
 
@@ -10,6 +11,9 @@ namespace GBazaar.ViewModels.Supplier
 
         public IReadOnlyList<ActiveOrderViewModel> ActiveOrders { get; init; }
             = Array.Empty<ActiveOrderViewModel>();
+
+        public IReadOnlyList<ClosedOrderViewModel> ClosedOrders { get; init; }
+            = Array.Empty<ClosedOrderViewModel>();
 
         public IReadOnlyList<AcceptedHistoryItemViewModel> AcceptedHistory { get; init; }
             = Array.Empty<AcceptedHistoryItemViewModel>();
@@ -73,6 +77,27 @@ namespace GBazaar.ViewModels.Supplier
         public string FulfillmentStatusLabel => FulfillmentStatus.ToString();
     }
 
+    public class ClosedOrderViewModel
+    {
+        public string Reference { get; init; } = string.Empty;
+        public decimal Amount { get; init; }
+        public string BuyerName { get; init; } = string.Empty;
+        public DateOnly? AcceptedOn { get; init; } 
+        public DateTime? CompletedDate { get; init; }
+        public string InvoiceNumber { get; init; } = string.Empty;
+        public DateOnly? InvoiceDate { get; init; }
+        public PaymentStatusType? PaymentStatus { get; init; }
+        public POStatusType FulfillmentStatus { get; init; }
+        public int PurchaseOrderId { get; init; }
+        public int? InvoiceId { get; init; }
+        public DateOnly? PaymentDate { get; init; }
+        public DateOnly? DeliveryDate { get; init; }
+        public DateOnly? PaymentDueDate { get; init; }
+        public decimal? InvoiceAmount { get; init; }
+
+        public string PaymentStatusLabel => PaymentStatus?.ToString() ?? PaymentStatusType.NotPaid.ToString();
+        public string FulfillmentStatusLabel => FulfillmentStatus.ToString();
+    }
     public class SupplierPerformanceViewModel
     {
         public int OnTimeDeliveryPercentage { get; init; }

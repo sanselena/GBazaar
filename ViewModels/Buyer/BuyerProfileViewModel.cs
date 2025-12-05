@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using GBazaar.Models.Enums;
 
 namespace GBazaar.ViewModels.Buyer
@@ -12,6 +12,7 @@ namespace GBazaar.ViewModels.Buyer
             = Array.Empty<ApprovalLadderStepViewModel>();
         public IReadOnlyList<RecentlyApprovedViewModel> RecentlyApproved { get; init; }
             = Array.Empty<RecentlyApprovedViewModel>();
+        // ❌ ClosedOrders property'sini çıkar - burası Buyer için, Closed Orders Supplier'da olacak
         public IReadOnlyList<InvoiceSummaryViewModel> Invoices { get; init; }
             = Array.Empty<InvoiceSummaryViewModel>();
     }
@@ -43,8 +44,12 @@ namespace GBazaar.ViewModels.Buyer
         public string Reference { get; init; } = string.Empty;
         public decimal Amount { get; init; }
         public string FinalApprovalRole { get; init; } = string.Empty;
+        public int PurchaseOrderId { get; init; }
+        public POStatusType POStatus { get; init; }
+        public bool HasInvoice { get; init; }
+        public bool CanMakePayment { get; init; }
+        public PaymentStatusType? PaymentStatus { get; init; }
     }
-
     public class InvoiceSummaryViewModel
     {
         public int InvoiceId { get; init; }

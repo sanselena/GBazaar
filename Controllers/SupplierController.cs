@@ -113,8 +113,8 @@ namespace GBazaar.Controllers
                 // ✅ Tüm supplier order'ları al (çok daha geniş kriter)
                 var allSupplierPOs = await _context.PurchaseOrders
                     .AsNoTracking()
-                    .Where(po => po.SupplierID == supplierId && 
-                                po.POStatus != POStatusType.Rejected && 
+                    .Where(po => po.SupplierID == supplierId &&
+                                po.POStatus != POStatusType.Rejected &&
                                 po.POStatus != POStatusType.PendingSupplierApproval) // Sadece reject ve pending hariç
                     .Include(po => po.PurchaseRequest)
                         .ThenInclude(pr => pr.Requester)
@@ -124,7 +124,7 @@ namespace GBazaar.Controllers
                     .ToListAsync();
 
                 var activeOrders = new List<ActiveOrderViewModel>();
-                var allHistoryItems = new List<AcceptedHistoryItemViewModel>();
+                var closedOrders = new List<ClosedOrderViewModel>();
 
                 foreach (var po in allSupplierPOs)
                 {
@@ -136,26 +136,32 @@ namespace GBazaar.Controllers
                     var paymentStatus = latestInvoice?.PaymentStatus ?? PaymentStatusType.NotPaid;
                     var totalAmount = po.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice);
                     var isDelivered = po.POStatus == POStatusType.FullyReceived || po.POStatus == POStatusType.Closed;
+                    var hasInvoice = po.Invoices.Any();
 
-                    // ✅ History için tüm PO'ları ekle (delivered olmasına gerek yok)
-                    allHistoryItems.Add(new AcceptedHistoryItemViewModel
+                    // ✅ DÜZELTME: Eğer invoice varsa, ClosedOrders'a ekle (invoice = closed demek)
+                    if (hasInvoice)
                     {
-                        Reference = $"PO-{po.POID:0000}",
-                        Amount = totalAmount,
-                        AcceptedOn = DateOnly.FromDateTime(po.DateIssued),
-                        BuyerName = po.PurchaseRequest?.Requester?.FullName ?? "Unknown Buyer",
-                        PaymentStatus = paymentStatus,
-                        FulfillmentStatus = po.POStatus,
-                        DeliveryDate = po.RequiredDeliveryDate,
-                        InvoiceNumber = latestInvoice?.InvoiceNumber ?? string.Empty,
-                        InvoiceDate = latestInvoice?.InvoiceDate,
-                        PaymentDueDate = latestInvoice?.DueDate,
-                        PaymentDate = latestInvoice?.PaymentDate,
-                        InvoiceAmount = latestInvoice?.AmountDue ?? totalAmount
-                    });
-
-                    // ✅ Active Orders: Henüz fully received olmayan
-                    if (!isDelivered)
+                        closedOrders.Add(new ClosedOrderViewModel
+                        {
+                            Reference = $"PO-{po.POID:0000}",
+                            Amount = totalAmount,
+                            BuyerName = po.PurchaseRequest?.Requester?.FullName ?? "Unknown Buyer",
+                            AcceptedOn = DateOnly.FromDateTime(po.DateIssued),
+                            PaymentStatus = paymentStatus,
+                            FulfillmentStatus = po.POStatus,
+                            DeliveryDate = po.RequiredDeliveryDate,
+                            InvoiceNumber = latestInvoice?.InvoiceNumber ?? string.Empty,
+                            InvoiceDate = latestInvoice?.InvoiceDate,
+                            PaymentDueDate = latestInvoice?.DueDate,
+                            PaymentDate = latestInvoice?.PaymentDate,
+                            InvoiceAmount = latestInvoice?.AmountDue ?? totalAmount,
+                            CompletedDate = latestInvoice?.InvoiceDate.ToDateTime(TimeOnly.MinValue),
+                            PurchaseOrderId = po.POID,
+                            InvoiceId = latestInvoice?.InvoiceID
+                        });
+                    }
+                    // ✅ DÜZELTME: Sadece invoice OLMAYAN order'lar ActiveOrders'da
+                    else if (!isDelivered)
                     {
                         activeOrders.Add(new ActiveOrderViewModel
                         {
@@ -171,14 +177,14 @@ namespace GBazaar.Controllers
                     }
                 }
 
-                // ✅ History: Son 10 order (tamamlanmış olmasına gerek yok)
-                var acceptedHistory = allHistoryItems
+                // ✅ Son 10 closed order'ı al
+                var finalClosedOrders = closedOrders
                     .OrderByDescending(item => item.AcceptedOn)
                     .Take(10)
                     .ToList();
 
-                // ✅ Revenue Mix: Tüm order'lara göre (pie chart için)
-                var revenueMix = allHistoryItems
+                // ✅ Revenue Mix: ClosedOrders'a göre hesapla
+                var revenueMix = closedOrders
                     .GroupBy(item => item.BuyerName)
                     .Select(group => new RevenueSliceViewModel
                     {
@@ -193,8 +199,8 @@ namespace GBazaar.Controllers
                 {
                     IncomingRequests = groupedRequests,
                     ActiveOrders = activeOrders,
-                    AcceptedHistory = acceptedHistory, // ✅ Tüm order'lar
-                    RevenueMix = revenueMix, // ✅ Tüm order'lar
+                    ClosedOrders = finalClosedOrders, // ✅ AcceptedHistory yerine ClosedOrders
+                    RevenueMix = revenueMix,
                     Performance = SupplierPerformanceViewModel.Placeholder()
                 };
 
@@ -390,7 +396,8 @@ namespace GBazaar.Controllers
                 }
             };
 
-            var acceptedHistory = new List<AcceptedHistoryItemViewModel>
+            // ✅ Sample ClosedOrders (eskiden acceptedHistory)
+            var closedOrders = new List<ClosedOrderViewModel>
             {
                 new()
                 {
@@ -405,7 +412,10 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-16)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-9)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-8)),
-                    InvoiceAmount = 12450m
+                    InvoiceAmount = 12450m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-16),
+                    PurchaseOrderId = 4988,
+                    InvoiceId = 8891
                 },
                 new()
                 {
@@ -420,7 +430,10 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-11)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-6)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-5)),
-                    InvoiceAmount = 9860m
+                    InvoiceAmount = 9860m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-11),
+                    PurchaseOrderId = 4991,
+                    InvoiceId = 8920
                 },
                 new()
                 {
@@ -435,11 +448,14 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-8)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-3)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-2)),
-                    InvoiceAmount = 4350m
+                    InvoiceAmount = 4350m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-8),
+                    PurchaseOrderId = 4999,
+                    InvoiceId = 8975
                 }
             };
 
-            var revenueMix = acceptedHistory
+            var revenueMix = closedOrders
                 .GroupBy(item => item.BuyerName)
                 .Select(group => new RevenueSliceViewModel
                 {
@@ -453,7 +469,7 @@ namespace GBazaar.Controllers
             {
                 IncomingRequests = incomingRequests,
                 ActiveOrders = activeOrders,
-                AcceptedHistory = acceptedHistory,
+                ClosedOrders = closedOrders, // ✅ AcceptedHistory yerine ClosedOrders
                 RevenueMix = revenueMix,
                 Performance = SupplierPerformanceViewModel.Placeholder()
             };
@@ -507,7 +523,7 @@ namespace GBazaar.Controllers
 
                     // Get file extension from uploaded file
                     var fileExtension = Path.GetExtension(model.ProductImage.FileName);
-                    
+
                     // Name the file using ProductID
                     var fileName = $"{product.ProductID}{fileExtension}";
                     var filePath = Path.Combine(uploadsFolder, fileName);
@@ -523,7 +539,7 @@ namespace GBazaar.Controllers
 
                 _logger.LogInformation("Product created successfully: {ProductName} (ID: {ProductId})", product.ProductName, product.ProductID);
                 TempData["UploadSuccess"] = $"Product '{product.ProductName}' has been added successfully! (ID: {product.ProductID})";
-                
+
                 return RedirectToAction(nameof(Upload));
             }
             catch (Exception ex)
@@ -533,8 +549,6 @@ namespace GBazaar.Controllers
                 return View(model);
             }
         }
-
-
 
         private static bool IsDashboardConnectivityIssue(Exception exception)
         {

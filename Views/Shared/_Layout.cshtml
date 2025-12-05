@@ -29,7 +29,7 @@
                 var userType = User.FindFirst("UserType")?.Value;
 
                 <div class="top-menu d-flex align-items-center">
-                    @if (userType == "Buyer")
+                    @if (userType == "User") 
                     {
                         <a asp-controller="Buyer" asp-action="Profile" class="nav-link-custom">Workspace</a>
                     }
