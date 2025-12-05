@@ -1,9 +1,18 @@
-@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model GBazaar.Models.ViewModels.SignupBuyerVM
 
 <div class="container mt-4 mb-5">
     <div class="auth-wrapper" style="min-height: auto; padding-top: 20px;">
         <div class="auth-card">
             <h2 class="text-center mb-4" style="color: var(--text-main);">Create Account</h2>
+
+            @if (TempData["SignupSuccess"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SignupSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
 
             <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -25,26 +34,38 @@
                     <form method="post" asp-action="SignupBuyer">
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
-                            <input name="FullName" type="text" class="form-control custom-input" placeholder="John Doe" required>
+                            <input name="FullName" type="text" class="form-control custom-input" placeholder="John Doe" value="@Model?.FullName" required>
+                            <div asp-validation-for="FullName" class="text-danger"></div>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Department</label>
                                 <select name="DepartmentID" class="form-select" asp-items="ViewBag.Departments" required>
                                     <option value="">-- Select Department --</option>
                                 </select>
+                                <div asp-validation-for="DepartmentID" class="text-danger"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Role</label>
+                                <select name="RoleID" class="form-select" asp-items="ViewBag.Roles" required id="roleSelect">
+                                    <option value="">-- Select Role --</option>
+                                </select>
+                                <div asp-validation-for="RoleID" class="text-danger"></div>
+                                <small class="form-text text-muted" id="roleHint"></small>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Email Address</label>
-                            <input name="Email" type="email" class="form-control custom-input" placeholder="name@company.com" required>
+                            <input name="Email" type="email" class="form-control custom-input" placeholder="name@company.com" value="@Model?.Email" required>
+                            <div asp-validation-for="Email" class="text-danger"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
                             <input name="Password" type="password" class="form-control custom-input" placeholder="Minimum 8 characters" minlength="8" required>
+                            <div asp-validation-for="Password" class="text-danger"></div>
                         </div>
 
                         <div class="mb-3 form-check">
@@ -52,6 +73,7 @@
                             <label class="form-check-label" for="termsCheck" style="font-size: 0.9rem;">
                                 I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> & <a href="#" style="color: var(--primary);">Privacy Policy</a>.
                             </label>
+                            <div asp-validation-for="AcceptTerms" class="text-danger"></div>
                         </div>
 
                         <button type="submit" class="btn btn-custom w-100 mt-3">
@@ -60,30 +82,42 @@
                     </form>
                 </div>
 
-                <!-- Supplier Tab -->
+                <!-- Supplier Tab - Removed asp-validation-for attributes -->
                 <div class="tab-pane fade" id="pills-supplier" role="tabpanel">
                     <form method="post" asp-action="SignupSupplier">
                         <div class="mb-3">
-                            <label class="form-label">Business Name</label>
-                            <input name="BusinessName" type="text" class="form-control custom-input" required>
+                            <label class="form-label">Business Name *</label>
+                            <input name="BusinessName" type="text" class="form-control custom-input" placeholder="Your Company Name" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Tax ID (VKN)</label>
-                            <input name="TaxId" type="text" class="form-control custom-input" required>
+                            <label class="form-label">Contact Person</label>
+                            <input name="ContactName" type="text" class="form-control custom-input" placeholder="Contact person name">
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Official Contact</label>
-                            <input name="ContactInfo" type="text" class="form-control custom-input" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Official Contact Email *</label>
+                                <input name="ContactInfo" type="email" class="form-control custom-input" placeholder="contact@company.com" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tax ID (VKN)</label>
+                                <input name="TaxId" type="text" class="form-control custom-input" placeholder="Tax identification number">
+                            </div>
                         </div>
 
-                        @*
-                        <div class="mb-3">
-                            <label class="form-label">Create Password</label>
-                            <input name="Password" type="password" class="form-control custom-input" minlength="8" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Payment Terms *</label>
+                                <select name="PaymentTermID" class="form-select" asp-items="ViewBag.PaymentTerms" required>
+                                    <option value="">-- Select Payment Terms --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Create Password *</label>
+                                <input name="Password" type="password" class="form-control custom-input" placeholder="Minimum 8 characters" minlength="8" required>
+                            </div>
                         </div>
-                        *@
 
                         <div class="mb-3 form-check">
                             <input name="AcceptTerms" type="checkbox" class="form-check-input" id="termsCheckSupplier" value="true" required>
@@ -104,3 +138,30 @@
         </div>
     </div>
 </div>
+
+<!-- Role seçim yardımcı scripti -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('roleSelect');
+        const roleHint = document.getElementById('roleHint');
+
+        const roleDescriptions = {
+            '1': 'Officers can create purchase requests. Multiple officers allowed per department.',
+            '2': 'Managers approve medium-value purchases. Only one manager allowed per department.',
+            '3': 'Directors approve high-value purchases. Only one director allowed per department.',
+            '4': 'CFO approves strategic investments. Only one CFO allowed per department.'
+        };
+
+        if (roleSelect && roleHint) {
+            roleSelect.addEventListener('change', function() {
+                const selectedRole = this.value;
+                if (selectedRole && roleDescriptions[selectedRole]) {
+                    roleHint.textContent = roleDescriptions[selectedRole];
+                    roleHint.className = 'form-text text-info';
+                } else {
+                    roleHint.textContent = '';
+                }
+            });
+        }
+    });
+</script>

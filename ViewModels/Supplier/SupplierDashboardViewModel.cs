@@ -1,6 +1,4 @@
-using GBazaar.Controllers;
-using GBazaar.Models.Enums;
-using System.Collections.ObjectModel;
+﻿using GBazaar.Models.Enums;
 
 namespace GBazaar.ViewModels.Supplier
 {
@@ -15,10 +13,7 @@ namespace GBazaar.ViewModels.Supplier
         public IReadOnlyList<ClosedOrderViewModel> ClosedOrders { get; init; }
             = Array.Empty<ClosedOrderViewModel>();
 
-        public IReadOnlyList<AcceptedHistoryItemViewModel> AcceptedHistory { get; init; }
-            = Array.Empty<AcceptedHistoryItemViewModel>();
-
-        public SupplierPerformanceViewModel Performance { get; init; } = SupplierPerformanceViewModel.Placeholder();
+        public SupplierPerformanceViewModel Performance { get; init; } = SupplierPerformanceViewModel.Default();
 
         public IReadOnlyList<RevenueSliceViewModel> RevenueMix { get; init; } = Array.Empty<RevenueSliceViewModel>();
     }
@@ -58,31 +53,12 @@ namespace GBazaar.ViewModels.Supplier
         public string FulfillmentStatusLabel => FulfillmentStatus.ToString();
     }
 
-    public class AcceptedHistoryItemViewModel
-    {
-        public string Reference { get; init; } = string.Empty;
-        public decimal Amount { get; init; }
-        public DateOnly? AcceptedOn { get; init; }
-        public string BuyerName { get; init; } = string.Empty;
-        public PaymentStatusType? PaymentStatus { get; init; }
-        public POStatusType FulfillmentStatus { get; init; }
-        public DateOnly? DeliveryDate { get; init; }
-        public DateOnly? InvoiceDate { get; init; }
-        public DateOnly? PaymentDueDate { get; init; }
-        public DateOnly? PaymentDate { get; init; }
-        public string InvoiceNumber { get; init; } = string.Empty;
-        public decimal? InvoiceAmount { get; init; }
-
-        public string PaymentStatusLabel => PaymentStatus?.ToString() ?? PaymentStatusType.NotPaid.ToString();
-        public string FulfillmentStatusLabel => FulfillmentStatus.ToString();
-    }
-
     public class ClosedOrderViewModel
     {
         public string Reference { get; init; } = string.Empty;
         public decimal Amount { get; init; }
         public string BuyerName { get; init; } = string.Empty;
-        public DateOnly? AcceptedOn { get; init; } 
+        public DateOnly? AcceptedOn { get; init; }
         public DateTime? CompletedDate { get; init; }
         public string InvoiceNumber { get; init; } = string.Empty;
         public DateOnly? InvoiceDate { get; init; }
@@ -98,17 +74,24 @@ namespace GBazaar.ViewModels.Supplier
         public string PaymentStatusLabel => PaymentStatus?.ToString() ?? PaymentStatusType.NotPaid.ToString();
         public string FulfillmentStatusLabel => FulfillmentStatus.ToString();
     }
-    public class SupplierPerformanceViewModel
-    {
-        public int OnTimeDeliveryPercentage { get; init; }
-        public int AverageResponseHours { get; init; }
-        public decimal AverageRating { get; init; }
 
-        public static SupplierPerformanceViewModel Placeholder() => new()
+        public class SupplierPerformanceViewModel
+    {
+        public decimal AverageRating { get; init; }
+        public int TotalRatings { get; init; }
+
+       
+        public static SupplierPerformanceViewModel Default() => new()
         {
-            OnTimeDeliveryPercentage = 92,
-            AverageResponseHours = 48,
-            AverageRating = 4.8m
+            AverageRating = 0.0m,
+            TotalRatings = 0
+        };
+
+       
+        public static SupplierPerformanceViewModel Create(decimal averageRating, int totalRatings) => new()
+        {
+            AverageRating = averageRating,
+            TotalRatings = totalRatings
         };
     }
 

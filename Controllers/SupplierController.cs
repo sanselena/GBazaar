@@ -195,13 +195,25 @@ namespace GBazaar.Controllers
                     .OrderByDescending(slice => slice.Amount)
                     .ToList();
 
+                // ✅ Supplier Performance hesaplama - sadece rating
+                var supplierRatings = await _context.SupplierRatings
+                    .Where(sr => _context.PurchaseOrders.Any(po => po.POID == sr.POID && po.SupplierID == supplierId))
+                    .Select(sr => sr.RatingScore)
+                    .ToListAsync();
+
+                var performance = supplierRatings.Any() 
+                    ? SupplierPerformanceViewModel.Create(
+                        averageRating: Math.Round((decimal)supplierRatings.Average(), 1),
+                        totalRatings: supplierRatings.Count)
+                    : SupplierPerformanceViewModel.Default();
+
                 var viewModel = new SupplierDashboardViewModel
                 {
                     IncomingRequests = groupedRequests,
                     ActiveOrders = activeOrders,
                     ClosedOrders = finalClosedOrders, // ✅ AcceptedHistory yerine ClosedOrders
                     RevenueMix = revenueMix,
-                    Performance = SupplierPerformanceViewModel.Placeholder()
+                    Performance = performance // ✅ Gerçek veri kullan
                 };
 
                 return View(viewModel);
@@ -469,13 +481,13 @@ namespace GBazaar.Controllers
             {
                 IncomingRequests = incomingRequests,
                 ActiveOrders = activeOrders,
-                ClosedOrders = closedOrders, // ✅ AcceptedHistory yerine ClosedOrders
+                ClosedOrders = closedOrders, 
                 RevenueMix = revenueMix,
-                Performance = SupplierPerformanceViewModel.Placeholder()
+                Performance = SupplierPerformanceViewModel.Create(4.2m, 15) 
             };
         }
 
-        // GET: Supplier/Upload
+       
         public IActionResult Upload()
         {
             ViewBag.UserType = "Supplier";
