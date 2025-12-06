@@ -286,7 +286,12 @@
                                                            id="@radioId"
                                                            value="@score"
                                                            @(invoice.ExistingRating == score ? "checked" : string.Empty) />
-                                                    <label class="btn btn-sm btn-outline-warning" for="@radioId">@(new string('*', score))</label>
+                                                    <label class="btn btn-sm btn-outline-warning" for="@radioId">
+                                                        @for (int s = 1; s <= score; s++)
+                                                        {
+                                                            <span class="custom-star custom-star--full custom-star--small"></span>
+                                                        }
+                                                    </label>
                                                 }
                                             </div>
                                             <button type="submit" class="btn btn-sm btn-primary">Submit rating</button>
