@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GBazaar</title>
-    
+
     <!-- CSS LINKS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -21,24 +21,35 @@
             <a asp-controller="Home" asp-action="Index" class="nav-link-custom">Home</a>
         </div>
         <div class="nav-center">
-            <input type="text" class="search-input" placeholder="Search..." />
+            <form asp-controller="Home" asp-action="Search" method="get" class="d-flex">
+                <input type="text" name="query" class="search-input" placeholder="Search products..." value="@ViewBag.SearchQuery" />
+                <button type="submit" class="btn btn-link text-secondary p-1 ms-1">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
         </div>
         <div class="nav-right">
             @if (User.Identity.IsAuthenticated)
             {
                 var userType = User.FindFirst("UserType")?.Value;
+                var roleName = User.FindFirst("RoleName")?.Value;
 
                 <div class="top-menu d-flex align-items-center">
                     @if (userType == "User") 
                     {
-                        <a asp-controller="Buyer" asp-action="Profile" class="nav-link-custom">Workspace</a>
+                        @if (roleName?.ToLowerInvariant() == "admin")
+                        {
+                            <a asp-controller="Admin" asp-action="Dashboard" class="nav-link-custom">Admin Panel</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Buyer" asp-action="Profile" class="nav-link-custom">Workspace</a>
+                        }
                     }
                     else if (userType == "Supplier")
                     {
                         <a asp-controller="Supplier" asp-action="Dashboard" class="nav-link-custom">Dashboard</a>
                     }
-
-                    
 
                     <form asp-controller="Auth" asp-action="Logout" method="post" class="ms-2">
                         <button type="submit" class="btn btn-outline-secondary btn-sm">Sign Out</button>
@@ -49,7 +60,7 @@
             {
                 <div class="top-menu">
                     <a asp-controller="Auth" asp-action="Login" class="nav-link-custom">Login / SignUp</a>
-                    
+
                 </div>
             }
         </div>

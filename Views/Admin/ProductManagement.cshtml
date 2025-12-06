@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Product & Department Management";
 }
 
@@ -12,7 +12,11 @@
             <p class="cosmic-header__subtitle">Manage products catalog and departments</p>
         </div>
         <div class="cosmic-header__actions">
-            <button class="cosmic-btn cosmic-btn--primary" onclick="openCreateDepartmentModal()">
+            <button class="cosmic-btn cosmic-btn--primary" onclick="openCreateProductModal()">
+                <i class="fas fa-box"></i>
+                <span>Add Product</span>
+            </button>
+            <button class="cosmic-btn cosmic-btn--secondary" onclick="openCreateDepartmentModal()">
                 <i class="fas fa-building"></i>
                 <span>Add Department</span>
             </button>
@@ -23,19 +27,35 @@
         </div>
     </div>
 
+    @if (TempData["AdminSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["AdminSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["AdminError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["AdminError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <!-- Products Section -->
     <div class="cosmic-card" style="margin-bottom: 40px;">
         <div class="cosmic-card__header">
             <h3 class="cosmic-card__title">
                 <i class="fas fa-box"></i>
-                Product List
+                Product List (@((ViewBag.Products as IEnumerable<GBazaar.Models.Product>)?.Count() ?? 0) products)
             </h3>
             <div class="cosmic-search">
                 <i class="fas fa-search"></i>
-                <input type="text" class="cosmic-search__input" placeholder="Search products...">
+                <input type="text" class="cosmic-search__input" placeholder="Search products..." id="productSearch">
             </div>
         </div>
-        
+
         <div class="cosmic-table-wrapper">
             <table class="cosmic-table">
                 <thead>
@@ -49,7 +69,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="productTableBody">
                     @if (ViewBag.Products != null && ((IEnumerable<GBazaar.Models.Product>)ViewBag.Products).Any())
                     {
                         @foreach (var product in (IEnumerable<GBazaar.Models.Product>)ViewBag.Products)
@@ -64,16 +84,39 @@
                                         <span>@product.ProductName</span>
                                     </div>
                                 </td>
-                                <td>@(product.Description ?? "N/A")</td>
-                                <td>@(product.UnitPrice?.ToString("C") ?? "N/A")</td>
+                                <td title="@(product.Description ?? "N/A")">
+                                    @if (!string.IsNullOrEmpty(product.Description))
+                                    {
+                                        @(product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (product.UnitPrice.HasValue)
+                                    {
+                                        <span class="price-badge">₺@product.UnitPrice.Value.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
                                 <td>@(product.UnitOfMeasure ?? "N/A")</td>
-                                <td>@(product.Supplier?.SupplierName ?? "N/A")</td>
+                                <td>
+                                    <span class="supplier-badge">
+                                        <i class="fas fa-building"></i>
+                                        @(product.Supplier?.SupplierName ?? "Unknown")
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="action-btn action-btn--view" title="View Details">
+                                        <button class="action-btn action-btn--view" title="View Details" onclick="viewProduct(@product.ProductID)">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="action-btn action-btn--delete" title="Delete Product" onclick="deleteProduct(@product.ProductID, '@product.ProductName')">
+                                        <button class="action-btn action-btn--delete" title="Delete Product" onclick="deleteProduct(@product.ProductID, '@Html.Raw(Html.Encode(product.ProductName))')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -93,16 +136,6 @@
                 </tbody>
             </table>
         </div>
-
-        <div class="cosmic-pagination">
-            <button class="cosmic-pagination__btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span class="cosmic-pagination__info">Page 1 of 1</span>
-            <button class="cosmic-pagination__btn" disabled>
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
     </div>
 
     <!-- Departments Section -->
@@ -113,10 +146,10 @@
                 Department List
             </h3>
             <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i> Total: 4 Departments
+                <i class="fas fa-info-circle"></i> Total: @((ViewBag.Departments as IEnumerable<GBazaar.Models.Department>)?.Count() ?? 0) Departments
             </div>
         </div>
-        
+
         <div class="department-grid">
             @if (ViewBag.Departments != null && ((IEnumerable<GBazaar.Models.Department>)ViewBag.Departments).Any())
             {
@@ -129,7 +162,7 @@
                             <div class="department-card__icon">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <button class="department-card__delete" onclick="deleteDepartment(@dept.DepartmentID, '@dept.DepartmentName')" title="Delete Department">
+                            <button class="department-card__delete" onclick="deleteDepartment(@dept.DepartmentID, '@Html.Raw(Html.Encode(dept.DepartmentName))')" title="Delete Department">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -142,7 +175,7 @@
                             </div>
                             <div class="department-stat">
                                 <i class="fas fa-dollar-sign"></i>
-                                <span>@totalBudget.ToString("C")</span>
+                                <span>₺@totalBudget.ToString("N2")</span>
                             </div>
                         </div>
                     </div>
@@ -159,6 +192,76 @@
     </div>
 </div>
 
+<!-- Create Product Modal -->
+<div id="createProductModal" class="cosmic-modal">
+    <div class="cosmic-modal__overlay" onclick="closeCreateProductModal()"></div>
+    <div class="cosmic-modal__content">
+        <div class="cosmic-modal__header">
+            <h3 class="cosmic-modal__title">
+                <i class="fas fa-box"></i>
+                Add New Product
+            </h3>
+            <button class="cosmic-modal__close" onclick="closeCreateProductModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form class="cosmic-form" method="post" action="/Admin/CreateProduct">
+            @Html.AntiForgeryToken()
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Product Name *</label>
+                    <input type="text" name="ProductName" class="cosmic-form__input" placeholder="Enter product name" required>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Supplier *</label>
+                    <select name="SupplierID" class="cosmic-form__select" required>
+                        <option value="">Select supplier...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Unit Price</label>
+                    <input type="number" name="UnitPrice" class="cosmic-form__input" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Unit of Measure</label>
+                    <select name="UnitOfMeasure" class="cosmic-form__select">
+                        <option value="">Select unit...</option>
+                        <option value="pcs">Pieces</option>
+                        <option value="kg">Kilograms</option>
+                        <option value="ltr">Liters</option>
+                        <option value="mt">Meters</option>
+                        <option value="pkg">Package</option>
+                        <option value="box">Box</option>
+                        <option value="set">Set</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group cosmic-form__group--full">
+                    <label class="cosmic-form__label">Description</label>
+                    <textarea name="Description" class="cosmic-form__textarea" placeholder="Enter product description" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="cosmic-form__actions">
+                <button type="button" class="cosmic-btn cosmic-btn--secondary" onclick="closeCreateProductModal()">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button type="submit" class="cosmic-btn cosmic-btn--primary">
+                    <i class="fas fa-save"></i>
+                    Add Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Create Department Modal -->
 <div id="createDepartmentModal" class="cosmic-modal">
     <div class="cosmic-modal__overlay" onclick="closeCreateDepartmentModal()"></div>
@@ -172,37 +275,31 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
-        <form class="cosmic-form" id="createDepartmentForm">
+
+        <form class="cosmic-form" method="post" action="/Admin/CreateDepartment">
+            @Html.AntiForgeryToken()
             <div class="cosmic-form__row">
                 <div class="cosmic-form__group" style="grid-column: 1 / -1;">
-                    <label class="cosmic-form__label">Department Name</label>
-                    <input type="text" class="cosmic-form__input" placeholder="Enter department name" required>
+                    <label class="cosmic-form__label">Department Name *</label>
+                    <input type="text" name="DepartmentName" class="cosmic-form__input" placeholder="Enter department name" required>
+                </div>
+            </div>
+
+            <div class="cosmic-form__row">
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Budget Code *</label>
+                    <input type="text" name="BudgetCode" class="cosmic-form__input" placeholder="e.g., IT-2024" required>
+                </div>
+                <div class="cosmic-form__group">
+                    <label class="cosmic-form__label">Budget Amount *</label>
+                    <input type="number" name="BudgetAmount" class="cosmic-form__input" placeholder="0.00" step="0.01" required>
                 </div>
             </div>
 
             <div class="cosmic-form__row">
                 <div class="cosmic-form__group" style="grid-column: 1 / -1;">
                     <label class="cosmic-form__label">Description</label>
-                    <textarea class="cosmic-form__input" rows="3" placeholder="Enter department description"></textarea>
-                </div>
-            </div>
-
-            <div class="cosmic-form__row">
-                <div class="cosmic-form__group">
-                    <label class="cosmic-form__label">Budget Amount</label>
-                    <input type="number" class="cosmic-form__input" placeholder="0.00" step="0.01" required>
-                </div>
-                <div class="cosmic-form__group">
-                    <label class="cosmic-form__label">Icon</label>
-                    <select class="cosmic-form__select">
-                        <option value="laptop-code">IT / Technology</option>
-                        <option value="shopping-cart">Procurement</option>
-                        <option value="chart-line">Finance</option>
-                        <option value="cogs">Operations</option>
-                        <option value="users">Human Resources</option>
-                        <option value="bullhorn">Marketing</option>
-                    </select>
+                    <textarea name="Description" class="cosmic-form__input" rows="3" placeholder="Enter department description"></textarea>
                 </div>
             </div>
 
@@ -222,6 +319,17 @@
 
 @section Scripts {
     <script>
+        function openCreateProductModal() {
+            loadSuppliers();
+            document.getElementById('createProductModal').classList.add('cosmic-modal--active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateProductModal() {
+            document.getElementById('createProductModal').classList.remove('cosmic-modal--active');
+            document.body.style.overflow = '';
+        }
+
         function openCreateDepartmentModal() {
             document.getElementById('createDepartmentModal').classList.add('cosmic-modal--active');
             document.body.style.overflow = 'hidden';
@@ -230,6 +338,24 @@
         function closeCreateDepartmentModal() {
             document.getElementById('createDepartmentModal').classList.remove('cosmic-modal--active');
             document.body.style.overflow = '';
+        }
+
+        function loadSuppliers() {
+            fetch('/Admin/GetSuppliers')
+                .then(response => response.json())
+                .then(suppliers => {
+                    const supplierSelect = document.querySelector('#createProductModal select[name="SupplierID"]');
+                    supplierSelect.innerHTML = '<option value="">Select supplier...</option>';
+                    suppliers.forEach(supplier => {
+                        supplierSelect.innerHTML += `<option value="${supplier.supplierID}">${supplier.supplierName}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading suppliers:', error));
+        }
+
+        function viewProduct(productId) {
+            // Implement product details view
+            alert('Product details view will be implemented.');
         }
 
         function deleteProduct(productId, productName) {
@@ -244,7 +370,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Product deleted successfully!');
                         location.reload();
                     } else {
                         alert('Error: ' + data.message);
@@ -268,7 +393,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Department deleted successfully!');
                         location.reload();
                     } else {
                         alert('Error: ' + data.message);
@@ -280,12 +404,15 @@
             }
         }
 
-        // Form submission
-        document.getElementById('createDepartmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('Creating department...');
-            alert('Create functionality will be implemented with database connection.');
-            closeCreateDepartmentModal();
+        // Search functionality for products
+        document.getElementById('productSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#productTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
         });
     </script>
 }

@@ -33,7 +33,6 @@ namespace GBazaar.Controllers
 
         public IActionResult Signup()
         {
-            // ✅ Departments dropdown
             ViewBag.Departments = _context.Departments
                 .Select(d => new SelectListItem
                 {
@@ -42,7 +41,6 @@ namespace GBazaar.Controllers
                 })
                 .ToList();
 
-            // ✅ Roles dropdown
             ViewBag.Roles = _context.Roles
                 .Select(r => new SelectListItem
                 {
@@ -51,7 +49,6 @@ namespace GBazaar.Controllers
                 })
                 .ToList();
 
-            // ✅ Payment Terms dropdown for suppliers
             ViewBag.PaymentTerms = _context.PaymentTerms
                 .Select(pt => new SelectListItem
                 {
@@ -74,7 +71,7 @@ namespace GBazaar.Controllers
 
             var email = model.Email.Trim().ToLowerInvariant();
 
-            // ✅ Email kontrolü
+            // Email kontrolü
             if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a supplier.");
@@ -89,7 +86,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Department kontrolü
+            // Department kontrolü
             var dept = _context.Departments.FirstOrDefault(d => d.DepartmentID == model.DepartmentID);
             if (dept == null)
             {
@@ -98,7 +95,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Role kontrolü
+            // Role kontrolü
             var role = _context.Roles.FirstOrDefault(r => r.RoleID == model.RoleID);
             if (role == null)
             {
@@ -107,7 +104,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Role uniqueness kontrolü (Officer hariç)
+            // Role uniqueness kontrolü (Officer hariç)
             if (model.RoleID != 1) // Officer değilse
             {
                 var existingUserWithRole = _context.Users
@@ -131,7 +128,7 @@ namespace GBazaar.Controllers
                 }
             }
 
-            // ✅ User oluştur
+            // User oluştur
             var user = new User
             {
                 FullName = model.FullName?.Trim(),
@@ -174,7 +171,7 @@ namespace GBazaar.Controllers
 
             var email = model.ContactInfo.Trim().ToLowerInvariant();
 
-            // ✅ Email kontrolü
+            // Email kontrolü
             if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a buyer.");
@@ -189,7 +186,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Tax ID kontrolü (eğer girilmişse)
+            // Tax ID kontrolü (eğer girilmişse)
             if (!string.IsNullOrWhiteSpace(model.TaxId) &&
                 _context.Suppliers.Any(s => s.TaxID == model.TaxId.Trim()))
             {
@@ -198,7 +195,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Payment Term kontrolü
+            // Payment Term kontrolü
             var paymentTerm = _context.PaymentTerms.FirstOrDefault(pt => pt.PaymentTermID == model.PaymentTermID);
             if (paymentTerm == null)
             {
@@ -214,7 +211,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // ✅ Supplier oluştur
+            // Supplier oluştur
             var supplier = new Supplier
             {
                 SupplierName = model.BusinessName.Trim(),
@@ -280,80 +277,91 @@ namespace GBazaar.Controllers
                 return View(model);
 
             var email = model.Email.Trim().ToLowerInvariant();
-            var claims = new List<Claim>();
-            ClaimsIdentity identity;
 
-            // 1. Kullanıcı olarak giriş yapmayı dene
-            var user = await _context.Users
-                .Include(u => u.Role)
-                .SingleOrDefaultAsync(u => u.Email.ToLower() == email);
-
-            if (user != null && user.IsActive)
+            try
             {
-                var verificationResult = _userPasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-                if (verificationResult == PasswordVerificationResult.Success || verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                // 1. Kullanıcı olarak giriş yapmayı dene
+                var user = await _context.Users
+                    .Include(u => u.Role)
+                    .SingleOrDefaultAsync(u => u.Email.ToLower() == email);
+
+                if (user != null && user.IsActive)
                 {
-                    claims.AddRange(new[]
+                    var verificationResult = _userPasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+
+                    if (verificationResult == PasswordVerificationResult.Success ||
+                        verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                        new Claim(ClaimTypes.Name, user.FullName),
-                        new Claim("UserType", "User"),
-                        new Claim(ClaimTypes.Role, user.RoleID.ToString()),
-                        new Claim("RoleName", user.Role?.RoleName ?? "Unknown")
-                    });
+                        var claims = new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                            new Claim(ClaimTypes.Name, user.FullName ?? "Unknown"),
+                            new Claim("UserType", "User"),
+                            new Claim(ClaimTypes.Role, user.RoleID.ToString()),
+                            new Claim("RoleName", user.Role?.RoleName ?? "Unknown")
+                        };
 
-                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var principal = new ClaimsPrincipal(identity);
-                    await HttpContext.SignInAsync("CookieAuth", principal);
+                        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var principal = new ClaimsPrincipal(identity);
+                        await HttpContext.SignInAsync("CookieAuth", principal);
 
-                    // Update last login time
-                    user.LastLoginAt = DateTime.UtcNow;
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
+                        // Update last login time
+                        user.LastLoginAt = DateTime.UtcNow;
+                        _context.Users.Update(user);
+                        await _context.SaveChangesAsync();
 
-                    _logger.LogInformation("User {Email} ({RoleName}) logged in successfully",
-                        email, user.Role?.RoleName ?? "Unknown");
+                        _logger.LogInformation("User {Email} ({RoleName}) logged in successfully",
+                            email, user.Role?.RoleName ?? "Unknown");
 
-                    // Kullanıcının rolüne göre yönlendirme
-                    return user.RoleID switch
-                    {
-                        1 => RedirectToAction("Profile", "Buyer"), // Officer
-                        2 => RedirectToAction("Profile", "Buyer"), // Manager
-                        3 => RedirectToAction("Profile", "Buyer"), // Director
-                        4 => RedirectToAction("Profile", "Buyer"), // CFO
-                        _ => RedirectToAction("Profile", "Buyer")  // Default
-                    };
+                        // Kullanıcının rolüne göre yönlendirme
+                        return user.Role?.RoleName?.ToLowerInvariant() switch
+                        {
+                            "admin" => RedirectToAction("Dashboard", "Admin"),
+                            "officer" => RedirectToAction("Profile", "Buyer"),
+                            "manager" => RedirectToAction("Profile", "Buyer"),
+                            "director" => RedirectToAction("Profile", "Buyer"),
+                            "cfo" => RedirectToAction("Profile", "Buyer"),
+                            _ => RedirectToAction("Profile", "Buyer")
+                        };
+                    }
                 }
-            }
 
-            // 2. Tedarikçi olarak giriş yapmayı dene
-            var supplier = await _context.Suppliers.SingleOrDefaultAsync(s => s.ContactInfo.ToLower() == email);
-            if (supplier != null)
+                // 2. Tedarikçi olarak giriş yapmayı dene
+                var supplier = await _context.Suppliers.SingleOrDefaultAsync(s => s.ContactInfo.ToLower() == email);
+                if (supplier != null)
+                {
+                    var verificationResult = _supplierPasswordHasher.VerifyHashedPassword(supplier, supplier.PasswordHash, model.Password);
+                    if (verificationResult == PasswordVerificationResult.Success ||
+                        verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                    {
+                        var claims = new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, supplier.SupplierID.ToString()),
+                            new Claim(ClaimTypes.Name, supplier.SupplierName),
+                            new Claim("UserType", "Supplier")
+                        };
+
+                        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var principal = new ClaimsPrincipal(identity);
+                        await HttpContext.SignInAsync("CookieAuth", principal);
+
+                        _logger.LogInformation("Supplier {BusinessName} ({Email}) logged in successfully",
+                            supplier.SupplierName, email);
+
+                        return RedirectToAction("Dashboard", "Supplier");
+                    }
+                }
+
+                _logger.LogWarning("Failed login attempt for email: {Email}", email);
+                ModelState.AddModelError("", "Invalid email or password.");
+                return View(model);
+            }
+            catch (Exception ex)
             {
-                var verificationResult = _supplierPasswordHasher.VerifyHashedPassword(supplier, supplier.PasswordHash, model.Password);
-                if (verificationResult == PasswordVerificationResult.Success || verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
-                {
-                    claims.AddRange(new[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, supplier.SupplierID.ToString()),
-                        new Claim(ClaimTypes.Name, supplier.SupplierName),
-                        new Claim("UserType", "Supplier")
-                    });
-
-                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var principal = new ClaimsPrincipal(identity);
-                    await HttpContext.SignInAsync("CookieAuth", principal);
-
-                    _logger.LogInformation("Supplier {BusinessName} ({Email}) logged in successfully",
-                        supplier.SupplierName, email);
-
-                    return RedirectToAction("Dashboard", "Supplier");
-                }
+                _logger.LogError(ex, "Error during login for email: {Email}", email);
+                ModelState.AddModelError("", "An error occurred during login. Please try again.");
+                return View(model);
             }
-
-            _logger.LogWarning("Failed login attempt for email: {Email}", email);
-            ModelState.AddModelError("", "Invalid email or password.");
-            return View(model);
         }
 
         [HttpPost]

@@ -57,6 +57,52 @@ namespace GBazaar.Controllers
             return View(finalProducts);
         }
 
+        public async Task<IActionResult> Search(string query)
+        {
+            ViewBag.SearchQuery = query;
+            ViewBag.IsSearchResults = true;
+
+            // Check if user is a logged-in supplier and redirect to their homepage
+            if (User.Identity.IsAuthenticated)
+            {
+                var userType = User.FindFirst("UserType")?.Value;
+                if (userType == "Supplier")
+                {
+                    return RedirectToAction("HomepageS", "Supplier");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                // If no search query, redirect to homepage
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                // Search products by name, description, or supplier name
+                var searchResults = await _context.Products
+                    .Include(p => p.Supplier)
+                    .Where(p => 
+                        p.ProductName.Contains(query) ||
+                        (p.Description != null && p.Description.Contains(query)) ||
+                        (p.Supplier != null && p.Supplier.SupplierName.Contains(query)))
+                    .AsNoTracking()
+                    .OrderBy(p => p.ProductName)
+                    .Take(50) // Limit to 50 results to avoid performance issues
+                    .ToListAsync();
+
+                ViewBag.SearchResultsCount = searchResults.Count;
+                return View("Index", searchResults);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while searching for products with query: {Query}", query);
+                ViewBag.SearchError = "An error occurred while searching. Please try again.";
+                return View("Index", new List<Product>());
+            }
+        }
+
         public IActionResult Privacy()
         {
             return View();
