@@ -267,15 +267,15 @@
                                     {
                                         @if (star <= Math.Floor(avgRating))
                                         {
-                                            <i class="fas fa-star text-warning"></i>
+                                            <span class="custom-star custom-star--full"></span>
                                         }
                                         else if (star <= avgRating)
                                         {
-                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                            <span class="custom-star custom-star--half"></span>
                                         }
                                         else
                                         {
-                                            <i class="far fa-star text-muted"></i>
+                                            <span class="custom-star custom-star--empty"></span>
                                         }
                                     }
                                 </div>
@@ -290,11 +290,11 @@
                             </div>
                             <div>
                                 <div class="mb-1">
-                                    <i class="far fa-star text-muted"></i>
-                                    <i class="far fa-star text-muted"></i>
-                                    <i class="far fa-star text-muted"></i>
-                                    <i class="far fa-star text-muted"></i>
-                                    <i class="far fa-star text-muted"></i>
+                                    <span class="custom-star custom-star--empty"></span>
+                                    <span class="custom-star custom-star--empty"></span>
+                                    <span class="custom-star custom-star--empty"></span>
+                                    <span class="custom-star custom-star--empty"></span>
+                                    <span class="custom-star custom-star--empty"></span>
                                 </div>
                                 <small class="text-muted">Complete orders to receive ratings</small>
                             </div>
