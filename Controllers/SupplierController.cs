@@ -1,10 +1,12 @@
+﻿using Gbazaar.Data;
+using GBazaar.Models;
 using GBazaar.Models.Enums;
 using GBazaar.ViewModels.Supplier;
-using Gbazaar.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace GBazaar.Controllers
@@ -20,44 +22,100 @@ namespace GBazaar.Controllers
             _logger = logger;
         }
 
+        // Purchase Order oluşturma metodu - güncellenmiş versiyon
+        private void CreatePurchaseOrder(PurchaseRequest pr)
+        {
+            var po = new PurchaseOrder
+            {
+                PRID = pr.PRID,
+                SupplierID = pr.SupplierID ?? throw new InvalidOperationException("Supplier ID is required"),
+                DateIssued = DateTime.UtcNow,
+
+                // ✅ PO önce supplier onayı bekliyor
+                POStatus = Models.Enums.POStatusType.PendingSupplierApproval,
+                POStatusID = (int)Models.Enums.POStatusType.PendingSupplierApproval,
+
+                RequiredDeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14))
+            };
+
+            // PR'daki item'ları PO item'larına kopyala
+            foreach (var prItem in pr.PRItems)
+            {
+                var poItem = new POItem
+                {
+                    PurchaseOrder = po, // Navigation property
+                    ProductID = prItem.ProductID, // ✅ ProductID kullan
+                    ItemName = prItem.PRItemName,
+                    Description = prItem.Description,
+                    QuantityOrdered = (int)prItem.Quantity, // ✅ QuantityOrdered kullan
+                    UnitPrice = prItem.UnitPrice ?? 0, // ✅ Null check
+
+                };
+                po.POItems.Add(poItem);
+            }
+
+            _context.PurchaseOrders.Add(po);
+
+            // ✅ PR statusunu AwaitingSupplier yap
+            pr.PRStatus = PRStatusType.AwaitingSupplier;
+        }
+
         public async Task<IActionResult> Dashboard()
         {
             ViewBag.UserType = "Supplier";
 
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var supplierId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "Supplier")
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
-                const int supplierId = 1; // TODO: Replace with authenticated supplier id
+                // ✅ Cache'i temizle
+                _context.ChangeTracker.Clear();
 
-                var incomingRequests = await _context.PurchaseRequests
+                // ✅ Incoming Requests (aynı kalır)
+                var incomingPOs = await _context.PurchaseOrders
                     .AsNoTracking()
-                    .Where(pr => pr.SupplierID == supplierId && pr.PurchaseOrder == null && pr.PRStatus != PRStatusType.Rejected)
-                    .Include(pr => pr.Requester)
-                    .OrderByDescending(pr => pr.DateSubmitted)
+                    .Where(po => po.SupplierID == supplierId && po.POStatus == POStatusType.PendingSupplierApproval)
+                    .Include(po => po.PurchaseRequest)
+                        .ThenInclude(pr => pr.Requester)
+                    .Include(po => po.POItems)
+                    .OrderByDescending(po => po.DateIssued)
                     .ToListAsync();
 
-                var groupedRequests = incomingRequests
-                    .GroupBy(pr => pr.Requester)
+                var groupedRequests = incomingPOs
+                    .GroupBy(po => po.PurchaseRequest?.Requester)
                     .Select(group => new IncomingRequestGroupViewModel
                     {
                         BuyerId = group.Key?.UserID ?? 0,
                         BuyerName = group.Key?.FullName ?? "Unknown Buyer",
                         Requests = group
-                            .Select(pr => new IncomingRequestItemViewModel
+                            .Select(po => new IncomingRequestItemViewModel
                             {
-                                RequestId = pr.PRID,
-                                Reference = $"PR-{pr.PRID:0000}",
-                                EstimatedTotal = pr.EstimatedTotal,
-                                DateSubmitted = pr.DateSubmitted,
-                                Status = pr.PRStatus,
-                                NeededBy = DateOnly.FromDateTime(pr.DateSubmitted.AddDays(7))
+                                RequestId = po.POID,
+                                Reference = $"PO-{po.POID:0000}",
+                                EstimatedTotal = po.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice),
+                                DateSubmitted = po.DateIssued,
+                                Status = PRStatusType.PendingApproval,
+                                NeededBy = po.RequiredDeliveryDate ?? DateOnly.FromDateTime(po.DateIssued.AddDays(14))
                             })
                             .ToList()
                     })
                     .ToList();
 
-                var supplierOrders = await _context.PurchaseOrders
+                // ✅ Tüm supplier order'ları al (çok daha geniş kriter)
+                var allSupplierPOs = await _context.PurchaseOrders
                     .AsNoTracking()
-                    .Where(po => po.SupplierID == supplierId && po.POStatus != POStatusType.Rejected)
+                    .Where(po => po.SupplierID == supplierId &&
+                                po.POStatus != POStatusType.Rejected &&
+                                po.POStatus != POStatusType.PendingSupplierApproval) // Sadece reject ve pending hariç
                     .Include(po => po.PurchaseRequest)
                         .ThenInclude(pr => pr.Requester)
                     .Include(po => po.Invoices)
@@ -66,28 +124,29 @@ namespace GBazaar.Controllers
                     .ToListAsync();
 
                 var activeOrders = new List<ActiveOrderViewModel>();
-                var completedOrders = new List<AcceptedHistoryItemViewModel>();
+                var closedOrders = new List<ClosedOrderViewModel>();
 
-                foreach (var po in supplierOrders)
+                foreach (var po in allSupplierPOs)
                 {
                     var latestInvoice = po.Invoices
                         .OrderByDescending(i => i.InvoiceDate)
                         .ThenByDescending(i => i.InvoiceID)
                         .FirstOrDefault();
 
-                    var paymentStatus = latestInvoice?.PaymentStatus;
+                    var paymentStatus = latestInvoice?.PaymentStatus ?? PaymentStatusType.NotPaid;
                     var totalAmount = po.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice);
                     var isDelivered = po.POStatus == POStatusType.FullyReceived || po.POStatus == POStatusType.Closed;
-                    var isPaymentComplete = paymentStatus == PaymentStatusType.Paid;
+                    var hasInvoice = po.Invoices.Any();
 
-                    if (isDelivered && isPaymentComplete)
+                    // ✅ DÜZELTME: Eğer invoice varsa, ClosedOrders'a ekle (invoice = closed demek)
+                    if (hasInvoice)
                     {
-                        completedOrders.Add(new AcceptedHistoryItemViewModel
+                        closedOrders.Add(new ClosedOrderViewModel
                         {
-                            Reference = po.PurchaseRequest != null ? $"PR-{po.PurchaseRequest.PRID:0000}" : $"PO-{po.POID:0000}",
+                            Reference = $"PO-{po.POID:0000}",
                             Amount = totalAmount,
-                            AcceptedOn = DateOnly.FromDateTime(po.DateIssued),
                             BuyerName = po.PurchaseRequest?.Requester?.FullName ?? "Unknown Buyer",
+                            AcceptedOn = DateOnly.FromDateTime(po.DateIssued),
                             PaymentStatus = paymentStatus,
                             FulfillmentStatus = po.POStatus,
                             DeliveryDate = po.RequiredDeliveryDate,
@@ -95,46 +154,66 @@ namespace GBazaar.Controllers
                             InvoiceDate = latestInvoice?.InvoiceDate,
                             PaymentDueDate = latestInvoice?.DueDate,
                             PaymentDate = latestInvoice?.PaymentDate,
-                            InvoiceAmount = latestInvoice?.AmountDue ?? totalAmount
+                            InvoiceAmount = latestInvoice?.AmountDue ?? totalAmount,
+                            CompletedDate = latestInvoice?.InvoiceDate.ToDateTime(TimeOnly.MinValue),
+                            PurchaseOrderId = po.POID,
+                            InvoiceId = latestInvoice?.InvoiceID
                         });
-                        continue;
                     }
-
-                    activeOrders.Add(new ActiveOrderViewModel
+                    // ✅ DÜZELTME: Sadece invoice OLMAYAN order'lar ActiveOrders'da
+                    else if (!isDelivered)
                     {
-                        PurchaseOrderId = po.POID,
-                        Reference = po.PurchaseRequest != null ? $"PR-{po.PurchaseRequest.PRID:0000}" : $"PO-{po.POID:0000}",
-                        EstimatedDeliveryDate = po.RequiredDeliveryDate,
-                        PaymentStatus = paymentStatus,
-                        FulfillmentStatus = po.POStatus,
-                        TotalAmount = totalAmount,
-                        IsDelivered = isDelivered,
-                        IsPaymentComplete = isPaymentComplete
-                    });
+                        activeOrders.Add(new ActiveOrderViewModel
+                        {
+                            PurchaseOrderId = po.POID,
+                            Reference = $"PO-{po.POID:0000}",
+                            EstimatedDeliveryDate = po.RequiredDeliveryDate,
+                            PaymentStatus = paymentStatus,
+                            FulfillmentStatus = po.POStatus,
+                            TotalAmount = totalAmount,
+                            IsDelivered = isDelivered,
+                            IsPaymentComplete = paymentStatus == PaymentStatusType.Paid
+                        });
+                    }
                 }
 
-                var acceptedHistory = completedOrders
+                // ✅ Son 10 closed order'ı al
+                var finalClosedOrders = closedOrders
                     .OrderByDescending(item => item.AcceptedOn)
                     .Take(10)
                     .ToList();
 
-                var revenueMix = completedOrders
+                // ✅ Revenue Mix: ClosedOrders'a göre hesapla
+                var revenueMix = closedOrders
                     .GroupBy(item => item.BuyerName)
                     .Select(group => new RevenueSliceViewModel
                     {
                         Label = group.Key,
                         Amount = group.Sum(item => item.Amount)
                     })
+                    .Where(slice => slice.Amount > 0) // Sadece 0'dan büyük olanları
                     .OrderByDescending(slice => slice.Amount)
                     .ToList();
+
+                // ✅ Supplier Performance hesaplama - sadece rating
+                var supplierRatings = await _context.SupplierRatings
+                    .Where(sr => _context.PurchaseOrders.Any(po => po.POID == sr.POID && po.SupplierID == supplierId))
+                    .Select(sr => sr.RatingScore)
+                    .ToListAsync();
+
+                var performance = supplierRatings.Any() 
+                    ? SupplierPerformanceViewModel.Create(
+                        averageRating: Math.Round((decimal)supplierRatings.Average(), 1),
+                        totalRatings: supplierRatings.Count)
+                    : SupplierPerformanceViewModel.Default();
 
                 var viewModel = new SupplierDashboardViewModel
                 {
                     IncomingRequests = groupedRequests,
                     ActiveOrders = activeOrders,
-                    AcceptedHistory = acceptedHistory,
+                    ClosedOrders = finalClosedOrders, // ✅ AcceptedHistory yerine ClosedOrders
                     RevenueMix = revenueMix,
-                    Performance = SupplierPerformanceViewModel.Placeholder()
+                    Performance = performance // ✅ Gerçek veri kullan
                 };
 
                 return View(viewModel);
@@ -157,13 +236,21 @@ namespace GBazaar.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DecideRequest(int requestId, string decision)
         {
-            const int supplierId = 1;
-            var request = await _context.PurchaseRequests
-                .FirstOrDefaultAsync(pr => pr.PRID == requestId && pr.SupplierID == supplierId);
-
-            if (request == null)
+            // Giriş yapmış supplier'ın ID'sini al
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var supplierId))
             {
-                TempData["DashboardError"] = "Request not found or already processed.";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            // ✅ PO'yu bul (artık PR değil, PO'ya karar veriyoruz)
+            var purchaseOrder = await _context.PurchaseOrders
+                .Include(po => po.PurchaseRequest)
+                .FirstOrDefaultAsync(po => po.POID == requestId && po.SupplierID == supplierId &&
+                                   po.POStatus == POStatusType.PendingSupplierApproval);
+
+            if (purchaseOrder == null)
+            {
+                TempData["DashboardError"] = "Order not found or already processed.";
                 return RedirectToAction(nameof(Dashboard));
             }
 
@@ -174,9 +261,46 @@ namespace GBazaar.Controllers
                 return RedirectToAction(nameof(Dashboard));
             }
 
-            // Backend orchestration will replace this placeholder.
-            _logger.LogInformation("Supplier {SupplierId} requested {Decision} for PR-{RequestId}", supplierId, normalizedDecision, requestId);
-            TempData["DashboardMessage"] = $"Request PR-{requestId:0000} queued for {normalizedDecision}.";
+            try
+            {
+                if (normalizedDecision == "accept")
+                {
+                    // ✅ Accept: PO'yu aktif duruma getir
+                    purchaseOrder.POStatus = POStatusType.Issued;
+                    purchaseOrder.POStatusID = (int)POStatusType.Issued;
+
+                    // PR statusunu güncelle
+                    if (purchaseOrder.PurchaseRequest != null)
+                    {
+                        purchaseOrder.PurchaseRequest.PRStatus = PRStatusType.Ordered;
+                    }
+
+                    TempData["DashboardMessage"] = $"Order PO-{purchaseOrder.POID:0000} has been accepted and is now active.";
+                    _logger.LogInformation("Supplier {SupplierId} accepted PO-{OrderId}", supplierId, purchaseOrder.POID);
+                }
+                else // reject
+                {
+                    // ✅ Reject: PO'yu rejected duruma getir
+                    purchaseOrder.POStatus = POStatusType.Rejected;
+                    purchaseOrder.POStatusID = (int)POStatusType.Rejected;
+
+                    // PR statusunu da rejected yap
+                    if (purchaseOrder.PurchaseRequest != null)
+                    {
+                        purchaseOrder.PurchaseRequest.PRStatus = PRStatusType.Rejected;
+                    }
+
+                    TempData["DashboardMessage"] = $"Order PO-{purchaseOrder.POID:0000} has been rejected.";
+                    _logger.LogInformation("Supplier {SupplierId} rejected PO-{OrderId}", supplierId, purchaseOrder.POID);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing decision for PO-{OrderId}", purchaseOrder.POID);
+                TempData["DashboardError"] = "An error occurred while processing your decision.";
+            }
 
             return RedirectToAction(nameof(Dashboard));
         }
@@ -284,7 +408,8 @@ namespace GBazaar.Controllers
                 }
             };
 
-            var acceptedHistory = new List<AcceptedHistoryItemViewModel>
+            // ✅ Sample ClosedOrders (eskiden acceptedHistory)
+            var closedOrders = new List<ClosedOrderViewModel>
             {
                 new()
                 {
@@ -299,7 +424,10 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-16)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-9)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-8)),
-                    InvoiceAmount = 12450m
+                    InvoiceAmount = 12450m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-16),
+                    PurchaseOrderId = 4988,
+                    InvoiceId = 8891
                 },
                 new()
                 {
@@ -314,7 +442,10 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-11)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-6)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-5)),
-                    InvoiceAmount = 9860m
+                    InvoiceAmount = 9860m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-11),
+                    PurchaseOrderId = 4991,
+                    InvoiceId = 8920
                 },
                 new()
                 {
@@ -329,11 +460,14 @@ namespace GBazaar.Controllers
                     InvoiceDate = DateOnly.FromDateTime(now.AddDays(-8)),
                     PaymentDueDate = DateOnly.FromDateTime(now.AddDays(-3)),
                     PaymentDate = DateOnly.FromDateTime(now.AddDays(-2)),
-                    InvoiceAmount = 4350m
+                    InvoiceAmount = 4350m,
+                    CompletedDate = DateTime.UtcNow.AddDays(-8),
+                    PurchaseOrderId = 4999,
+                    InvoiceId = 8975
                 }
             };
 
-            var revenueMix = acceptedHistory
+            var revenueMix = closedOrders
                 .GroupBy(item => item.BuyerName)
                 .Select(group => new RevenueSliceViewModel
                 {
@@ -347,13 +481,13 @@ namespace GBazaar.Controllers
             {
                 IncomingRequests = incomingRequests,
                 ActiveOrders = activeOrders,
-                AcceptedHistory = acceptedHistory,
+                ClosedOrders = closedOrders, 
                 RevenueMix = revenueMix,
-                Performance = SupplierPerformanceViewModel.Placeholder()
+                Performance = SupplierPerformanceViewModel.Create(4.2m, 15) 
             };
         }
 
-        // GET: Supplier/Upload
+       
         public IActionResult Upload()
         {
             ViewBag.UserType = "Supplier";
@@ -374,7 +508,11 @@ namespace GBazaar.Controllers
 
             try
             {
-                const int supplierId = 1; // TODO: Replace with authenticated supplier id from session/claims
+                // ✅ Giriş yapmış supplier'ın ID'sini al
+                if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var supplierId))
+                {
+                    return RedirectToAction("Login", "Auth");
+                }
 
                 // Create new product entity FIRST to get the ProductID
                 var product = new GBazaar.Models.Product
@@ -397,7 +535,7 @@ namespace GBazaar.Controllers
 
                     // Get file extension from uploaded file
                     var fileExtension = Path.GetExtension(model.ProductImage.FileName);
-                    
+
                     // Name the file using ProductID
                     var fileName = $"{product.ProductID}{fileExtension}";
                     var filePath = Path.Combine(uploadsFolder, fileName);
@@ -413,7 +551,7 @@ namespace GBazaar.Controllers
 
                 _logger.LogInformation("Product created successfully: {ProductName} (ID: {ProductId})", product.ProductName, product.ProductID);
                 TempData["UploadSuccess"] = $"Product '{product.ProductName}' has been added successfully! (ID: {product.ProductID})";
-                
+
                 return RedirectToAction(nameof(Upload));
             }
             catch (Exception ex)

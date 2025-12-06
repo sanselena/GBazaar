@@ -1,4 +1,5 @@
 @using System.Globalization
+@using GBazaar.Models.Enums
 @model GBazaar.ViewModels.Buyer.BuyerProfileViewModel
 
 @{
@@ -149,7 +150,32 @@
                                     <tr>
                                         <td>@approved.Reference</td>
                                         <td>@approved.Amount.ToString("C", CultureInfo.CurrentCulture)</td>
-                                        <td>@approved.FinalApprovalRole</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span>@approved.FinalApprovalRole</span>
+
+                                                @if (approved.CanMakePayment)
+                                                {
+                                                    <form asp-action="MakePayment" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="purchaseOrderId" value="@approved.PurchaseOrderId" />
+                                                        <button type="submit" class="btn btn-sm btn-success" title="Generate Invoice">
+                                                            <i class="fas fa-file-invoice-dollar"></i> Make Payment
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (approved.HasInvoice)
+                                                {
+                                                    <span class="badge bg-info">
+                                                        Invoice: @(approved.PaymentStatus?.ToString() ?? "Generated")
+                                                    </span>
+                                                }
+                                                else if (approved.POStatus == POStatusType.PendingSupplierApproval)
+                                                {
+                                                    <span class="badge bg-warning">Awaiting Supplier</span>
+                                                }
+                                            </div>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>

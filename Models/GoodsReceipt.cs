@@ -18,13 +18,13 @@ namespace GBazaar.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal QuantityReceived { get; set; }
-        
+
         [Required]
-        [ForeignKey(nameof(POID))] 
+        [ForeignKey(nameof(POID))]
         public virtual PurchaseOrder PurchaseOrder { get; set; }
 
         [Required]
-        [ForeignKey(nameof(ReceivedByUserID))] 
+        [ForeignKey(nameof(ReceivedByUserID))]
         public virtual User Receiver { get; set; }
         public virtual ICollection<GoodsReceiptItem> GoodsReceiptItems { get; set; } = new List<GoodsReceiptItem>();
     }

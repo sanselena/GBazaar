@@ -20,14 +20,30 @@
         <div class="col-md-6">
             <div class="main-image-container">
                 <div class="arrow arrow-left"><i class="fas fa-chevron-left"></i></div>
-                <img src="https://via.placeholder.com/600/C4C1ED/6E6DCC?text=Main+Product+Photo" class="main-img" alt="@Model.ProductName main image">
+                <img src="/images/products/@(Model.ProductID).png" 
+                     class="main-img" 
+                     alt="@Model.ProductName main image"
+                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"
+                     onerror="tryNextImageExtension(this, @Model.ProductID, '@Uri.EscapeDataString(Model.ProductName)', 'main')">
                 <div class="arrow arrow-right"><i class="fas fa-chevron-right"></i></div>
             </div>
 
             <div class="thumbnail-strip mt-3">
-                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=1" class="thumb active" alt="Product thumbnail 1">
-                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=2" class="thumb" alt="Product thumbnail 2">
-                <img src="https://via.placeholder.com/100/C4C1ED/6E6DCC?text=3" class="thumb" alt="Product thumbnail 3">
+                <img src="/images/products/@(Model.ProductID).png" 
+                     class="thumb active" 
+                     alt="Product thumbnail 1"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                     onerror="tryNextImageExtension(this, @Model.ProductID, '@Uri.EscapeDataString(Model.ProductName)', 'thumb1')">
+                <img src="/images/products/@(Model.ProductID).png" 
+                     class="thumb" 
+                     alt="Product thumbnail 2"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                     onerror="tryNextImageExtension(this, @Model.ProductID, '@Uri.EscapeDataString(Model.ProductName)', 'thumb2')">
+                <img src="/images/products/@(Model.ProductID).png" 
+                     class="thumb" 
+                     alt="Product thumbnail 3"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;"
+                     onerror="tryNextImageExtension(this, @Model.ProductID, '@Uri.EscapeDataString(Model.ProductName)', 'thumb3')">
             </div>
         </div>
 
@@ -107,4 +123,62 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function tryNextImageExtension(img, productId, productName, imageType) {
+    // Try different extensions in order
+    const extensions = ['jpg', 'jpeg', 'gif'];
+    const currentSrc = img.src;
+
+    // Find which extension we're currently trying
+    let currentExtension = '';
+    if (currentSrc.includes('.png')) currentExtension = 'png';
+    else if (currentSrc.includes('.jpg')) currentExtension = 'jpg';
+    else if (currentSrc.includes('.jpeg')) currentExtension = 'jpeg';
+    else if (currentSrc.includes('.gif')) currentExtension = 'gif';
+
+    // Find next extension to try
+    let nextExtension = '';
+    if (currentExtension === 'png') nextExtension = 'jpg';
+    else if (currentExtension === 'jpg') nextExtension = 'jpeg';
+    else if (currentExtension === 'jpeg') nextExtension = 'gif';
+
+    if (nextExtension) {
+        img.onerror = function() { tryNextImageExtension(this, productId, productName, imageType); };
+        img.src = `/images/products/${productId}.${nextExtension}`;
+    } else {
+        // No more extensions to try, use placeholder based on image type
+        img.onerror = null;
+        if (imageType === 'main') {
+            img.src = `https://via.placeholder.com/600x400/C4C1ED/6E6DCC?text=${encodeURIComponent(productName)}`;
+        } else {
+            // For thumbnails
+            const thumbNumber = imageType.replace('thumb', '');
+            img.src = `https://via.placeholder.com/100x100/C4C1ED/6E6DCC?text=${thumbNumber}`;
+        }
+    }
+}
+
+// Thumbnail click functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const mainImg = document.querySelector('.main-img');
+    const thumbnails = document.querySelectorAll('.thumb');
+    
+    thumbnails.forEach(function(thumb, index) {
+        thumb.addEventListener('click', function() {
+            // Remove active class from all thumbnails
+            thumbnails.forEach(t => t.classList.remove('active'));
+            // Add active class to clicked thumbnail
+            this.classList.add('active');
+            
+            // Update main image (for now just copy the thumbnail source)
+            // In a real scenario, you might have different high-res versions
+            mainImg.src = this.src;
+        });
+    });
+});
+</script>
 

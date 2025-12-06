@@ -20,6 +20,9 @@ namespace GBazaar.Models.ViewModels
         [Required]
         public bool AcceptTerms { get; set; }
 
+        [Required]
+        public int RoleID { get; set; }
+
 
 
 

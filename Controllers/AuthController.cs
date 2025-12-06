@@ -19,10 +19,12 @@ namespace GBazaar.Controllers
         private readonly ProcurementContext _context;
         private readonly PasswordHasher<User> _userPasswordHasher;
         private readonly PasswordHasher<Supplier> _supplierPasswordHasher;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(ProcurementContext context)
+        public AuthController(ProcurementContext context, ILogger<AuthController> logger)
         {
             _context = context;
+            _logger = logger;
             _userPasswordHasher = new PasswordHasher<User>();
             _supplierPasswordHasher = new PasswordHasher<Supplier>();
         }
@@ -31,12 +33,30 @@ namespace GBazaar.Controllers
 
         public IActionResult Signup()
         {
-            // dep dropdownı
+            // ✅ Departments dropdown
             ViewBag.Departments = _context.Departments
                 .Select(d => new SelectListItem
                 {
                     Value = d.DepartmentID.ToString(),
                     Text = d.DepartmentName
+                })
+                .ToList();
+
+            // ✅ Roles dropdown
+            ViewBag.Roles = _context.Roles
+                .Select(r => new SelectListItem
+                {
+                    Value = r.RoleID.ToString(),
+                    Text = r.RoleName
+                })
+                .ToList();
+
+            // ✅ Payment Terms dropdown for suppliers
+            ViewBag.PaymentTerms = _context.PaymentTerms
+                .Select(pt => new SelectListItem
+                {
+                    Value = pt.PaymentTermID.ToString(),
+                    Text = pt.Description
                 })
                 .ToList();
 
@@ -48,65 +68,76 @@ namespace GBazaar.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Departments = _context.Departments
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentID.ToString(),
-                        Text = d.DepartmentName
-                    })
-                    .ToList();
+                ResetViewBags();
                 return View("Signup", model);
             }
 
             var email = model.Email.Trim().ToLowerInvariant();
 
+            // ✅ Email kontrolü
             if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a supplier.");
-                ViewBag.Departments = _context.Departments
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentID.ToString(),
-                        Text = d.DepartmentName
-                    })
-                    .ToList();
+                ResetViewBags();
                 return View("Signup", model);
             }
 
             if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
                 ModelState.AddModelError("", "Email is already registered.");
-                ViewBag.Departments = _context.Departments
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentID.ToString(),
-                        Text = d.DepartmentName
-                    })
-                    .ToList();
+                ResetViewBags();
                 return View("Signup", model);
             }
 
+            // ✅ Department kontrolü
             var dept = _context.Departments.FirstOrDefault(d => d.DepartmentID == model.DepartmentID);
-
             if (dept == null)
             {
                 ModelState.AddModelError("", "Selected department does not exist.");
-                ViewBag.Departments = _context.Departments
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentID.ToString(),
-                        Text = d.DepartmentName
-                    })
-                    .ToList();
+                ResetViewBags();
                 return View("Signup", model);
             }
 
+            // ✅ Role kontrolü
+            var role = _context.Roles.FirstOrDefault(r => r.RoleID == model.RoleID);
+            if (role == null)
+            {
+                ModelState.AddModelError("", "Selected role does not exist.");
+                ResetViewBags();
+                return View("Signup", model);
+            }
+
+            // ✅ Role uniqueness kontrolü (Officer hariç)
+            if (model.RoleID != 1) // Officer değilse
+            {
+                var existingUserWithRole = _context.Users
+                    .FirstOrDefault(u => u.DepartmentID == model.DepartmentID &&
+                                        u.RoleID == model.RoleID &&
+                                        u.IsActive);
+
+                if (existingUserWithRole != null)
+                {
+                    var roleNames = new Dictionary<int, string>
+                    {
+                        { 2, "Manager" },
+                        { 3, "Director" },
+                        { 4, "CFO" }
+                    };
+
+                    var roleName = roleNames.GetValueOrDefault(model.RoleID, "this role");
+                    ModelState.AddModelError("", $"This department already has a registered {roleName}. Only one {roleName} is allowed per department.");
+                    ResetViewBags();
+                    return View("Signup", model);
+                }
+            }
+
+            // ✅ User oluştur
             var user = new User
             {
                 FullName = model.FullName?.Trim(),
                 Email = email,
                 DepartmentID = dept.DepartmentID,
-                RoleID = 1, // Default olarak Officer (1) role'ü veriyoruz
+                RoleID = model.RoleID,
                 IsActive = true
             };
 
@@ -116,54 +147,81 @@ namespace GBazaar.Controllers
             {
                 _context.Users.Add(user);
                 _context.SaveChanges();
+
+                _logger.LogInformation("New buyer account created: {Email} as {RoleName} in {DepartmentName}",
+                    email, role.RoleName, dept.DepartmentName);
+
+                TempData["SignupSuccess"] = $"Account created successfully as {role.RoleName}! You can now log in.";
+                return RedirectToAction("Login");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to create buyer account for {Email}", email);
                 ModelState.AddModelError("", "An unexpected error occurred while creating the account.");
-                ViewBag.Departments = _context.Departments
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentID.ToString(),
-                        Text = d.DepartmentName
-                    })
-                    .ToList();
+                ResetViewBags();
                 return View("Signup", model);
             }
-
-            return RedirectToAction("Login");
         }
 
         [HttpPost]
         public IActionResult SignupSupplier(SignupSupplierVM model)
         {
             if (!ModelState.IsValid)
-                return View("Signup", model);
-
-            var email = model.ContactInfo.Trim().ToLowerInvariant();
-
-            if (_context.Suppliers.Any(s => s.TaxID == model.TaxId))
             {
-                ModelState.AddModelError("TaxId", "Tax ID is already registered.");
+                ResetViewBags();
                 return View("Signup", model);
             }
 
-            if (_context.Users.Any(u => u.Email.ToLower() == email) || _context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
+            var email = model.ContactInfo.Trim().ToLowerInvariant();
+
+            // ✅ Email kontrolü
+            if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
-                ModelState.AddModelError("ContactInfo", "This email is already registered.");
+                ModelState.AddModelError("", "This email is already registered as a buyer.");
+                ResetViewBags();
+                return View("Signup", model);
+            }
+
+            if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
+            {
+                ModelState.AddModelError("", "Email is already registered as a supplier.");
+                ResetViewBags();
+                return View("Signup", model);
+            }
+
+            // ✅ Tax ID kontrolü (eğer girilmişse)
+            if (!string.IsNullOrWhiteSpace(model.TaxId) &&
+                _context.Suppliers.Any(s => s.TaxID == model.TaxId.Trim()))
+            {
+                ModelState.AddModelError("TaxId", "Tax ID is already registered.");
+                ResetViewBags();
+                return View("Signup", model);
+            }
+
+            // ✅ Payment Term kontrolü
+            var paymentTerm = _context.PaymentTerms.FirstOrDefault(pt => pt.PaymentTermID == model.PaymentTermID);
+            if (paymentTerm == null)
+            {
+                ModelState.AddModelError("", "Selected payment term does not exist.");
+                ResetViewBags();
                 return View("Signup", model);
             }
 
             if (!model.AcceptTerms)
             {
                 ModelState.AddModelError("AcceptTerms", "You must accept the terms and conditions.");
+                ResetViewBags();
                 return View("Signup", model);
             }
 
+            // ✅ Supplier oluştur
             var supplier = new Supplier
             {
-                SupplierName = model.BusinessName?.Trim(),
-                TaxID = model.TaxId?.Trim(),
+                SupplierName = model.BusinessName.Trim(),
+                ContactName = model.ContactName?.Trim(),
                 ContactInfo = email,
+                TaxID = model.TaxId?.Trim(),
+                PaymentTermID = model.PaymentTermID
             };
 
             supplier.PasswordHash = _supplierPasswordHasher.HashPassword(supplier, model.Password);
@@ -172,14 +230,47 @@ namespace GBazaar.Controllers
             {
                 _context.Suppliers.Add(supplier);
                 _context.SaveChanges();
+
+                _logger.LogInformation("New supplier account created: {BusinessName} ({Email})",
+                    supplier.SupplierName, email);
+
+                TempData["SignupSuccess"] = $"Supplier account created successfully for '{supplier.SupplierName}'! You can now log in.";
+                return RedirectToAction("Login");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to create supplier account for {BusinessName}", model.BusinessName);
                 ModelState.AddModelError("", "An unexpected error occurred while creating the supplier account.");
+                ResetViewBags();
                 return View("Signup", model);
             }
+        }
 
-            return RedirectToAction("Login");
+        private void ResetViewBags()
+        {
+            ViewBag.Departments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentID.ToString(),
+                    Text = d.DepartmentName
+                })
+                .ToList();
+
+            ViewBag.Roles = _context.Roles
+                .Select(r => new SelectListItem
+                {
+                    Value = r.RoleID.ToString(),
+                    Text = r.RoleName
+                })
+                .ToList();
+
+            ViewBag.PaymentTerms = _context.PaymentTerms
+                .Select(pt => new SelectListItem
+                {
+                    Value = pt.PaymentTermID.ToString(),
+                    Text = pt.Description
+                })
+                .ToList();
         }
 
         [HttpPost]
@@ -215,6 +306,14 @@ namespace GBazaar.Controllers
                     var principal = new ClaimsPrincipal(identity);
                     await HttpContext.SignInAsync("CookieAuth", principal);
 
+                    // Update last login time
+                    user.LastLoginAt = DateTime.UtcNow;
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("User {Email} ({RoleName}) logged in successfully",
+                        email, user.Role?.RoleName ?? "Unknown");
+
                     // Kullanıcının rolüne göre yönlendirme
                     return user.RoleID switch
                     {
@@ -245,10 +344,14 @@ namespace GBazaar.Controllers
                     var principal = new ClaimsPrincipal(identity);
                     await HttpContext.SignInAsync("CookieAuth", principal);
 
+                    _logger.LogInformation("Supplier {BusinessName} ({Email}) logged in successfully",
+                        supplier.SupplierName, email);
+
                     return RedirectToAction("Dashboard", "Supplier");
                 }
             }
 
+            _logger.LogWarning("Failed login attempt for email: {Email}", email);
             ModelState.AddModelError("", "Invalid email or password.");
             return View(model);
         }
@@ -256,9 +359,14 @@ namespace GBazaar.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            var userType = User.FindFirst("UserType")?.Value;
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+
             await HttpContext.SignOutAsync("CookieAuth");
+
+            _logger.LogInformation("User logged out: {UserName} ({UserType})", userName, userType);
+
             return RedirectToAction("Login");
         }
-
     }
 }

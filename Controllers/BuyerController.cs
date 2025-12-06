@@ -8,7 +8,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace GBazaar.Controllers
 {
@@ -41,7 +40,6 @@ namespace GBazaar.Controllers
             try
             {
                 var user = await _context.Users
-                    .AsNoTracking()
                     .Include(u => u.Department)
                     .Include(u => u.Role)
                     .FirstOrDefaultAsync(u => u.UserID == userId);
@@ -49,7 +47,7 @@ namespace GBazaar.Controllers
                 if (user == null)
                 {
                     TempData["ProfileError"] = "User record not found.";
-                    return View(CreateSampleProfile(userRoleId));
+                    return View(new BuyerProfileViewModel());
                 }
 
                 // Role'e göre ViewBag ayarla
@@ -62,15 +60,15 @@ namespace GBazaar.Controllers
             }
             catch (Exception ex) when (IsProfileConnectivityIssue(ex))
             {
-                _logger.LogWarning(ex, "Falling back to sample data due to connectivity issues.");
-                TempData["ProfileError"] = "We couldn't reach the procurement database, showing sample data instead.";
-                return View(CreateSampleProfile(userRoleId));
+                _logger.LogWarning(ex, "Database connectivity issue occurred.");
+                TempData["ProfileError"] = "We couldn't reach the procurement database. Please try again later.";
+                return View(new BuyerProfileViewModel());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load profile for user {UserId} with role {RoleId}", userId, userRoleId);
-                TempData["ProfileError"] = "Something went wrong while loading your profile. Showing sample data instead.";
-                return View(CreateSampleProfile(userRoleId));
+                TempData["ProfileError"] = "Something went wrong while loading your profile. Please try again.";
+                return View(new BuyerProfileViewModel());
             }
         }
 
@@ -80,27 +78,27 @@ namespace GBazaar.Controllers
             {
                 case 1: // Officer
                     ViewBag.UserType = "Buyer";
-                    ViewBag.UserName = user.FullName;
+                    ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
                     break;
                 case 2: // Manager
                     ViewBag.UserType = "Manager";
-                    ViewBag.UserName = user.FullName;
+                    ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
                     break;
                 case 3: // Director
                     ViewBag.UserType = "Director";
-                    ViewBag.UserName = user.FullName;
+                    ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Executive";
                     break;
                 case 4: // CFO
                     ViewBag.UserType = "CFO";
-                    ViewBag.UserName = user.FullName;
+                    ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = "Finance & Operations";
                     break;
                 default:
                     ViewBag.UserType = "Buyer";
-                    ViewBag.UserName = user.FullName;
+                    ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
                     break;
             }
@@ -120,12 +118,11 @@ namespace GBazaar.Controllers
 
         private async Task<BuyerProfileViewModel> GetOfficerData(int userId, User user)
         {
-            // Mevcut Buyer logic'i
+            // Budget data
             Budget? latestBudget = null;
             if (user.DepartmentID.HasValue)
             {
                 latestBudget = await _context.Budgets
-                    .AsNoTracking()
                     .Where(b => b.DepartmentID == user.DepartmentID)
                     .OrderByDescending(b => b.FiscalYear)
                     .FirstOrDefaultAsync();
@@ -133,13 +130,15 @@ namespace GBazaar.Controllers
 
             var companySnapshot = new CompanySnapshotViewModel
             {
-                TotalBudget = latestBudget?.TotalBudget ?? 10000m,
-                CommittedSpend = latestBudget?.AmountCommitted ?? 2400m
+                TotalBudget = latestBudget?.TotalBudget ?? 0m,
+                CommittedSpend = latestBudget?.AmountCommitted ?? 0m
             };
 
+            // Pending approvals - Purchase requests by this user that don't have a PO yet
             var pendingApprovals = await _context.PurchaseRequests
-                .AsNoTracking()
-                .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder == null && pr.PRStatus != PRStatusType.Rejected)
+                .Where(pr => pr.RequesterID == userId &&
+                            pr.PurchaseOrder == null &&
+                            pr.PRStatus != PRStatusType.Rejected)
                 .OrderByDescending(pr => pr.DateSubmitted)
                 .Take(5)
                 .Select(pr => new PendingApprovalViewModel
@@ -151,16 +150,65 @@ namespace GBazaar.Controllers
                 })
                 .ToListAsync();
 
+            // Recently approved - Purchase requests by this user that have been converted to POs
             var recentlyApproved = await _context.PurchaseRequests
-                .AsNoTracking()
                 .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder != null)
+                .Include(pr => pr.PurchaseOrder!)
+                    .ThenInclude(po => po.Invoices)
                 .OrderByDescending(pr => pr.DateSubmitted)
                 .Take(5)
-                .Select(pr => new RecentlyApprovedViewModel
+                .Select(pr => new GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel
                 {
                     Reference = $"PR-{pr.PRID:0000}",
                     Amount = pr.EstimatedTotal,
-                    FinalApprovalRole = pr.PurchaseOrder != null ? pr.PurchaseOrder.POStatus.ToString() : "--"
+                    FinalApprovalRole = pr.PurchaseOrder!.POStatus.ToString(),
+                    PurchaseOrderId = pr.PurchaseOrder.POID,
+                    POStatus = pr.PurchaseOrder.POStatus,
+                    HasInvoice = pr.PurchaseOrder.Invoices.Any(),
+                    CanMakePayment = pr.PurchaseOrder.POStatus == POStatusType.Issued &&
+                                   !pr.PurchaseOrder.Invoices.Any(),
+                    PaymentStatus = pr.PurchaseOrder.Invoices.Any()
+                                  ? pr.PurchaseOrder.Invoices.First().PaymentStatus
+                                  : null
+                })
+                .ToListAsync();
+
+            // In-Flight Invoices - Bu kullanıcının oluşturduğu aktif invoice'lar
+            var invoices = await _context.Invoices
+                .Where(i => i.PurchaseOrder!.PurchaseRequest!.RequesterID == userId &&
+                           i.PaymentStatus != PaymentStatusType.Paid)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.POItems)
+                .Include(i => i.Supplier)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.SupplierRatings)
+                .OrderByDescending(i => i.InvoiceDate)
+                .Take(10)
+                .Select(i => new InvoiceSummaryViewModel
+                {
+                    InvoiceId = i.InvoiceID,
+                    PurchaseOrderId = i.POID,
+                    Reference = $"PO-{i.POID:0000}",
+                    InvoiceNumber = i.InvoiceNumber,
+                    SupplierName = i.Supplier!.SupplierName,
+                    AmountDue = i.AmountDue,
+                    TotalAmount = i.PurchaseOrder!.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice),
+                    OutstandingAmount = i.AmountDue ?? 0,
+                    InvoiceDate = i.InvoiceDate,
+                    DueDate = i.DueDate,
+                    ExpectedDelivery = i.PurchaseOrder.RequiredDeliveryDate,
+                    PaymentStatus = i.PaymentStatus,
+                    FulfillmentStatus = i.PurchaseOrder.POStatus,
+                    ExistingRating = i.PurchaseOrder.SupplierRatings
+                                   .Where(sr => sr.RatedByUserID == userId)
+                                   .Select(sr => sr.RatingScore)
+                                   .FirstOrDefault(),
+                    Items = i.PurchaseOrder.POItems.Select(item => new InvoiceLineSummaryViewModel
+                    {
+                        ItemName = item.ItemName,
+                        Quantity = item.QuantityOrdered,
+                        UnitPrice = item.UnitPrice
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -177,20 +225,18 @@ namespace GBazaar.Controllers
             {
                 CompanySnapshot = companySnapshot,
                 PendingApprovals = pendingApprovals,
-                RecentlyApproved = recentlyApproved,
+                RecentlyApproved = recentlyApproved.Cast<GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel>().ToList(),
                 ApprovalLadder = approvalLadder,
-                Invoices = new List<InvoiceSummaryViewModel>() // Officer'lar genelde invoice takibi yapmaz
+                Invoices = invoices
             };
         }
 
         private async Task<BuyerProfileViewModel> GetManagerData(int userId, User user)
         {
-            // Manager için department budget
             Budget? latestBudget = null;
             if (user.DepartmentID.HasValue)
             {
                 latestBudget = await _context.Budgets
-                    .AsNoTracking()
                     .Where(b => b.DepartmentID == user.DepartmentID)
                     .OrderByDescending(b => b.FiscalYear)
                     .FirstOrDefaultAsync();
@@ -198,14 +244,14 @@ namespace GBazaar.Controllers
 
             var companySnapshot = new CompanySnapshotViewModel
             {
-                TotalBudget = latestBudget?.TotalBudget ?? 50000m,
-                CommittedSpend = latestBudget?.AmountCommitted ?? 12000m
+                TotalBudget = latestBudget?.TotalBudget ?? 0m,
+                CommittedSpend = latestBudget?.AmountCommitted ?? 0m
             };
 
-            // Manager'ın onaylaması gereken PR'ları
+            // For managers, show requests that are pending their approval
             var pendingApprovals = await _context.ApprovalHistories
-                .AsNoTracking()
-                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
+                .Where(ah => ah.ApproverID == userId &&
+                           ah.ActionType == ApprovalActionType.Forwarded)
                 .Include(ah => ah.PurchaseRequest)
                 .OrderBy(ah => ah.ActionDate)
                 .Take(10)
@@ -213,23 +259,76 @@ namespace GBazaar.Controllers
                 {
                     RequestId = ah.PRID,
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
                     Stage = $"Level {ah.ApprovalLevel} - Manager Approval"
                 })
                 .ToListAsync();
 
-            // Manager'ın onayladığı PR'lar
+            // Show requests this manager has approved
             var recentlyApproved = await _context.ApprovalHistories
-                .AsNoTracking()
-                .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
-                .Include(ah => ah.PurchaseRequest)
+                .Where(ah => ah.ApproverID == userId &&
+                           ah.ActionType == ApprovalActionType.Approved)
+                .Include(ah => ah.PurchaseRequest!)
+                    .ThenInclude(pr => pr.PurchaseOrder!)
+                        .ThenInclude(po => po.Invoices)
                 .OrderByDescending(ah => ah.ActionDate)
                 .Take(10)
-                .Select(ah => new RecentlyApprovedViewModel
+                .Select(ah => new GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel
                 {
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
-                    FinalApprovalRole = "Manager"
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
+                    FinalApprovalRole = "Manager",
+                    PurchaseOrderId = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POID : 0,
+                    POStatus = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POStatus : POStatusType.PendingSupplierApproval,
+                    HasInvoice = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    CanMakePayment = ah.PurchaseRequest.PurchaseOrder != null &&
+                                   ah.PurchaseRequest.PurchaseOrder.POStatus == POStatusType.Issued &&
+                                   !ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    PaymentStatus = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any()
+                                  ? ah.PurchaseRequest.PurchaseOrder.Invoices.First().PaymentStatus
+                                  : null
+                })
+                .ToListAsync();
+
+            // Manager'ın onayladığı PO'lardan oluşan invoices
+            var invoices = await _context.Invoices
+                .Where(i => _context.ApprovalHistories
+                    .Any(ah => ah.ApproverID == userId &&
+                              ah.ActionType == ApprovalActionType.Approved &&
+                              ah.PRID == i.PurchaseOrder!.PRID) &&
+                           i.PaymentStatus != PaymentStatusType.Paid)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.POItems)
+                .Include(i => i.Supplier)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.SupplierRatings)
+                .OrderByDescending(i => i.InvoiceDate)
+                .Take(10)
+                .Select(i => new InvoiceSummaryViewModel
+                {
+                    InvoiceId = i.InvoiceID,
+                    PurchaseOrderId = i.POID,
+                    Reference = $"PO-{i.POID:0000}",
+                    InvoiceNumber = i.InvoiceNumber,
+                    SupplierName = i.Supplier!.SupplierName,
+                    AmountDue = i.AmountDue,
+                    TotalAmount = i.PurchaseOrder!.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice),
+                    OutstandingAmount = i.AmountDue ?? 0,
+                    InvoiceDate = i.InvoiceDate,
+                    DueDate = i.DueDate,
+                    ExpectedDelivery = i.PurchaseOrder.RequiredDeliveryDate,
+                    PaymentStatus = i.PaymentStatus,
+                    FulfillmentStatus = i.PurchaseOrder.POStatus,
+                    ExistingRating = i.PurchaseOrder.SupplierRatings
+                                   .Where(sr => sr.RatedByUserID == userId)
+                                   .Select(sr => sr.RatingScore)
+                                   .FirstOrDefault(),
+                    Items = i.PurchaseOrder.POItems.Select(item => new InvoiceLineSummaryViewModel
+                    {
+                        ItemName = item.ItemName,
+                        Quantity = item.QuantityOrdered,
+                        UnitPrice = item.UnitPrice
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -245,17 +344,15 @@ namespace GBazaar.Controllers
             {
                 CompanySnapshot = companySnapshot,
                 PendingApprovals = pendingApprovals,
-                RecentlyApproved = recentlyApproved,
+                RecentlyApproved = recentlyApproved.Cast<GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel>().ToList(),
                 ApprovalLadder = approvalLadder,
-                Invoices = new List<InvoiceSummaryViewModel>() // Manager seviyesinde basit invoice takibi
+                Invoices = invoices
             };
         }
 
         private async Task<BuyerProfileViewModel> GetDirectorData(int userId, User user)
         {
-            // Company-wide budget
             var allBudgets = await _context.Budgets
-                .AsNoTracking()
                 .Where(b => b.FiscalYear == DateTime.Now.Year)
                 .ToListAsync();
 
@@ -266,7 +363,6 @@ namespace GBazaar.Controllers
             };
 
             var pendingApprovals = await _context.ApprovalHistories
-                .AsNoTracking()
                 .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
                 .Include(ah => ah.PurchaseRequest)
                 .OrderBy(ah => ah.ActionDate)
@@ -275,22 +371,74 @@ namespace GBazaar.Controllers
                 {
                     RequestId = ah.PRID,
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
                     Stage = $"Level {ah.ApprovalLevel} - Director Approval"
                 })
                 .ToListAsync();
 
             var recentlyApproved = await _context.ApprovalHistories
-                .AsNoTracking()
                 .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
-                .Include(ah => ah.PurchaseRequest)
+                .Include(ah => ah.PurchaseRequest!)
+                    .ThenInclude(pr => pr.PurchaseOrder!)
+                        .ThenInclude(po => po.Invoices)
                 .OrderByDescending(ah => ah.ActionDate)
-                .Take(15)
-                .Select(ah => new RecentlyApprovedViewModel
+                .Take(10)
+                .Select(ah => new GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel
                 {
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
-                    FinalApprovalRole = "Director"
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
+                    FinalApprovalRole = "Director",
+                    PurchaseOrderId = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POID : 0,
+                    POStatus = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POStatus : POStatusType.PendingSupplierApproval,
+                    HasInvoice = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    CanMakePayment = ah.PurchaseRequest.PurchaseOrder != null &&
+                                   ah.PurchaseRequest.PurchaseOrder.POStatus == POStatusType.Issued &&
+                                   !ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    PaymentStatus = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any()
+                                  ? ah.PurchaseRequest.PurchaseOrder.Invoices.First().PaymentStatus
+                                  : null
+                })
+                .ToListAsync();
+
+            // Director'ın onayladığı PO'lardan oluşan invoices
+            var invoices = await _context.Invoices
+                .Where(i => _context.ApprovalHistories
+                    .Any(ah => ah.ApproverID == userId &&
+                              ah.ActionType == ApprovalActionType.Approved &&
+                              ah.PRID == i.PurchaseOrder!.PRID) &&
+                           i.PaymentStatus != PaymentStatusType.Paid)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.POItems)
+                .Include(i => i.Supplier)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.SupplierRatings)
+                .OrderByDescending(i => i.InvoiceDate)
+                .Take(15)
+                .Select(i => new InvoiceSummaryViewModel
+                {
+                    InvoiceId = i.InvoiceID,
+                    PurchaseOrderId = i.POID,
+                    Reference = $"PO-{i.POID:0000}",
+                    InvoiceNumber = i.InvoiceNumber,
+                    SupplierName = i.Supplier!.SupplierName,
+                    AmountDue = i.AmountDue,
+                    TotalAmount = i.PurchaseOrder!.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice),
+                    OutstandingAmount = i.AmountDue ?? 0,
+                    InvoiceDate = i.InvoiceDate,
+                    DueDate = i.DueDate,
+                    ExpectedDelivery = i.PurchaseOrder.RequiredDeliveryDate,
+                    PaymentStatus = i.PaymentStatus,
+                    FulfillmentStatus = i.PurchaseOrder.POStatus,
+                    ExistingRating = i.PurchaseOrder.SupplierRatings
+                                   .Where(sr => sr.RatedByUserID == userId)
+                                   .Select(sr => sr.RatingScore)
+                                   .FirstOrDefault(),
+                    Items = i.PurchaseOrder.POItems.Select(item => new InvoiceLineSummaryViewModel
+                    {
+                        ItemName = item.ItemName,
+                        Quantity = item.QuantityOrdered,
+                        UnitPrice = item.UnitPrice
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -306,17 +454,15 @@ namespace GBazaar.Controllers
             {
                 CompanySnapshot = companySnapshot,
                 PendingApprovals = pendingApprovals,
-                RecentlyApproved = recentlyApproved,
+                RecentlyApproved = recentlyApproved.Cast<GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel>().ToList(),
                 ApprovalLadder = approvalLadder,
-                Invoices = new List<InvoiceSummaryViewModel>() // Director seviyesinde strategic invoice takibi
+                Invoices = invoices
             };
         }
 
         private async Task<BuyerProfileViewModel> GetCFOData(int userId, User user)
         {
-            // Company-wide financial overview
             var allBudgets = await _context.Budgets
-                .AsNoTracking()
                 .Where(b => b.FiscalYear == DateTime.Now.Year)
                 .ToListAsync();
 
@@ -327,7 +473,6 @@ namespace GBazaar.Controllers
             };
 
             var pendingApprovals = await _context.ApprovalHistories
-                .AsNoTracking()
                 .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Forwarded)
                 .Include(ah => ah.PurchaseRequest)
                 .OrderBy(ah => ah.ActionDate)
@@ -336,22 +481,74 @@ namespace GBazaar.Controllers
                 {
                     RequestId = ah.PRID,
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
                     Stage = $"Level {ah.ApprovalLevel} - CFO Final Approval"
                 })
                 .ToListAsync();
 
             var recentlyApproved = await _context.ApprovalHistories
-                .AsNoTracking()
                 .Where(ah => ah.ApproverID == userId && ah.ActionType == ApprovalActionType.Approved)
-                .Include(ah => ah.PurchaseRequest)
+                .Include(ah => ah.PurchaseRequest!)
+                    .ThenInclude(pr => pr.PurchaseOrder!)
+                        .ThenInclude(po => po.Invoices)
                 .OrderByDescending(ah => ah.ActionDate)
-                .Take(20)
-                .Select(ah => new RecentlyApprovedViewModel
+                .Take(10)
+                .Select(ah => new GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel
                 {
                     Reference = $"PR-{ah.PRID:0000}",
-                    Amount = ah.PurchaseRequest.EstimatedTotal,
-                    FinalApprovalRole = "CFO"
+                    Amount = ah.PurchaseRequest!.EstimatedTotal,
+                    FinalApprovalRole = "CFO",
+                    PurchaseOrderId = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POID : 0,
+                    POStatus = ah.PurchaseRequest.PurchaseOrder != null ? ah.PurchaseRequest.PurchaseOrder.POStatus : POStatusType.PendingSupplierApproval,
+                    HasInvoice = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    CanMakePayment = ah.PurchaseRequest.PurchaseOrder != null &&
+                                   ah.PurchaseRequest.PurchaseOrder.POStatus == POStatusType.Issued &&
+                                   !ah.PurchaseRequest.PurchaseOrder.Invoices.Any(),
+                    PaymentStatus = ah.PurchaseRequest.PurchaseOrder != null && ah.PurchaseRequest.PurchaseOrder.Invoices.Any()
+                                  ? ah.PurchaseRequest.PurchaseOrder.Invoices.First().PaymentStatus
+                                  : null
+                })
+                .ToListAsync();
+
+            // CFO'nun onayladığı PO'lardan oluşan invoices
+            var invoices = await _context.Invoices
+                .Where(i => _context.ApprovalHistories
+                    .Any(ah => ah.ApproverID == userId &&
+                              ah.ActionType == ApprovalActionType.Approved &&
+                              ah.PRID == i.PurchaseOrder!.PRID) &&
+                           i.PaymentStatus != PaymentStatusType.Paid)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.POItems)
+                .Include(i => i.Supplier)
+                .Include(i => i.PurchaseOrder!)
+                    .ThenInclude(po => po.SupplierRatings)
+                .OrderByDescending(i => i.InvoiceDate)
+                .Take(20)
+                .Select(i => new InvoiceSummaryViewModel
+                {
+                    InvoiceId = i.InvoiceID,
+                    PurchaseOrderId = i.POID,
+                    Reference = $"PO-{i.POID:0000}",
+                    InvoiceNumber = i.InvoiceNumber,
+                    SupplierName = i.Supplier!.SupplierName,
+                    AmountDue = i.AmountDue,
+                    TotalAmount = i.PurchaseOrder!.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice),
+                    OutstandingAmount = i.AmountDue ?? 0,
+                    InvoiceDate = i.InvoiceDate,
+                    DueDate = i.DueDate,
+                    ExpectedDelivery = i.PurchaseOrder.RequiredDeliveryDate,
+                    PaymentStatus = i.PaymentStatus,
+                    FulfillmentStatus = i.PurchaseOrder.POStatus,
+                    ExistingRating = i.PurchaseOrder.SupplierRatings
+                                   .Where(sr => sr.RatedByUserID == userId)
+                                   .Select(sr => sr.RatingScore)
+                                   .FirstOrDefault(),
+                    Items = i.PurchaseOrder.POItems.Select(item => new InvoiceLineSummaryViewModel
+                    {
+                        ItemName = item.ItemName,
+                        Quantity = item.QuantityOrdered,
+                        UnitPrice = item.UnitPrice
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -367,9 +564,9 @@ namespace GBazaar.Controllers
             {
                 CompanySnapshot = companySnapshot,
                 PendingApprovals = pendingApprovals,
-                RecentlyApproved = recentlyApproved,
+                RecentlyApproved = recentlyApproved.Cast<GBazaar.ViewModels.Buyer.RecentlyApprovedViewModel>().ToList(),
                 ApprovalLadder = approvalLadder,
-                Invoices = new List<InvoiceSummaryViewModel>() // CFO seviyesinde full financial oversight
+                Invoices = invoices
             };
         }
 
@@ -430,101 +627,93 @@ namespace GBazaar.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
-        private BuyerProfileViewModel CreateSampleProfile(int roleId)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MakePayment(int purchaseOrderId)
         {
-            // Role'e göre sample data oluştur
-            return roleId switch
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
             {
-                2 => CreateSampleManagerProfile(),
-                3 => CreateSampleDirectorProfile(),
-                4 => CreateSampleCFOProfile(),
-                _ => CreateSampleOfficerProfile()
-            };
-        }
+                return RedirectToAction("Login", "Auth");
+            }
 
-        // Sample profile metodları (mevcut CreateSampleProfile'ı böl)
-        private BuyerProfileViewModel CreateSampleOfficerProfile()
-        {
-            // Mevcut sample profile logic
-            var now = DateTime.UtcNow;
-
-            var pendingApprovals = new List<PendingApprovalViewModel>
+            try
             {
-                new() { RequestId = 4101, Reference = "PR-4101", Amount = 1900m, Stage = PRStatusType.PendingApproval.ToString() },
-                new() { RequestId = 4203, Reference = "PR-4203", Amount = 3750m, Stage = PRStatusType.PendingApproval.ToString() }
-            };
+                var purchaseOrder = await _context.PurchaseOrders
+                    .Include(po => po.PurchaseRequest)
+                        .ThenInclude(pr => pr.Requester)
+                            .ThenInclude(u => u.Department)
+                    .Include(po => po.POItems)
+                    .Include(po => po.Supplier)
+                    .Include(po => po.Invoices)
+                    .FirstOrDefaultAsync(po => po.POID == purchaseOrderId &&
+                                             po.PurchaseRequest != null &&
+                                             po.PurchaseRequest.RequesterID == userId &&
+                                             (po.POStatus == POStatusType.Issued || po.POStatus == POStatusType.PartiallyReceived));
 
-            var approvalLadder = new List<ApprovalLadderStepViewModel>
-            {
-                new() { Role = "Officer", ThresholdPercent = 25m, Description = "You can create purchases up to 25% of department budget." },
-                new() { Role = "Manager", ThresholdPercent = 50m, Description = "Manager approval required between 25% and 50%." },
-                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of budget." }
-            };
-
-            return new BuyerProfileViewModel
-            {
-                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 10000m, CommittedSpend = 2400m },
-                PendingApprovals = pendingApprovals,
-                ApprovalLadder = approvalLadder,
-                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
-                Invoices = new List<InvoiceSummaryViewModel>()
-            };
-        }
-
-        private BuyerProfileViewModel CreateSampleManagerProfile()
-        {
-            // Manager sample data
-            return new BuyerProfileViewModel
-            {
-                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 50000m, CommittedSpend = 12000m },
-                PendingApprovals = new List<PendingApprovalViewModel>
+                if (purchaseOrder?.PurchaseRequest?.Requester == null)
                 {
-                    new() { RequestId = 5001, Reference = "PR-5001", Amount = 15000m, Stage = "Level 2 - Manager Approval" }
-                },
-                ApprovalLadder = new List<ApprovalLadderStepViewModel>
-                {
-                    new() { Role = "Manager", ThresholdPercent = 50m, Description = "You approve purchases between 12.5% and 50%." }
-                },
-                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
-                Invoices = new List<InvoiceSummaryViewModel>()
-            };
-        }
+                    TempData["ProfileError"] = "Purchase order not found or not eligible for payment.";
+                    return RedirectToAction(nameof(Profile));
+                }
 
-        private BuyerProfileViewModel CreateSampleDirectorProfile()
-        {
-            return new BuyerProfileViewModel
-            {
-                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 500000m, CommittedSpend = 180000m },
-                PendingApprovals = new List<PendingApprovalViewModel>
+                var existingInvoice = purchaseOrder.Invoices.FirstOrDefault();
+                if (existingInvoice != null)
                 {
-                    new() { RequestId = 7001, Reference = "PR-7001", Amount = 95000m, Stage = "Level 3 - Director Approval" }
-                },
-                ApprovalLadder = new List<ApprovalLadderStepViewModel>
-                {
-                    new() { Role = "Director", ThresholdPercent = 75m, Description = "You approve major purchases between 25% and 75%." }
-                },
-                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
-                Invoices = new List<InvoiceSummaryViewModel>()
-            };
-        }
+                    TempData["ProfileError"] = "Invoice already exists for this order.";
+                    return RedirectToAction(nameof(Profile));
+                }
 
-        private BuyerProfileViewModel CreateSampleCFOProfile()
-        {
-            return new BuyerProfileViewModel
+                var totalAmount = purchaseOrder.POItems.Sum(item => item.QuantityOrdered * item.UnitPrice);
+
+                // Budget'tan düşme işlemi
+                var departmentId = purchaseOrder.PurchaseRequest.Requester.DepartmentID;
+                if (departmentId.HasValue)
+                {
+                    var latestBudget = await _context.Budgets
+                        .Where(b => b.DepartmentID == departmentId.Value)
+                        .OrderByDescending(b => b.FiscalYear)
+                        .FirstOrDefaultAsync();
+
+                    if (latestBudget != null)
+                    {
+                        // Budget'taki AmountCommitted değerini güncelle
+                        latestBudget.AmountCommitted = (latestBudget.AmountCommitted ?? 0) + totalAmount;
+                        _context.Budgets.Update(latestBudget);
+
+                        _logger.LogInformation("Budget updated: Department {DepartmentId}, AmountCommitted increased by {Amount} to {NewTotal}",
+                            departmentId.Value, totalAmount, latestBudget.AmountCommitted);
+                    }
+                }
+
+                var invoiceNumber = $"INV-{purchaseOrder.POID:0000}-{DateTime.UtcNow:yyyyMMdd}";
+
+                var invoice = new Invoice
+                {
+                    POID = purchaseOrder.POID,
+                    SupplierID = purchaseOrder.SupplierID,
+                    InvoiceNumber = invoiceNumber,
+                    InvoiceDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                    DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)),
+                    AmountDue = totalAmount,
+                    PaymentStatus = PaymentStatusType.NotPaid,
+                    PaymentStatusID = (int)PaymentStatusType.NotPaid
+                };
+
+                _context.Invoices.Add(invoice);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Invoice {InvoiceNumber} created for PO-{POID} by user {UserId}, Budget updated",
+                    invoiceNumber, purchaseOrder.POID, userId);
+
+                TempData["ProfileMessage"] = $"Invoice {invoiceNumber} has been generated for order PO-{purchaseOrder.POID:0000}. Amount due: {totalAmount:C}. Budget updated.";
+            }
+            catch (Exception ex)
             {
-                CompanySnapshot = new CompanySnapshotViewModel { TotalBudget = 1000000m, CommittedSpend = 420000m },
-                PendingApprovals = new List<PendingApprovalViewModel>
-                {
-                    new() { RequestId = 8001, Reference = "PR-8001", Amount = 275000m, Stage = "Level 4 - CFO Final Approval" }
-                },
-                ApprovalLadder = new List<ApprovalLadderStepViewModel>
-                {
-                    new() { Role = "CFO", ThresholdPercent = 100m, Description = "You have final authority over all strategic investments above 37.5%." }
-                },
-                RecentlyApproved = new List<RecentlyApprovedViewModel>(),
-                Invoices = new List<InvoiceSummaryViewModel>()
-            };
+                _logger.LogError(ex, "Failed to generate invoice for PO {POID} by user {UserId}", purchaseOrderId, userId);
+                TempData["ProfileError"] = "An error occurred while generating the invoice. Please try again.";
+            }
+
+            return RedirectToAction(nameof(Profile));
         }
 
         private static bool IsProfileConnectivityIssue(Exception exception)

@@ -188,17 +188,17 @@
         <div class="col-12 col-lg-6">
             <div class="card dashboard-card h-100">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Accepted Requests History</h5>
-                    <p class="text-muted">Recently fulfilled requests move here once payment and delivery are complete.</p>
+                    <h5 class="card-title">Closed Orders</h5>
+                    <p class="text-muted">Orders with invoices issued, including payment and delivery details.</p>
 
-                    @if (!Model.AcceptedHistory.Any())
+                    @if (!Model.ClosedOrders.Any())
                     {
-                        <p class="text-muted mb-0">You have not closed any orders yet. Once deliveries land and payments clear, they will appear here.</p>
+                        <p class="text-muted mb-0">You have not closed any orders yet. Once you accept orders and invoices are created, they will appear here.</p>
                     }
                     else
                     {
                         <ul class="list-group list-group-flush dashboard-list flex-grow-1">
-                            @foreach (var item in Model.AcceptedHistory.Take(4))
+                            @foreach (var item in Model.ClosedOrders.Take(4))
                             {
                                 <li class="list-group-item d-flex justify-content-between">
                                     <span>
@@ -212,7 +212,7 @@
                                 </li>
                             }
                         </ul>
-                        <button type="button" name="viewHistory" class="btn btn-link px-0 mt-3 align-self-start" data-modal-trigger="historyModal">
+                        <button type="button" name="viewHistory" class="btn btn-link px-0 mt-3 align-self-start" data-modal-trigger="closedOrdersModal">
                             View full history
                         </button>
                     }
@@ -236,58 +236,101 @@
         </div>
     </div>
 
+    <!-- ✅ Supplier Rating bölümü - sadece 5'lik rating sistemi -->
     <div class="row g-4 mt-1">
         <div class="col-12">
             <div class="card dashboard-card">
-                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
                     <div>
-                        <h5 class="card-title mb-1">Performance Highlights</h5>
-                        <p class="text-muted mb-0">Surface metrics like response times and fulfillment rates once analytics are connected.</p>
+                        <h5 class="card-title mb-1">Supplier Rating</h5>
+                        <p class="text-muted mb-0">Average rating from buyers based on completed orders and invoices.</p>
                     </div>
-                    <div class="d-flex gap-3">
-                        <div>
-                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@Model.Performance.OnTimeDeliveryPercentage%</div>
-                            <small class="text-muted">On-time delivery</small>
-                        </div>
-                        <div>
-                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@($"{Model.Performance.AverageResponseHours}h")</div>
-                            <small class="text-muted">Avg. response</small>
-                        </div>
-                        <div>
-                            <div class="fw-semibold display-6 mb-0" style="line-height: 1;">@Model.Performance.AverageRating</div>
-                            <small class="text-muted">Supplier rating</small>
-                        </div>
+                    <div class="d-flex align-items-center gap-4">
+                        @{
+                            // ✅ Geçici olarak eski ViewModel property'lerini kullan
+                            var avgRating = Model.Performance.AverageRating;
+                            var hasRatings = avgRating > 0;
+                        }
+                        
+                        @if (hasRatings)
+                        {
+                            <div class="text-center">
+                                <div class="fw-semibold display-4 mb-0" style="line-height: 1; color: var(--primary);">
+                                    @avgRating.ToString("0.0")
+                                </div>
+                                <small class="text-muted">out of 5.0</small>
+                            </div>
+                            <div class="d-flex flex-column align-items-start">
+                                <!-- ✅ 5 yıldızlı görsel rating -->
+                                <div class="mb-1">
+                                    @for (int star = 1; star <= 5; star++)
+                                    {
+                                        @if (star <= Math.Floor(avgRating))
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        else if (star <= avgRating)
+                                        {
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star text-muted"></i>
+                                        }
+                                    }
+                                </div>
+                                <small class="text-muted">Based on buyer ratings</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center">
+                                <div class="fw-semibold display-4 mb-0 text-muted" style="line-height: 1;">—</div>
+                                <small class="text-muted">No ratings yet</small>
+                            </div>
+                            <div>
+                                <div class="mb-1">
+                                    <i class="far fa-star text-muted"></i>
+                                    <i class="far fa-star text-muted"></i>
+                                    <i class="far fa-star text-muted"></i>
+                                    <i class="far fa-star text-muted"></i>
+                                    <i class="far fa-star text-muted"></i>
+                                </div>
+                                <small class="text-muted">Complete orders to receive ratings</small>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="card-footer bg-transparent text-muted small">
-                    Metrics use placeholder values until the reporting module is delivered.
+                    Ratings are provided by buyers when they rate completed invoices in their buyer dashboard.
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="historyModal" class="dashboard-modal" aria-hidden="true" role="dialog" aria-labelledby="historyModalTitle">
+<!-- Modal -->
+<div id="closedOrdersModal" class="dashboard-modal" aria-hidden="true" role="dialog" aria-labelledby="closedOrdersModalTitle">
     <div class="dashboard-modal__backdrop" data-modal-close></div>
     <div class="dashboard-modal__dialog" role="document">
         <div class="dashboard-modal__header d-flex align-items-start justify-content-between gap-3">
             <div>
-                <h5 id="historyModalTitle" class="mb-1">Accepted Requests History</h5>
-                <p class="text-muted mb-0">Full ledger of accepted requests across buyers.</p>
+                <h5 id="closedOrdersModalTitle" class="mb-1">Closed Orders History</h5>
+                <p class="text-muted mb-0">Complete history of orders with invoices across all buyers.</p>
             </div>
             <button type="button" name="closeHistory" class="dashboard-modal__close" aria-label="Close" data-modal-close>
                 &times;
             </button>
         </div>
         <div class="dashboard-modal__body">
-            @if (!Model.AcceptedHistory.Any())
+            @if (!Model.ClosedOrders.Any())
             {
-                <p class="text-muted mb-0">History will populate once you complete and bill an order.</p>
+                <p class="text-muted mb-0">History will populate once you accept orders and invoices are created.</p>
             }
             else
             {
                 <div class="list-group dashboard-list">
-                    @foreach (var item in Model.AcceptedHistory)
+                    @foreach (var item in Model.ClosedOrders)
                     {
                         <div class="list-group-item">
                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-2">
@@ -345,6 +388,9 @@
     </div>
 </div>
 
+<!-- Font Awesome for stars -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (() => {
@@ -393,7 +439,7 @@
         }
 
         const toggleModal = (show) => {
-            const modal = document.getElementById("historyModal");
+            const modal = document.getElementById("closedOrdersModal");
             if (!modal) {
                 return;
             }
@@ -410,12 +456,12 @@
             }
         };
 
-        const openButtons = document.querySelectorAll('[data-modal-trigger="historyModal"]');
+        const openButtons = document.querySelectorAll('[data-modal-trigger="closedOrdersModal"]');
         openButtons.forEach((btn) => {
             btn.addEventListener("click", () => toggleModal(true));
         });
 
-        const closeTargets = document.querySelectorAll("#historyModal [data-modal-close]");
+        const closeTargets = document.querySelectorAll("#closedOrdersModal [data-modal-close]");
         closeTargets.forEach((target) => {
             target.addEventListener("click", () => toggleModal(false));
         });
@@ -426,7 +472,7 @@
             }
         });
 
-        const modal = document.getElementById("historyModal");
+        const modal = document.getElementById("closedOrdersModal");
         if (modal) {
             modal.addEventListener("keydown", (event) => {
                 if (event.key !== "Tab") {

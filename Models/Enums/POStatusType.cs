@@ -2,7 +2,7 @@
 {
     public enum POStatusType
     {
-        Draft = 1,
+        PendingSupplierApproval = 1,
         Issued = 2,
         PartiallyReceived = 3,
         FullyReceived = 4,
