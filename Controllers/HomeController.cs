@@ -20,6 +20,16 @@ namespace GBazaar.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Check if user is a logged-in supplier and redirect to their homepage
+            if (User.Identity.IsAuthenticated)
+            {
+                var userType = User.FindFirst("UserType")?.Value;
+                if (userType == "Supplier")
+                {
+                    return RedirectToAction("HomepageS", "Supplier");
+                }
+            }
+
             // 1. Veritabanından sadece ürün ID'lerini al
             var allProductIds = await _context.Products
                 .Select(p => p.ProductID)

@@ -487,6 +487,47 @@ namespace GBazaar.Controllers
             };
         }
 
+        public async Task<IActionResult> HomepageS()
+        {
+            ViewBag.UserType = "Supplier";
+
+            // Get the logged-in supplier's ID
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var supplierId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "Supplier")
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                // Get all products for this specific supplier
+                var supplierProducts = await _context.Products
+                    .Where(p => p.SupplierID == supplierId)
+                    .Include(p => p.Supplier)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // If refresh parameter is present, shuffle the products
+                if (Request.Query.ContainsKey("refresh"))
+                {
+                    var random = new Random();
+                    supplierProducts = supplierProducts.OrderBy(x => random.Next()).ToList();
+                }
+
+                return View(supplierProducts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load supplier products for supplier ID {SupplierId}", supplierId);
+                TempData["Error"] = "Unable to load your products. Please try again later.";
+                return View(new List<Product>());
+            }
+        }
        
         public IActionResult Upload()
         {

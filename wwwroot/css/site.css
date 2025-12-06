@@ -274,6 +274,20 @@ body {
   box-shadow: 0 0 0 0.25rem rgba(110, 109, 204, 0.25) !important; /* Purple glow */
 }
 
+/* Match form-select dropdowns to custom input style */
+.form-select {
+  border: 2px solid var(--border-pop) !important;
+  border-radius: 50px !important; /* Super round */
+  padding: 10px 20px !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(110, 109, 204, 0.25) !important; /* Purple glow */
+  border-color: var(--border-pop) !important;
+}
+
 /* The Big Purple Button */
 .btn-custom {
   background-color: var(--primary);
@@ -1526,7 +1540,7 @@ body.dashboard-modal-open {
   }
 }
 
-/* Rating Stars */
+/* Rating Stars - Custom Icon Implementation */
 .rating-stars {
   display: flex;
   align-items: center;
@@ -1543,6 +1557,51 @@ body.dashboard-modal-open {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   font-size: 0.85rem;
+}
+
+/* Custom Star Icons - Replace Font Awesome */
+.custom-star {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+}
+
+.custom-star--full {
+  background-image: url('/images/star-full.png');
+}
+
+.custom-star--half {
+  background-image: url('/images/star-half.png');
+}
+
+.custom-star--empty {
+  background-image: url('/images/star-empty.png');
+}
+
+/* Size variants */
+.custom-star--small {
+  width: 1em;
+  height: 1em;
+}
+
+.custom-star--large {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+/* For inline star displays in Product Details and Dashboard */
+.stars .custom-star {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Warning color for stars (if needed for other contexts) */
+.text-warning .custom-star {
+  filter: brightness(1.1);
 }
 
 /* View Button */
