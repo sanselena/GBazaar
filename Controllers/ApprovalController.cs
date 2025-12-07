@@ -4,6 +4,7 @@ using GBazaar.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using GBazaar.ViewModels.Approval;
 
 namespace GBazaar.Controllers
 {
@@ -31,7 +32,7 @@ namespace GBazaar.Controllers
             if (requestor == null)
                 return BadRequest("Requestor user not found.");
 
-            // Purchase Request'in tutarına göre hangi approval level'dan başlayacağını belirle
+            // reqin tutarına göre rule bul
             var applicableRules = _context.ApprovalRules
                 .Where(r => pr.EstimatedTotal >= r.MinAmount &&
                             (r.MaxAmount == null || pr.EstimatedTotal <= r.MaxAmount))
@@ -41,19 +42,19 @@ namespace GBazaar.Controllers
             if (!applicableRules.Any())
                 return BadRequest("No approval rule found for this amount.");
 
-            // İlk approval level'ı belirle
+            // ilk app. rule
             var firstRule = applicableRules.First();
 
-            // Requestor'ın departmanında bu role sahip kullanıcıyı bul
+            // ruleı onaylayacak userı-n rolünü bul
             int assignedUserId = GetUserForRole(requestor.UserID, firstRule.RequiredRoleID);
 
             if (assignedUserId == 0)
                 return BadRequest($"No user found for the required role (RoleID: {firstRule.RequiredRoleID}) in this department.");
 
-            // PR'ı PendingApproval durumuna getir
+            // pr statusunu pending 
             pr.PRStatus = PRStatusType.PendingApproval;
 
-            // İlk approval history kaydını oluştur
+            // ilk approval history kaydını oluştur
             _context.ApprovalHistories.Add(new ApprovalHistory
             {
                 PRID = pr.PRID,
@@ -71,7 +72,7 @@ namespace GBazaar.Controllers
 
         public IActionResult Approve(int id)
         {
-            // Giriş yapmış kullanıcının ID'sini al
+            // loggedin userın idsini çek
             if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var approverId))
             {
                 return RedirectToAction("Login", "Auth");
@@ -79,7 +80,7 @@ namespace GBazaar.Controllers
 
             var pr = _context.PurchaseRequests
                 .Include(x => x.Requester)
-                .Include(x => x.PRItems) // ✅ PRItems'ları da include et
+                .Include(x => x.PRItems) 
                 .FirstOrDefault(x => x.PRID == id);
 
             if (pr == null)
@@ -87,7 +88,7 @@ namespace GBazaar.Controllers
 
             var requestor = pr.Requester;
 
-            // Son approval adımını bul
+            // son approval adımını bul
             var lastStep = _context.ApprovalHistories
                 .Where(h => h.PRID == id)
                 .OrderByDescending(h => h.ActionDate)
@@ -99,7 +100,7 @@ namespace GBazaar.Controllers
             if (lastStep.ApproverID != approverId)
                 return BadRequest("This PR is not assigned to you.");
 
-            // Bu tutar için gerekli tüm approval rule'larını getir
+            // tutara göre app chain çek
             var applicableRules = _context.ApprovalRules
                 .Include(r => r.RequiredRole)
                 .Where(r => pr.EstimatedTotal >= r.MinAmount &&
@@ -112,7 +113,7 @@ namespace GBazaar.Controllers
             if (currentRule == null)
                 return BadRequest("Current approval rule not found.");
 
-            // Mevcut level için onay kaydını ekle
+            // mevcut level için onay kaydını ekle
             _context.ApprovalHistories.Add(new ApprovalHistory
             {
                 PRID = id,
@@ -123,26 +124,26 @@ namespace GBazaar.Controllers
                 Notes = $"Approved by {currentRule.RequiredRole?.RoleName ?? "Unknown Role"}."
             });
 
-            // Bir sonraki approval level'ını bul
+            // sonraki leveli bul
             var nextRule = applicableRules.FirstOrDefault(r => r.ApprovalLevel > currentRule.ApprovalLevel);
 
             if (nextRule == null)
             {
-                // Tüm onaylar tamamlandı, PR'ı Approved durumuna getir
+                // Son gerekli onay alındıysa pr approved
                 pr.PRStatus = PRStatusType.Approved;
 
-                // PO oluşturma işlemi
+                // poya geçiş
                 CreatePurchaseOrder(pr);
             }
             else
             {
-                // Bir sonraki onaylayıcıyı bul
+                // sonraki onaylayıcı
                 int nextUserId = GetUserForRole(requestor.UserID, nextRule.RequiredRoleID);
 
                 if (nextUserId == 0)
                     return BadRequest($"No user found for next approval role (RoleID: {nextRule.RequiredRoleID}) in this department.");
 
-                // Bir sonraki level'a forward et
+                // ileri lvle at
                 _context.ApprovalHistories.Add(new ApprovalHistory
                 {
                     PRID = id,
@@ -156,13 +157,13 @@ namespace GBazaar.Controllers
 
             _context.SaveChanges();
 
-            // Kullanıcının rolüne göre geri yönlendir
+           
             return RedirectToAction("Profile", "Buyer");
         }
 
         public IActionResult Reject(int id, string notes)
         {
-            // Giriş yapmış kullanıcının ID'sini al
+            // logged in user id çek
             if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var approverId))
             {
                 return RedirectToAction("Login", "Auth");
@@ -186,10 +187,10 @@ namespace GBazaar.Controllers
             if (lastStep.ApproverID != approverId)
                 return BadRequest("This PR is not assigned to you.");
 
-            // PR'ı Rejected durumuna getir
+            // prı reject et
             pr.PRStatus = PRStatusType.Rejected;
 
-            // Ret kaydını ekle
+            
             _context.ApprovalHistories.Add(new ApprovalHistory
             {
                 PRID = id,
@@ -202,7 +203,7 @@ namespace GBazaar.Controllers
 
             _context.SaveChanges();
 
-            // Kullanıcının rolüne göre geri yönlendir
+        
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             return userRole switch
             {
@@ -235,14 +236,14 @@ namespace GBazaar.Controllers
 
             int departmentId = requestor.DepartmentID.Value;
 
-            // Aynı departmandaki bu role sahip kullanıcıyı bul
+            // aynı departmandaki bu role sahip kullanıcıyı bul
             return _context.Users
                 .Where(u => u.RoleID == roleId && u.DepartmentID == departmentId && u.IsActive)
                 .Select(u => u.UserID)
                 .FirstOrDefault();
         }
 
-        // Purchase Order oluşturma metodu
+        // po oluşturma
         private void CreatePurchaseOrder(PurchaseRequest pr)
         {
             var po = new PurchaseOrder
@@ -251,14 +252,14 @@ namespace GBazaar.Controllers
                 SupplierID = pr.SupplierID ?? throw new InvalidOperationException("Supplier ID is required"),
                 DateIssued = DateTime.UtcNow,
 
-                // ✅ PO önce supplier onayı bekliyor
+                // po suptan onay bekler
                 POStatus = POStatusType.PendingSupplierApproval,
                 POStatusID = (int)POStatusType.PendingSupplierApproval,
 
                 RequiredDeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14))
             };
 
-            // PR'daki item'ları PO item'larına kopyala
+            // poitemleri çek
             foreach (var prItem in pr.PRItems)
             {
                 var poItem = new POItem
@@ -275,25 +276,10 @@ namespace GBazaar.Controllers
 
             _context.PurchaseOrders.Add(po);
 
-            // ✅ PR statusunu AwaitingSupplier yap
+            // prı awaiting sup yap
             pr.PRStatus = PRStatusType.AwaitingSupplier;
         }
-
-        // ❌ Dashboard metodunu tamamen çıkardık!
-        // Dashboard metodu SupplierController'da olmalı!
     }
 
-    public class RecentlyApprovedViewModel
-    {
-        public string Reference { get; init; } = string.Empty;
-        public decimal Amount { get; init; }
-        public string FinalApprovalRole { get; init; } = string.Empty;
-        
-        // ✅ Add properties for invoice generation
-        public int PurchaseOrderId { get; init; }
-        public POStatusType POStatus { get; init; }
-        public bool HasInvoice { get; init; }
-        public bool CanMakePayment { get; init; }
-        public PaymentStatusType? PaymentStatus { get; init; }
-    }
+  
 }

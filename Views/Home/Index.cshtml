@@ -1,19 +1,46 @@
 ﻿@model List<GBazaar.Models.Product>
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = ViewBag.IsSearchResults == true ? $"Search Results - {ViewBag.SearchQuery}" : "Home Page";
     var usingSamples = ViewBag.UsingSampleProducts is bool flag && flag;
+    var isSearchResults = ViewBag.IsSearchResults == true;
+    var searchQuery = ViewBag.SearchQuery as string;
+    var searchResultsCount = ViewBag.SearchResultsCount as int? ?? 0;
 }
 
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="mb-1">Featured Marketplace Listings</h1>
-            <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>
+            @if (isSearchResults)
+            {
+                <h1 class="mb-1">Search Results for "@searchQuery"</h1>
+                <p class="text-muted mb-0">Found @searchResultsCount product(s) matching your search.</p>
+            }
+            else
+            {
+                <h1 class="mb-1">Featured Marketplace Listings</h1>
+                <p class="text-muted mb-0">Every refresh reshuffles the catalog so buyers discover more of your offers.</p>
+            }
         </div>
-        <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">
-            <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>
-        </form>
+        @if (!isSearchResults)
+        {
+            <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-inline-form">
+                <button type="submit" name="refresh" class="btn btn-outline-secondary">Shuffle Products</button>
+            </form>
+        }
+        else
+        {
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-home"></i> Back to Homepage
+            </a>
+        }
     </div>
+
+    @if (ViewBag.SearchError != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @ViewBag.SearchError
+        </div>
+    }
 
     @if (usingSamples)
     {
@@ -22,11 +49,30 @@
         </div>
     }
 
-    @if (Model == null || !Model.Any())
+    @if (isSearchResults && searchResultsCount == 0 && !string.IsNullOrWhiteSpace(searchQuery))
     {
         <div class="alert alert-info" role="alert">
-            There are no products to display at the moment. Please check back later.
+            <i class="fas fa-search"></i> No products found matching "@searchQuery". Try searching with different keywords.
         </div>
+        <div class="text-center mt-4">
+            <p class="text-muted">Some search suggestions:</p>
+            <div class="d-flex justify-content-center flex-wrap gap-2">
+                <a asp-controller="Home" asp-action="Search" asp-route-query="apple" class="btn btn-outline-primary btn-sm">Apple</a>
+                <a asp-controller="Home" asp-action="Search" asp-route-query="vegetable" class="btn btn-outline-primary btn-sm">Vegetables</a>
+                <a asp-controller="Home" asp-action="Search" asp-route-query="organic" class="btn btn-outline-primary btn-sm">Organic</a>
+                <a asp-controller="Home" asp-action="Search" asp-route-query="fresh" class="btn btn-outline-primary btn-sm">Fresh</a>
+            </div>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        @if (!isSearchResults)
+        {
+            <div class="alert alert-info" role="alert">
+                There are no products to display at the moment. Please check back later.
+            </div>
+        }
     }
     else
     {
@@ -44,7 +90,16 @@
                                      onerror="tryNextImageExtension(this, @product.ProductID, '@Uri.EscapeDataString(product.ProductName)')" />
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">@product.ProductName</h5>
+                                <h5 class="card-title">
+                                    @if (isSearchResults && !string.IsNullOrWhiteSpace(searchQuery))
+                                    {
+                                        @Html.Raw(product.ProductName.Replace(searchQuery, $"<mark>{searchQuery}</mark>", StringComparison.OrdinalIgnoreCase))
+                                    }
+                                    else
+                                    {
+                                        @product.ProductName
+                                    }
+                                </h5>
                                 <p class="card-text text-muted small">Supplier: @(product.Supplier?.SupplierName ?? "N/A")</p>
                             </div>
                             <div class="card-footer bg-transparent border-0 pb-3">
@@ -61,31 +116,15 @@
 </div>
 
 <script>
-    function tryNextImageExtension(img, productId, productName) {
-        // Try different extensions in order
-        const extensions = ['jpg', 'jpeg', 'gif'];
-        const currentSrc = img.src;
-
-        // Find which extension we're currently trying
-        let currentExtension = '';
-        if (currentSrc.includes('.png')) currentExtension = 'png';
-        else if (currentSrc.includes('.jpg')) currentExtension = 'jpg';
-        else if (currentSrc.includes('.jpeg')) currentExtension = 'jpeg';
-        else if (currentSrc.includes('.gif')) currentExtension = 'gif';
-
-        // Find next extension to try
-        let nextExtension = '';
-        if (currentExtension === 'png') nextExtension = 'jpg';
-        else if (currentExtension === 'jpg') nextExtension = 'jpeg';
-        else if (currentExtension === 'jpeg') nextExtension = 'gif';
-
-        if (nextExtension) {
-            img.onerror = function() { tryNextImageExtension(this, productId, productName); };
-            img.src = `/images/products/${productId}.${nextExtension}`;
-        } else {
-            // No more extensions to try, use placeholder
-            img.onerror = null;
-            img.src = `https://via.placeholder.com/300x200/C4C1ED/6E6DCC?text=${encodeURIComponent(productName)}`;
-        }
+    // Auto-focus search input when on search results page
+    @if (isSearchResults)
+    {
+            @:document.addEventListener('DOMContentLoaded', function() {
+            @:    const searchInput = document.querySelector('.search-input');
+            @:    if (searchInput) {
+            @:        searchInput.focus();
+            @:        searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            @:    }
+            @:});
     }
 </script>

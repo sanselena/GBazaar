@@ -22,11 +22,10 @@ namespace GBazaar.Controllers
             _context = context;
             _logger = logger;
         }
-
-        // GET: /Buyer/Profile - Tüm roller için tek profile
+        //get profile
         public async Task<IActionResult> Profile()
         {
-            // Giriş yapmış kullanıcının ID ve Role bilgisini al
+            // loggedin user id and role al
             if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
             {
                 return RedirectToAction("Login", "Auth");
@@ -50,10 +49,10 @@ namespace GBazaar.Controllers
                     return View(new BuyerProfileViewModel());
                 }
 
-                // Role'e göre ViewBag ayarla
+                // rolea göre viewbag
                 SetViewBagByRole(userRoleId, user);
 
-                // Role'e göre veri getir
+                // role göre dbden doldur
                 var model = await GetProfileDataByRole(userId, userRoleId, user);
 
                 return View(model);
@@ -76,7 +75,7 @@ namespace GBazaar.Controllers
         {
             switch (roleId)
             {
-                case 1: // Officer
+                case 1: // officer
                     ViewBag.UserType = "Buyer";
                     ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
@@ -134,7 +133,6 @@ namespace GBazaar.Controllers
                 CommittedSpend = latestBudget?.AmountCommitted ?? 0m
             };
 
-            // Pending approvals - Purchase requests by this user that don't have a PO yet
             var pendingApprovals = await _context.PurchaseRequests
                 .Where(pr => pr.RequesterID == userId &&
                             pr.PurchaseOrder == null &&
@@ -150,7 +148,6 @@ namespace GBazaar.Controllers
                 })
                 .ToListAsync();
 
-            // Recently approved - Purchase requests by this user that have been converted to POs
             var recentlyApproved = await _context.PurchaseRequests
                 .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder != null)
                 .Include(pr => pr.PurchaseOrder!)
@@ -212,13 +209,13 @@ namespace GBazaar.Controllers
                 })
                 .ToListAsync();
 
-            // Officer için approval ladder
+            // Updated Officer approval ladder with monetary thresholds
             var approvalLadder = new List<ApprovalLadderStepViewModel>
             {
-                new() { Role = "Officer", ThresholdPercent = 25m, Description = "You can create purchases up to 25% of department budget." },
-                new() { Role = "Manager", ThresholdPercent = 50m, Description = "Manager approval required between 25% and 50%." },
-                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of budget." }
+                new() { Role = "Officer", ThresholdPercent = 100m, Description = "You can approve purchases up to ₺10,000 directly." },
+                new() { Role = "Manager", ThresholdPercent = 0m, Description = "Manager approval required for ₺10,001 - ₺80,000." },
+                new() { Role = "Director", ThresholdPercent = 0m, Description = "Director approval required for ₺80,001 - ₺150,000." },
+                new() { Role = "CFO", ThresholdPercent = 0m, Description = "CFO approval required for purchases above ₺150,000." }
             };
 
             return new BuyerProfileViewModel
@@ -334,10 +331,10 @@ namespace GBazaar.Controllers
 
             var approvalLadder = new List<ApprovalLadderStepViewModel>
             {
-                new() { Role = "Officer", ThresholdPercent = 12.5m, Description = "Officers handle small purchases up to 12.5% of department budget." },
-                new() { Role = "Manager", ThresholdPercent = 50m, Description = "You approve purchases between 12.5% and 50%." },
-                new() { Role = "Director", ThresholdPercent = 75m, Description = "Director approval required for 50% - 75% escalations." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO approves anything over 75% of department budget." }
+                new() { Role = "Officer", ThresholdPercent = 0m, Description = "Officers handle purchases up to ₺10,000." },
+                new() { Role = "Manager", ThresholdPercent = 100m, Description = "You approve purchases from ₺10,001 to ₺80,000." },
+                new() { Role = "Director", ThresholdPercent = 0m, Description = "Director approval required for ₺80,001 - ₺150,000." },
+                new() { Role = "CFO", ThresholdPercent = 0m, Description = "CFO approval required for purchases above ₺150,000." }
             };
 
             return new BuyerProfileViewModel
@@ -444,10 +441,10 @@ namespace GBazaar.Controllers
 
             var approvalLadder = new List<ApprovalLadderStepViewModel>
             {
-                new() { Role = "Officer", ThresholdPercent = 6.25m, Description = "Officers handle routine purchases up to 6.25% of company budget." },
-                new() { Role = "Manager", ThresholdPercent = 25m, Description = "Managers handle departmental approvals between 6.25% and 25%." },
-                new() { Role = "Director", ThresholdPercent = 75m, Description = "You approve major purchases between 25% and 75%." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "CFO handles strategic investments over 75% of company budget." }
+                new() { Role = "Officer", ThresholdPercent = 0m, Description = "Officers handle routine purchases up to ₺10,000." },
+                new() { Role = "Manager", ThresholdPercent = 0m, Description = "Managers handle departmental purchases ₺10,001 - ₺80,000." },
+                new() { Role = "Director", ThresholdPercent = 100m, Description = "You approve strategic purchases from ₺80,001 to ₺150,000." },
+                new() { Role = "CFO", ThresholdPercent = 0m, Description = "CFO approval required for investments above ₺150,000." }
             };
 
             return new BuyerProfileViewModel
@@ -554,10 +551,10 @@ namespace GBazaar.Controllers
 
             var approvalLadder = new List<ApprovalLadderStepViewModel>
             {
-                new() { Role = "Officer", ThresholdPercent = 3.125m, Description = "Officers handle routine operational purchases up to 3.125% of total budget." },
-                new() { Role = "Manager", ThresholdPercent = 12.5m, Description = "Managers handle departmental strategic purchases between 3.125% and 12.5%." },
-                new() { Role = "Director", ThresholdPercent = 37.5m, Description = "Directors handle cross-departmental initiatives between 12.5% and 37.5%." },
-                new() { Role = "CFO", ThresholdPercent = 100m, Description = "You have final authority over all strategic investments above 37.5%." }
+                new() { Role = "Officer", ThresholdPercent = 0m, Description = "Officers handle operational purchases up to ₺10,000." },
+                new() { Role = "Manager", ThresholdPercent = 0m, Description = "Managers handle departmental purchases ₺10,001 - ₺80,000." },
+                new() { Role = "Director", ThresholdPercent = 0m, Description = "Directors handle strategic purchases ₺80,001 - ₺150,000." },
+                new() { Role = "CFO", ThresholdPercent = 100m, Description = "You have final authority for all investments above ₺150,000." }
             };
 
             return new BuyerProfileViewModel

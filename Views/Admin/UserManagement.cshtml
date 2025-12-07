@@ -24,119 +24,130 @@
         </div>
     </div>
 
+    @if (TempData["AdminSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["AdminSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["AdminError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["AdminError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="cosmic-card">
         <div class="cosmic-card__header">
             <h3 class="cosmic-card__title">
                 <i class="fas fa-list"></i>
-                User List
+                User List (@Model.Count() users)
             </h3>
             <div class="cosmic-search">
                 <i class="fas fa-search"></i>
-                <input type="text" class="cosmic-search__input" placeholder="Search users...">
+                <input type="text" class="cosmic-search__input" placeholder="Search users..." id="userSearch">
             </div>
         </div>
-        
+
         <div class="cosmic-table-wrapper">
             <table class="cosmic-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Username</th>
+                        <th>Full Name</th>
                         <th>Email</th>
                         <th>Role</th>
                         <th>Department</th>
                         <th>Status</th>
                         <th>Created Date</th>
+                        <th>Last Login</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Sample Data Rows -->
-                    <tr>
-                        <td>1</td>
-                        <td>
-                            <div class="user-cell">
-                                <div class="user-cell__avatar">JD</div>
-                                <span>john.doe</span>
-                            </div>
-                        </td>
-                        <td>john.doe@gbazaar.com</td>
-                        <td><span class="role-badge role-badge--admin">Admin</span></td>
-                        <td>IT Department</td>
-                        <td><span class="status-badge status-badge--active">Active</span></td>
-                        <td>2025-01-15</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn action-btn--edit" title="Edit User">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-btn action-btn--delete" title="Delete User" onclick="confirmDelete(1, 'john.doe')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>
-                            <div class="user-cell">
-                                <div class="user-cell__avatar">AS</div>
-                                <span>alice.smith</span>
-                            </div>
-                        </td>
-                        <td>alice.smith@gbazaar.com</td>
-                        <td><span class="role-badge role-badge--buyer">Buyer</span></td>
-                        <td>Procurement</td>
-                        <td><span class="status-badge status-badge--active">Active</span></td>
-                        <td>2025-02-10</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn action-btn--edit" title="Edit User">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-btn action-btn--delete" title="Delete User" onclick="confirmDelete(2, 'alice.smith')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>
-                            <div class="user-cell">
-                                <div class="user-cell__avatar">BJ</div>
-                                <span>bob.jones</span>
-                            </div>
-                        </td>
-                        <td>bob.jones@supplier.com</td>
-                        <td><span class="role-badge role-badge--supplier">Supplier</span></td>
-                        <td>N/A</td>
-                        <td><span class="status-badge status-badge--inactive">Inactive</span></td>
-                        <td>2025-03-05</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn action-btn--edit" title="Edit User">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-btn action-btn--delete" title="Delete User" onclick="confirmDelete(3, 'bob.jones')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                <tbody id="userTableBody">
+                    @if (Model.Any())
+                    {
+                        @foreach (var user in Model)
+                        {
+                            <tr data-user-id="@user.UserID">
+                                <td>@user.UserID</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-cell__avatar">
+                                            @if (!string.IsNullOrEmpty(user.FullName) && user.FullName.Length >= 2)
+                                            {
+                                                var nameParts = user.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                                                if (nameParts.Length >= 2)
+                                                {
+                                                    @(nameParts[0][0].ToString().ToUpper() + nameParts[1][0].ToString().ToUpper())
+                                                }
+                                                else
+                                                {
+                                                    @(user.FullName.Substring(0, Math.Min(2, user.FullName.Length)).ToUpper())
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @("U")
+                                            }
+                                        </div>
+                                        <span>@user.FullName</span>
+                                    </div>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <span class="role-badge role-badge--@(user.Role?.RoleName?.ToLower() ?? "unknown")">
+                                        @(user.Role?.RoleName ?? "Unknown")
+                                    </span>
+                                </td>
+                                <td>@(user.Department?.DepartmentName ?? "N/A")</td>
+                                <td>
+                                    <span class="status-badge status-badge--@(user.IsActive ? "active" : "inactive")">
+                                        @(user.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>@(user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never")</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn action-btn--edit" title="Edit User" onclick="editUser(@user.UserID)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn action-btn--@(user.IsActive ? "pause" : "play")"
+                                                title="@(user.IsActive ? "Deactivate" : "Activate") User"
+                                                onclick="toggleUserStatus(@user.UserID, '@Html.Raw(Html.Encode(user.FullName))', @user.IsActive.ToString().ToLower())">
+                                            <i class="fas fa-@(user.IsActive ? "pause" : "play")"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center">No users found</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
 
-        <div class="cosmic-pagination">
-            <button class="cosmic-pagination__btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span class="cosmic-pagination__info">Page 1 of 1</span>
-            <button class="cosmic-pagination__btn" disabled>
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
+        @if (Model.Any())
+        {
+            <div class="cosmic-pagination">
+                <button class="cosmic-pagination__btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="cosmic-pagination__info">Page 1 of 1</span>
+                <button class="cosmic-pagination__btn" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        }
     </div>
 </div>
 
@@ -153,48 +164,44 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
-        <form class="cosmic-form" id="createUserForm">
+
+        <form class="cosmic-form" id="createUserForm" method="post" action="/Admin/CreateUser">
+            @Html.AntiForgeryToken()
             <div class="cosmic-form__row">
                 <div class="cosmic-form__group">
-                    <label class="cosmic-form__label">Username</label>
-                    <input type="text" class="cosmic-form__input" placeholder="Enter username" required>
+                    <label class="cosmic-form__label">Full Name</label>
+                    <input type="text" name="FullName" class="cosmic-form__input" placeholder="Enter full name" required>
                 </div>
                 <div class="cosmic-form__group">
                     <label class="cosmic-form__label">Email</label>
-                    <input type="email" class="cosmic-form__input" placeholder="Enter email" required>
+                    <input type="email" name="Email" class="cosmic-form__input" placeholder="Enter email" required>
                 </div>
             </div>
 
             <div class="cosmic-form__row">
                 <div class="cosmic-form__group">
                     <label class="cosmic-form__label">Password</label>
-                    <input type="password" class="cosmic-form__input" placeholder="Enter password" required>
+                    <input type="password" name="Password" class="cosmic-form__input" placeholder="Enter password" required>
                 </div>
                 <div class="cosmic-form__group">
                     <label class="cosmic-form__label">Confirm Password</label>
-                    <input type="password" class="cosmic-form__input" placeholder="Confirm password" required>
+                    <input type="password" name="ConfirmPassword" class="cosmic-form__input" placeholder="Confirm password" required>
                 </div>
             </div>
 
             <div class="cosmic-form__row">
                 <div class="cosmic-form__group">
                     <label class="cosmic-form__label">Role</label>
-                    <select class="cosmic-form__select" required>
+                    <select name="RoleID" class="cosmic-form__select" required>
                         <option value="">Select role...</option>
-                        <option value="admin">Admin</option>
-                        <option value="buyer">Buyer</option>
-                        <option value="supplier">Supplier</option>
+                        <!-- These will be populated from the database -->
                     </select>
                 </div>
                 <div class="cosmic-form__group">
                     <label class="cosmic-form__label">Department</label>
-                    <select class="cosmic-form__select">
+                    <select name="DepartmentID" class="cosmic-form__select">
                         <option value="">Select department...</option>
-                        <option value="it">IT Department</option>
-                        <option value="procurement">Procurement</option>
-                        <option value="finance">Finance</option>
-                        <option value="operations">Operations</option>
+                        <!-- These will be populated from the database -->
                     </select>
                 </div>
             </div>
@@ -216,6 +223,8 @@
 @section Scripts {
     <script>
         function openCreateUserModal() {
+            // Load roles and departments for the form
+            loadRolesAndDepartments();
             document.getElementById('createUserModal').classList.add('cosmic-modal--active');
             document.body.style.overflow = 'hidden';
         }
@@ -223,39 +232,91 @@
         function closeCreateUserModal() {
             document.getElementById('createUserModal').classList.remove('cosmic-modal--active');
             document.body.style.overflow = '';
+            // Reset form
+            document.getElementById('createUserForm').reset();
         }
 
-        function deleteUser(userId, username) {
-            if (confirm(`Are you sure you want to delete user "${username}"?`)) {
-                fetch('/Admin/DeleteUser', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id: userId })
-                })
+        function loadRolesAndDepartments() {
+            // Load roles
+            fetch('/Admin/GetRoles')
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('User deleted successfully!');
+                .then(roles => {
+                    const roleSelect = document.querySelector('select[name="RoleID"]');
+                    roleSelect.innerHTML = '<option value="">Select role...</option>';
+                    roles.forEach(role => {
+                        roleSelect.innerHTML += `<option value="${role.roleID}">${role.roleName}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading roles:', error));
+
+            // Load departments
+            fetch('/Admin/GetDepartments')
+                .then(response => response.json())
+                .then(departments => {
+                    const deptSelect = document.querySelector('select[name="DepartmentID"]');
+                    deptSelect.innerHTML = '<option value="">Select department...</option>';
+                    departments.forEach(dept => {
+                        deptSelect.innerHTML += `<option value="${dept.departmentID}">${dept.departmentName}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading departments:', error));
+        }
+
+        function toggleUserStatus(userId, userName, isActive) {
+            const action = isActive ? 'deactivate' : 'activate';
+            if (confirm(`Are you sure you want to ${action} user "${userName}"?`)) {
+                const formData = new FormData();
+                formData.append('userId', userId);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                fetch('/Admin/ToggleUserStatus', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
                         location.reload();
                     } else {
-                        alert('Error: ' + data.message);
+                        alert('Error updating user status');
                     }
                 })
                 .catch(error => {
-                    alert('Error deleting user: ' + error);
+                    alert('Error updating user status: ' + error);
                 });
             }
         }
 
-        // Form submission
+        function editUser(userId) {
+            alert('Edit functionality will be implemented soon.');
+        }
+
+        // Search functionality
+        document.getElementById('userSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#userTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Form submission with validation
         document.getElementById('createUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // TODO: Implement create functionality
-            console.log('Creating user...');
-            alert('Create functionality will be implemented with database connection.');
-            closeCreateUserModal();
+            const password = document.querySelector('input[name="Password"]').value;
+            const confirmPassword = document.querySelector('input[name="ConfirmPassword"]').value;
+
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+                return;
+            }
         });
     </script>
 }
