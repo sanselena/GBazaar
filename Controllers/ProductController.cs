@@ -71,20 +71,19 @@ namespace GBazaar.Controllers
 
         //pr olusturma
         [HttpPost]
-        [Authorize] // Bu metoda sadece giriş yapmış kullanıcılar erişebilsin
+        [Authorize] 
         public IActionResult CreatePurchaseRequest(PRVM model)
         {
-            // 1. Giriş yapmış kullanıcının ID'sini al
+            // logged in userın idyi çekenzi
             if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var buyerId))
             {
-                // Kullanıcı bulunamazsa login sayfasına yönlendir
+                // no user go home 
                 return RedirectToAction("Login", "Auth");
             }
 
-            // 2. Model geçerliliğini kontrol et
             if (!ModelState.IsValid)
             {
-                // Hatanın ne olduğunu bul ve daha spesifik bir mesaj göster
+                // error display
                 string errorMsg = "Please ensure all required fields are filled correctly. ";
                 if (model.Quantity <= 0) errorMsg += "Quantity must be greater than zero. ";
                 if (model.UnitPrice <= 0) errorMsg += "Unit price must be greater than zero. ";
@@ -101,7 +100,7 @@ namespace GBazaar.Controllers
 
             try
             {
-                // 3. Yeni bir PurchaseRequest nesnesi oluştur
+                // create pr
                 var purchaseRequest = new PurchaseRequest
                 {
                     RequesterID = buyerId,
@@ -113,7 +112,7 @@ namespace GBazaar.Controllers
                     EstimatedTotal = model.Quantity * model.UnitPrice
                 };
 
-                // 4. PRItem'ı oluştur ve ekle
+                // pritem ekle
                 var prItem = new PRItem
                 {
                     ProductID = model.ProductId,
@@ -129,11 +128,9 @@ namespace GBazaar.Controllers
                 _context.PurchaseRequests.Add(purchaseRequest);
                 _context.SaveChanges();
 
-                // 5. Approval chain başlat
+                // app chain başla
                 return RedirectToAction("Submit", "Approval", new { id = purchaseRequest.PRID });
 
-                // Eski kod: TempData["Success"] = $"Purchase request for '{product.ProductName}' created successfully!";
-                // Eski kod: return RedirectToAction("Details", new { id = model.ProductId });
             }
             catch (Exception ex)
             {

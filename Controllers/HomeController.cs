@@ -20,7 +20,7 @@ namespace GBazaar.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Check if user is a logged-in supplier and redirect to their homepage
+            // sup to home
             if (User.Identity.IsAuthenticated)
             {
                 var userType = User.FindFirst("UserType")?.Value;
@@ -30,30 +30,29 @@ namespace GBazaar.Controllers
                 }
             }
 
-            // 1. Veritabanından sadece ürün ID'lerini al
             var allProductIds = await _context.Products
                 .Select(p => p.ProductID)
                 .ToListAsync();
 
-            // 2. ID listesini bellekte karıştır ve 12 tane seç
+      //display 12 prod
             var randomIds = allProductIds
                 .OrderBy(id => _random.Next())
                 .Take(12)
                 .ToList();
 
-            // 3. Sadece seçilen ID'lere sahip ürünleri veritabanından çek
+            // sadece seçilenin idsini çek
             var products = await _context.Products
                 .Where(p => randomIds.Contains(p.ProductID))
                 .Include(p => p.Supplier)
                 .AsNoTracking()
                 .ToListAsync();
 
-            // 4. Son listeyi de rastgele sıralamak için (isteğe bağlı ama önerilir)
+            // listeyi randomizela
             var finalProducts = products
                 .OrderBy(p => randomIds.IndexOf(p.ProductID))
                 .ToList();
 
-            // Ürünleri view'a model olarak gönder
+            
             return View(finalProducts);
         }
 
@@ -62,7 +61,7 @@ namespace GBazaar.Controllers
             ViewBag.SearchQuery = query;
             ViewBag.IsSearchResults = true;
 
-            // Check if user is a logged-in supplier and redirect to their homepage
+            // user sup mu
             if (User.Identity.IsAuthenticated)
             {
                 var userType = User.FindFirst("UserType")?.Value;
@@ -74,13 +73,13 @@ namespace GBazaar.Controllers
 
             if (string.IsNullOrWhiteSpace(query))
             {
-                // If no search query, redirect to homepage
+                // no search ,home
                 return RedirectToAction(nameof(Index));
             }
 
             try
             {
-                // Search products by name, description, or supplier name
+                // search isim sup açıklama
                 var searchResults = await _context.Products
                     .Include(p => p.Supplier)
                     .Where(p => 
@@ -89,7 +88,7 @@ namespace GBazaar.Controllers
                         (p.Supplier != null && p.Supplier.SupplierName.Contains(query)))
                     .AsNoTracking()
                     .OrderBy(p => p.ProductName)
-                    .Take(50) // Limit to 50 results to avoid performance issues
+                    .Take(50) // max 50 display
                     .ToListAsync();
 
                 ViewBag.SearchResultsCount = searchResults.Count;

@@ -22,7 +22,7 @@ namespace GBazaar.Controllers
             _logger = logger;
         }
 
-        // Purchase Order oluşturma metodu - güncellenmiş versiyon
+        // po oluştur
         private void CreatePurchaseOrder(PurchaseRequest pr)
         {
             var po = new PurchaseOrder
@@ -31,24 +31,24 @@ namespace GBazaar.Controllers
                 SupplierID = pr.SupplierID ?? throw new InvalidOperationException("Supplier ID is required"),
                 DateIssued = DateTime.UtcNow,
 
-                // ✅ PO önce supplier onayı bekliyor
+                // po awaitin sup 
                 POStatus = Models.Enums.POStatusType.PendingSupplierApproval,
                 POStatusID = (int)Models.Enums.POStatusType.PendingSupplierApproval,
 
                 RequiredDeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14))
             };
 
-            // PR'daki item'ları PO item'larına kopyala
+            // pr itemi po iteme çek
             foreach (var prItem in pr.PRItems)
             {
                 var poItem = new POItem
                 {
-                    PurchaseOrder = po, // Navigation property
-                    ProductID = prItem.ProductID, // ✅ ProductID kullan
+                    PurchaseOrder = po, 
+                    ProductID = prItem.ProductID, 
                     ItemName = prItem.PRItemName,
                     Description = prItem.Description,
-                    QuantityOrdered = (int)prItem.Quantity, // ✅ QuantityOrdered kullan
-                    UnitPrice = prItem.UnitPrice ?? 0, // ✅ Null check
+                    QuantityOrdered = (int)prItem.Quantity, 
+                    UnitPrice = prItem.UnitPrice ?? 0
 
                 };
                 po.POItems.Add(poItem);
@@ -56,7 +56,6 @@ namespace GBazaar.Controllers
 
             _context.PurchaseOrders.Add(po);
 
-            // ✅ PR statusunu AwaitingSupplier yap
             pr.PRStatus = PRStatusType.AwaitingSupplier;
         }
 
@@ -77,10 +76,9 @@ namespace GBazaar.Controllers
 
             try
             {
-                // ✅ Cache'i temizle
                 _context.ChangeTracker.Clear();
 
-                // ✅ Incoming Requests (aynı kalır)
+                // inc req
                 var incomingPOs = await _context.PurchaseOrders
                     .AsNoTracking()
                     .Where(po => po.SupplierID == supplierId && po.POStatus == POStatusType.PendingSupplierApproval)
@@ -110,12 +108,12 @@ namespace GBazaar.Controllers
                     })
                     .ToList();
 
-                // ✅ Tüm supplier order'ları al (çok daha geniş kriter)
+                // tüm sup order
                 var allSupplierPOs = await _context.PurchaseOrders
                     .AsNoTracking()
                     .Where(po => po.SupplierID == supplierId &&
                                 po.POStatus != POStatusType.Rejected &&
-                                po.POStatus != POStatusType.PendingSupplierApproval) // Sadece reject ve pending hariç
+                                po.POStatus != POStatusType.PendingSupplierApproval) 
                     .Include(po => po.PurchaseRequest)
                         .ThenInclude(pr => pr.Requester)
                     .Include(po => po.Invoices)
@@ -138,7 +136,7 @@ namespace GBazaar.Controllers
                     var isDelivered = po.POStatus == POStatusType.FullyReceived || po.POStatus == POStatusType.Closed;
                     var hasInvoice = po.Invoices.Any();
 
-                    // ✅ DÜZELTME: Eğer invoice varsa, ClosedOrders'a ekle (invoice = closed demek)
+                    // invoice varsa closed
                     if (hasInvoice)
                     {
                         closedOrders.Add(new ClosedOrderViewModel
@@ -160,7 +158,7 @@ namespace GBazaar.Controllers
                             InvoiceId = latestInvoice?.InvoiceID
                         });
                     }
-                    // ✅ DÜZELTME: Sadece invoice OLMAYAN order'lar ActiveOrders'da
+                    // invoice yoksa active
                     else if (!isDelivered)
                     {
                         activeOrders.Add(new ActiveOrderViewModel
@@ -177,13 +175,12 @@ namespace GBazaar.Controllers
                     }
                 }
 
-                // ✅ Son 10 closed order'ı al
                 var finalClosedOrders = closedOrders
                     .OrderByDescending(item => item.AcceptedOn)
                     .Take(10)
                     .ToList();
 
-                // ✅ Revenue Mix: ClosedOrders'a göre hesapla
+                // revenue closeda göre
                 var revenueMix = closedOrders
                     .GroupBy(item => item.BuyerName)
                     .Select(group => new RevenueSliceViewModel
@@ -191,11 +188,11 @@ namespace GBazaar.Controllers
                         Label = group.Key,
                         Amount = group.Sum(item => item.Amount)
                     })
-                    .Where(slice => slice.Amount > 0) // Sadece 0'dan büyük olanları
+                    .Where(slice => slice.Amount > 0) 
                     .OrderByDescending(slice => slice.Amount)
                     .ToList();
 
-                // ✅ Supplier Performance hesaplama - sadece rating
+                // rating hesapla
                 var supplierRatings = await _context.SupplierRatings
                     .Where(sr => _context.PurchaseOrders.Any(po => po.POID == sr.POID && po.SupplierID == supplierId))
                     .Select(sr => sr.RatingScore)
@@ -211,9 +208,9 @@ namespace GBazaar.Controllers
                 {
                     IncomingRequests = groupedRequests,
                     ActiveOrders = activeOrders,
-                    ClosedOrders = finalClosedOrders, // ✅ AcceptedHistory yerine ClosedOrders
+                    ClosedOrders = finalClosedOrders, 
                     RevenueMix = revenueMix,
-                    Performance = performance // ✅ Gerçek veri kullan
+                    Performance = performance 
                 };
 
                 return View(viewModel);
@@ -242,7 +239,7 @@ namespace GBazaar.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            // ✅ PO'yu bul (artık PR değil, PO'ya karar veriyoruz)
+            // po bul
             var purchaseOrder = await _context.PurchaseOrders
                 .Include(po => po.PurchaseRequest)
                 .FirstOrDefaultAsync(po => po.POID == requestId && po.SupplierID == supplierId &&
@@ -265,11 +262,11 @@ namespace GBazaar.Controllers
             {
                 if (normalizedDecision == "accept")
                 {
-                    // ✅ Accept: PO'yu aktif duruma getir
+                    // accept po aktif olur
                     purchaseOrder.POStatus = POStatusType.Issued;
                     purchaseOrder.POStatusID = (int)POStatusType.Issued;
 
-                    // PR statusunu güncelle
+                    // status güncelle
                     if (purchaseOrder.PurchaseRequest != null)
                     {
                         purchaseOrder.PurchaseRequest.PRStatus = PRStatusType.Ordered;
@@ -278,13 +275,13 @@ namespace GBazaar.Controllers
                     TempData["DashboardMessage"] = $"Order PO-{purchaseOrder.POID:0000} has been accepted and is now active.";
                     _logger.LogInformation("Supplier {SupplierId} accepted PO-{OrderId}", supplierId, purchaseOrder.POID);
                 }
-                else // reject
+                else 
                 {
-                    // ✅ Reject: PO'yu rejected duruma getir
+                    // reject poyu geri yollar
                     purchaseOrder.POStatus = POStatusType.Rejected;
                     purchaseOrder.POStatusID = (int)POStatusType.Rejected;
 
-                    // PR statusunu da rejected yap
+                    // status güncelle
                     if (purchaseOrder.PurchaseRequest != null)
                     {
                         purchaseOrder.PurchaseRequest.PRStatus = PRStatusType.Rejected;
@@ -408,7 +405,7 @@ namespace GBazaar.Controllers
                 }
             };
 
-            // ✅ Sample ClosedOrders (eskiden acceptedHistory)
+            //  Sample ClosedOrders 
             var closedOrders = new List<ClosedOrderViewModel>
             {
                 new()
@@ -512,7 +509,7 @@ namespace GBazaar.Controllers
                     .AsNoTracking()
                     .ToListAsync();
 
-                // If refresh parameter is present, shuffle the products
+                // shuffle
                 if (Request.Query.ContainsKey("refresh"))
                 {
                     var random = new Random();
@@ -535,7 +532,7 @@ namespace GBazaar.Controllers
             return View();
         }
 
-        // POST: Supplier/Upload
+        // sup add
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(ProductUploadViewModel model)
@@ -549,13 +546,13 @@ namespace GBazaar.Controllers
 
             try
             {
-                // ✅ Giriş yapmış supplier'ın ID'sini al
+                // logged in sup id
                 if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var supplierId))
                 {
                     return RedirectToAction("Login", "Auth");
                 }
 
-                // Create new product entity FIRST to get the ProductID
+                // create prod
                 var product = new GBazaar.Models.Product
                 {
                     SupplierID = supplierId,
@@ -566,22 +563,21 @@ namespace GBazaar.Controllers
                 };
 
                 _context.Products.Add(product);
-                await _context.SaveChangesAsync(); // This assigns the ProductID
+                await _context.SaveChangesAsync(); // give prodid
 
-                // NOW handle image upload using the ProductID
+                // img upload
                 if (model.ProductImage != null && model.ProductImage.Length > 0)
                 {
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+                    Directory.CreateDirectory(uploadsFolder); 
 
-                    // Get file extension from uploaded file
                     var fileExtension = Path.GetExtension(model.ProductImage.FileName);
 
-                    // Name the file using ProductID
+                    // name file as proid
                     var fileName = $"{product.ProductID}{fileExtension}";
                     var filePath = Path.Combine(uploadsFolder, fileName);
 
-                    // Save the image file
+                    // save img
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await model.ProductImage.CopyToAsync(fileStream);

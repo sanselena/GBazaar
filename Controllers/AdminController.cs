@@ -21,7 +21,7 @@ namespace GBazaar.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
-            // Admin kontrolü
+            // checkadmin
             var roleName = User.FindFirst("RoleName")?.Value;
             if (roleName?.ToLowerInvariant() != "admin")
             {
@@ -32,7 +32,7 @@ namespace GBazaar.Controllers
             
             try
             {
-                // Admin dashboard için gerekli istatistikler
+                // admin content
                 var stats = new
                 {
                     TotalUsers = await _context.Users.CountAsync(),
@@ -44,7 +44,7 @@ namespace GBazaar.Controllers
                     TotalPurchaseOrders = await _context.PurchaseOrders.CountAsync()
                 };
 
-                // Recent activity
+                // recent activity
                 var recentUsers = await _context.Users
                     .Include(u => u.Role)
                     .Include(u => u.Department)
@@ -129,13 +129,13 @@ namespace GBazaar.Controllers
 
             try
             {
-                // Load products with supplier information
+                // product and relevant info
                 var products = await _context.Products
                     .Include(p => p.Supplier)
                     .OrderBy(p => p.ProductName)
                     .ToListAsync();
 
-                // Load departments with users and budgets
+                // dep and  budget rel. info
                 var departments = await _context.Departments
                     .Include(d => d.Users)
                     .Include(d => d.Budgets)
@@ -189,7 +189,7 @@ namespace GBazaar.Controllers
 
             try
             {
-                // Validation
+                // validation
                 if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
                 {
                     TempData["AdminError"] = "Please fill all required fields.";
@@ -204,21 +204,21 @@ namespace GBazaar.Controllers
 
                 var email = Email.Trim().ToLowerInvariant();
 
-                // Check if email already exists
+                // emailusercheck
                 if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email))
                 {
                     TempData["AdminError"] = "This email is already registered.";
                     return RedirectToAction(nameof(UserManagement));
                 }
 
-                // Check if email is registered as supplier
+                // emailsupcheck
                 if (await _context.Suppliers.AnyAsync(s => s.ContactInfo.ToLower() == email))
                 {
                     TempData["AdminError"] = "This email is already registered as a supplier.";
                     return RedirectToAction(nameof(UserManagement));
                 }
 
-                // Create new user
+                // create new user
                 var user = new User
                 {
                     FullName = FullName.Trim(),
@@ -229,7 +229,7 @@ namespace GBazaar.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // Hash password
+                // passhash
                 var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
                 user.PasswordHash = passwordHasher.HashPassword(user, Password);
 
@@ -310,14 +310,14 @@ namespace GBazaar.Controllers
 
             try
             {
-                // Validation
+                // validation
                 if (string.IsNullOrWhiteSpace(ProductName) || SupplierID <= 0)
                 {
                     TempData["AdminError"] = "Please fill all required fields.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if supplier exists
+                // sup check
                 var supplier = await _context.Suppliers.FindAsync(SupplierID);
                 if (supplier == null)
                 {
@@ -325,14 +325,14 @@ namespace GBazaar.Controllers
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if product name already exists for this supplier
+                // product-sup match check
                 if (await _context.Products.AnyAsync(p => p.SupplierID == SupplierID && p.ProductName.ToLower() == ProductName.ToLower().Trim()))
                 {
                     TempData["AdminError"] = "This product name already exists for the selected supplier.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Create new product
+                // create new product
                 var product = new Product
                 {
                     ProductName = ProductName.Trim(),
@@ -373,8 +373,8 @@ namespace GBazaar.Controllers
                 
                 if (product != null)
                 {
-                    // Since there's no IsActive field in Product model, we'll implement delete instead
-                    // Check if product has any dependencies
+                  
+                    // check pro.dependencies
                     var hasPRItems = await _context.PRItems.AnyAsync(pri => pri.ProductID == productId);
                     var hasPOItems = await _context.POItems.AnyAsync(poi => poi.ProductID == productId);
 
@@ -421,14 +421,14 @@ namespace GBazaar.Controllers
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Validation
+                // validation
                 if (string.IsNullOrWhiteSpace(ProductName) || SupplierID <= 0)
                 {
                     TempData["AdminError"] = "Please fill all required fields.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if supplier exists
+                // sup check
                 var supplier = await _context.Suppliers.FindAsync(SupplierID);
                 if (supplier == null)
                 {
@@ -436,14 +436,14 @@ namespace GBazaar.Controllers
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if product name already exists for this supplier (excluding current product)
+                // prodcheck
                 if (await _context.Products.AnyAsync(p => p.ProductID != ProductID && p.SupplierID == SupplierID && p.ProductName.ToLower() == ProductName.ToLower().Trim()))
                 {
                     TempData["AdminError"] = "This product name already exists for the selected supplier.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Update product
+                // update product
                 product.ProductName = ProductName.Trim();
                 product.Description = Description?.Trim();
                 product.SupplierID = SupplierID;
@@ -477,7 +477,7 @@ namespace GBazaar.Controllers
                 var product = await _context.Products.FindAsync(request.Id);
                 if (product != null)
                 {
-                    // Check if product has any dependencies
+                    // check if product has any dependencies
                     var hasPRItems = await _context.PRItems.AnyAsync(pri => pri.ProductID == request.Id);
                     var hasPOItems = await _context.POItems.AnyAsync(poi => poi.ProductID == request.Id);
 
@@ -511,28 +511,28 @@ namespace GBazaar.Controllers
 
             try
             {
-                // Validation
+                // validation
                 if (string.IsNullOrWhiteSpace(DepartmentName) || string.IsNullOrWhiteSpace(BudgetCode))
                 {
                     TempData["AdminError"] = "Please fill all required fields.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if department name already exists
+                // dep check
                 if (await _context.Departments.AnyAsync(d => d.DepartmentName.ToLower() == DepartmentName.ToLower().Trim()))
                 {
                     TempData["AdminError"] = "Department name already exists.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Check if budget code already exists
+                // b.code check
                 if (await _context.Departments.AnyAsync(d => d.BudgetCode.ToLower() == BudgetCode.ToLower().Trim()))
                 {
                     TempData["AdminError"] = "Budget code already exists.";
                     return RedirectToAction(nameof(ProductManagement));
                 }
 
-                // Create new department
+                // create new dep
                 var department = new Department
                 {
                     DepartmentName = DepartmentName.Trim(),
@@ -542,7 +542,7 @@ namespace GBazaar.Controllers
                 _context.Departments.Add(department);
                 await _context.SaveChangesAsync();
 
-                // Create initial budget for the department
+                // create budget for dep
                 var budget = new Budget
                 {
                     DepartmentID = department.DepartmentID,
@@ -583,16 +583,16 @@ namespace GBazaar.Controllers
 
                 if (department != null)
                 {
-                    // Check if department has users
+                    // chechk users in the dep
                     if (department.Users.Any())
                     {
                         return Json(new { success = false, message = "Cannot delete department with assigned users. Please reassign users first." });
                     }
 
-                    // Delete related budgets first
+                    // del budget first
                     _context.Budgets.RemoveRange(department.Budgets);
                     
-                    // Delete the department
+                    // del dep
                     _context.Departments.Remove(department);
                     await _context.SaveChangesAsync();
                     

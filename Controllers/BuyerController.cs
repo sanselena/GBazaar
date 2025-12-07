@@ -22,11 +22,10 @@ namespace GBazaar.Controllers
             _context = context;
             _logger = logger;
         }
-
-        // GET: /Buyer/Profile - Tüm roller için tek profile
+        //get profile
         public async Task<IActionResult> Profile()
         {
-            // Giriş yapmış kullanıcının ID ve Role bilgisini al
+            // loggedin user id and role al
             if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
             {
                 return RedirectToAction("Login", "Auth");
@@ -50,10 +49,10 @@ namespace GBazaar.Controllers
                     return View(new BuyerProfileViewModel());
                 }
 
-                // Role'e göre ViewBag ayarla
+                // rolea göre viewbag
                 SetViewBagByRole(userRoleId, user);
 
-                // Role'e göre veri getir
+                // role göre dbden doldur
                 var model = await GetProfileDataByRole(userId, userRoleId, user);
 
                 return View(model);
@@ -76,7 +75,7 @@ namespace GBazaar.Controllers
         {
             switch (roleId)
             {
-                case 1: // Officer
+                case 1: // officer
                     ViewBag.UserType = "Buyer";
                     ViewBag.UserName = user.FullName ?? "Unknown User";
                     ViewBag.DepartmentName = user.Department?.DepartmentName ?? "Unknown Department";
@@ -134,7 +133,6 @@ namespace GBazaar.Controllers
                 CommittedSpend = latestBudget?.AmountCommitted ?? 0m
             };
 
-            // Pending approvals - Purchase requests by this user that don't have a PO yet
             var pendingApprovals = await _context.PurchaseRequests
                 .Where(pr => pr.RequesterID == userId &&
                             pr.PurchaseOrder == null &&
@@ -150,7 +148,6 @@ namespace GBazaar.Controllers
                 })
                 .ToListAsync();
 
-            // Recently approved - Purchase requests by this user that have been converted to POs
             var recentlyApproved = await _context.PurchaseRequests
                 .Where(pr => pr.RequesterID == userId && pr.PurchaseOrder != null)
                 .Include(pr => pr.PurchaseOrder!)

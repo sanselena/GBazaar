@@ -71,7 +71,7 @@ namespace GBazaar.Controllers
 
             var email = model.Email.Trim().ToLowerInvariant();
 
-            // Email kontrolü
+            // mailcheck
             if (_context.Suppliers.Any(s => s.ContactInfo.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a supplier.");
@@ -86,7 +86,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Department kontrolü
+            // depcheck
             var dept = _context.Departments.FirstOrDefault(d => d.DepartmentID == model.DepartmentID);
             if (dept == null)
             {
@@ -95,7 +95,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Role kontrolü
+            // rolecheck
             var role = _context.Roles.FirstOrDefault(r => r.RoleID == model.RoleID);
             if (role == null)
             {
@@ -104,8 +104,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Role uniqueness kontrolü (Officer hariç)
-            if (model.RoleID != 1) // Officer değilse
+            if (model.RoleID != 1) //if not officer
             {
                 var existingUserWithRole = _context.Users
                     .FirstOrDefault(u => u.DepartmentID == model.DepartmentID &&
@@ -128,7 +127,7 @@ namespace GBazaar.Controllers
                 }
             }
 
-            // User oluştur
+            // create user
             var user = new User
             {
                 FullName = model.FullName?.Trim(),
@@ -171,7 +170,7 @@ namespace GBazaar.Controllers
 
             var email = model.ContactInfo.Trim().ToLowerInvariant();
 
-            // Email kontrolü
+            //mailcheck
             if (_context.Users.Any(u => u.Email.ToLower() == email))
             {
                 ModelState.AddModelError("", "This email is already registered as a buyer.");
@@ -186,7 +185,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Tax ID kontrolü (eğer girilmişse)
+            // taxidcheck
             if (!string.IsNullOrWhiteSpace(model.TaxId) &&
                 _context.Suppliers.Any(s => s.TaxID == model.TaxId.Trim()))
             {
@@ -195,7 +194,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Payment Term kontrolü
+            //paymenttermcheck
             var paymentTerm = _context.PaymentTerms.FirstOrDefault(pt => pt.PaymentTermID == model.PaymentTermID);
             if (paymentTerm == null)
             {
@@ -211,7 +210,7 @@ namespace GBazaar.Controllers
                 return View("Signup", model);
             }
 
-            // Supplier oluştur
+            //suppliercheck
             var supplier = new Supplier
             {
                 SupplierName = model.BusinessName.Trim(),
@@ -280,7 +279,7 @@ namespace GBazaar.Controllers
 
             try
             {
-                // 1. Kullanıcı olarak giriş yapmayı dene
+                //first try user
                 var user = await _context.Users
                     .Include(u => u.Role)
                     .SingleOrDefaultAsync(u => u.Email.ToLower() == email);
@@ -305,7 +304,7 @@ namespace GBazaar.Controllers
                         var principal = new ClaimsPrincipal(identity);
                         await HttpContext.SignInAsync("CookieAuth", principal);
 
-                        // Update last login time
+                        // update last login 
                         user.LastLoginAt = DateTime.UtcNow;
                         _context.Users.Update(user);
                         await _context.SaveChangesAsync();
@@ -313,7 +312,7 @@ namespace GBazaar.Controllers
                         _logger.LogInformation("User {Email} ({RoleName}) logged in successfully",
                             email, user.Role?.RoleName ?? "Unknown");
 
-                        // Kullanıcının rolüne göre yönlendirme
+                        // direct accordingly to role
                         return user.Role?.RoleName?.ToLowerInvariant() switch
                         {
                             "admin" => RedirectToAction("Dashboard", "Admin"),
@@ -326,7 +325,7 @@ namespace GBazaar.Controllers
                     }
                 }
 
-                // 2. Tedarikçi olarak giriş yapmayı dene
+                //try as supplier
                 var supplier = await _context.Suppliers.SingleOrDefaultAsync(s => s.ContactInfo.ToLower() == email);
                 if (supplier != null)
                 {
